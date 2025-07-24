@@ -1753,3 +1753,19 @@ footer {
 /*********Flow CSS HS*******/
 
 /******************** Admin Panel - CSS Ends********************************/
+
+
+
+.pac-container {
+  background-color: #111 !important; /* dark background */
+  color: white !important;
+}
+
+.pac-item {
+  background-color: #222 !important; /* darker for each item */
+  color: white !important;
+}
+
+.pac-item:hover {
+  background-color: #333 !important; /* hover effect */
+}

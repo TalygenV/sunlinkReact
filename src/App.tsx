@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import BatterySelection from './pages/BatterySelection';
 import BatterySelectionCustmize from './pages/BatterySelectionCustmize';
 
+
 function App() {
   return (
     <Router>

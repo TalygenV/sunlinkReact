@@ -8,6 +8,11 @@ interface SolarFormData {
   password: string;
   confirmPassword: string;
   address: string;
+  lat: number;
+  lng: number;
+  zipCode:number;
+  state:string,
+  city:string,
   ownsHome: string;
   propertyType: string;
   utility: string;
@@ -33,6 +38,11 @@ const initialState: SolarState = {
     password: '',
     confirmPassword: '',
     address: '',
+    zipCode:0,
+    lat: 0,
+    lng: 0,
+    city:"",
+    state:"",
     ownsHome: 'own',
     propertyType: '',
     utility: '',
@@ -50,13 +60,16 @@ const solarSlice = createSlice({
   name: 'solar',
   initialState,
   reducers: {
-    setPersonalInfo: (state, action: PayloadAction<{ [key: string]: string }>) => {
-      Object.keys(action.payload).forEach(key => {
-        if (key in state.solarForm) {
-          (state.solarForm as any)[key] = action.payload[key];
-        }
-      });
-    },
+    setPersonalInfo: (
+  state,
+  action: PayloadAction<{ [key: string]: string | number | boolean }>
+) => {
+  Object.keys(action.payload).forEach(key => {
+    if (key in state.solarForm) {
+      (state.solarForm as any)[key] = action.payload[key];
+    }
+  });
+},
     setPassword: (state, action: PayloadAction<{ password: string }>) => {
       state.solarForm.password = action.payload.password;
     },

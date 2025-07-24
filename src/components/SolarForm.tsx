@@ -1,26 +1,41 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, Zap, ArrowRight, User, Building2, Mail, Phone, Home, X, BarChart3, Lock, Eye, EyeOff, Check, ChevronLeft, AlertCircle, ChevronDown, CheckCircle, } from "lucide-react";
-import { GenabilityData, SolarData, Tariff } from "../domain/types";
+import { Search,  Lock, Eye, EyeOff, Check, ChevronDown } from "lucide-react";
+//import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
-import { useDispatch, useSelector } from 'react-redux';
+import {  useSelector } from 'react-redux';
 import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
 import { validateField, validatePassword } from "../utils/validation";
-import React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
-import { updateFormData, submitForm } from '../store/solarSlice';
-import { Sun, Calendar, DollarSign, MapPin } from 'lucide-react';
+import {  submitForm } from '../store/solarSlice';
 import { RootState } from '../store';
+import { ref, set } from "firebase/database";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { app, auth, db, firestore } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
-
-const GENABILITY_APP_ID = import.meta.env.GENABILITY_APP_ID || "db91730b-5e06-47b5-b720-772d79852505";
-const GENABILITY_API_KEY = import.meta.env.GENABILITY_API_KEY || "e9fd3859-80a0-4802-86b1-add58689c540";
+const GENABILITY_APP_ID =import.meta.env.GENABILITY_APP_ID;
+const GENABILITY_API_KEY =import.meta.env.GENABILITY_API_KEY;
 const base_url = "https://api.genability.com";
-const basic_token = "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
-
+const basic_token =
+  "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
+type Territory = {
+  name: string;
+  code: string;
+  websiteHome: string;
+  lseId: number;
+};
 const SolarForm = () => {
   const dispatch = useAppDispatch();
 
-  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, } = useAppSelector((state) => state.solar.solarForm);
+  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors,zipCode,address } = useAppSelector((state) => state.solar.solarForm);
   const passwordRequirements = validatePassword(password);
   const passwordsMatch = password === confirmPassword && password.length > 0;
   const getErrorMessage = (field: string, message: string) =>
@@ -45,7 +60,6 @@ const SolarForm = () => {
       handleFieldValidation("confirmPassword", confirmPassword, { password: value });
     }
   };
-
   const handleConfirmPasswordChange = (value: string) => {
     dispatch(setConfirmPassword({ confirmPassword: value }));
     handleFieldValidation("confirmPassword", value, { password });
@@ -56,18 +70,16 @@ const SolarForm = () => {
   };
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const user = useSelector((state: RootState) => state.solar);
 
-  // const handleEnergyModal = (value: any) => {
-  //   setShowEnergyModal(value);
-  // };
   const addressInputRef = useRef<HTMLInputElement>(null);
-
+  const [territories, setTerritories] = useState<Territory[]>([]);
+  const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(
+    null
+  );
   useEffect(() => {
-    let autocomplete: google.maps.places.Autocomplete;
 
     if (addressInputRef.current && window.google) {
-      autocomplete = new window.google.maps.places.Autocomplete(
+      const autocomplete = new window.google.maps.places.Autocomplete(
         addressInputRef.current,
         {
           componentRestrictions: { country: "us" },
@@ -75,40 +87,50 @@ const SolarForm = () => {
           types: ["address"],
         }
       );
-
-      const listener = autocomplete.addListener("place_changed", async () => {
+      autocomplete.addListener("place_changed", async () => {
         const place = autocomplete.getPlace();
-        const address = addressInputRef.current?.value;
-        const lat = place.geometry?.location?.lat();
-        const lng = place.geometry?.location?.lng();
-
+        console.log(
+          "addressInputRef.current?.value",
+          addressInputRef.current?.value
+        );
         let postalCode: string | undefined = undefined;
-
+        if(addressInputRef.current?.value)
+        dispatch(setPersonalInfo({ ['address']: addressInputRef.current?.value }));
+        // Extract postal code from address_components
         if (place.address_components) {
           for (const component of place.address_components) {
             if (component.types.includes("postal_code")) {
               postalCode = component.long_name;
-              setZipCode(component.long_name);
+              dispatch(setPersonalInfo({ ['zipCode']: component.long_name }));
+              break;
             }
             if (component.types.includes("administrative_area_level_1")) {
-              setstate(component.long_name);
+               dispatch(setPersonalInfo({ ['state']: component.long_name }));
             }
             if (component.types.includes("locality")) {
-              setCity(component.long_name);
-            } else if (component.types.includes("administrative_area_level_2")) {
-              setCity(component.long_name);
+              dispatch(setPersonalInfo({ ['city']: component.long_name }));
+            } else if (
+              component.types.includes("administrative_area_level_2")
+            ) {
+              dispatch(setPersonalInfo({ ['city']: component.long_name }));
             }
           }
         }
 
-        if (address && lat && lng) {
-          setFormattedAddress(address);
-          setAddress({ lat, lng });
-          await validateField("address", { lat, lng });
-
+        if (addressInputRef.current?.value && place.geometry?.location) {
+          //setFormattedAddress(address);
+          if (place.geometry?.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            //setAddress({ lat, lng });
+            dispatch(setPersonalInfo({ ['lat']: lat}));
+            dispatch(setPersonalInfo({ ['lng']: lng }));
+           
+          }
+          
           try {
             const response = await fetch(
-              `${base_url}/rest/public/lses?addressString=${address}&country=US&residentialServiceTypes=ELECTRICITY&sortOn=totalCustomers&sortOrder=DESC`,
+              `${base_url}/rest/public/lses?addressString=${addressInputRef.current?.value}&country=US&residentialServiceTypes=ELECTRICITY&sortOn=totalCustomers&sortOrder=DESC`,
               {
                 method: "GET",
                 headers: {
@@ -118,13 +140,20 @@ const SolarForm = () => {
               }
             );
 
-            const data = await response.json();
+            const data = (await response.json()) as {
+              status: string;
+              results: Territory[];
+            };
 
             if (data.status === "success") {
-              const filteredList = (data.results || []).filter(
-                (u: any) => u.name && u.websiteHome
+              const utilityList = data.results || [];
+
+              // You can filter if needed — for example, ignore records without names or websites:
+              const filteredList = utilityList.filter(
+                (u) => u.name && u.websiteHome
               );
-              setTerritories(filteredList);
+
+              setTerritories(filteredList); // Though this should ideally be named setUtilities or similar
             } else {
               setTerritories([]);
             }
@@ -134,12 +163,6 @@ const SolarForm = () => {
         }
       });
     }
-
-    return () => {
-      if (autocomplete) {
-        google.maps.event.clearInstanceListeners(autocomplete);
-      }
-    };
   }, []);
 
 
@@ -364,17 +387,26 @@ const SolarForm = () => {
         )}
       </div>
 
-      <h4 className="mt-10 flex items-center text-white text-lg"><img className="mr-2" src={profile} alt="profile" /> Property Information</h4>
+      <h4 className="mt-10 flex items-center text-white text-lg"> Property Information</h4>
       <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
+
         <div className="w-full ">
-          <label className="w-full text-gray-300 text-base ">Property Address</label>
-          <input type="text"
-            className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white"
-            placeholder="Enter your address"
-            onBlur={async (e) =>
-              await validateField("address", e.target.value)
-            }
-          />
+          <label className="w-full text-gray-300 text-base">
+            Property Address
+          </label>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 bg-white" />
+            <input
+              type="text"
+              ref={addressInputRef}
+              className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
+              placeholder="Enter your address"
+              onBlur={async (e) =>
+                await validateField("address", e.target.value)
+              }
+            />
+          </div>
+          {getErrorMessage("address", "Please select a address.")}
         </div>
         <div className="w-full ">
           <label className="w-full text-gray-300 text-base ">Do you own your home?</label>
@@ -462,29 +494,52 @@ const SolarForm = () => {
             "Please select a property type."
           )}
         </div>
-
-        <div className="w-full ">
-          <label className="w-full text-gray-300 text-base ">Utility Company</label>
-          <div className="relative group cursor-pointer text-brand-teal" onClick={() => setShowDropdown(!showDropdown)}>
-            {/* <select
-            className="mt-3 text-gray-300 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white">
-            <option>Select your utility company</option>
-          </select> */}
-            <input
-              type="text"
-              className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white"
-              placeholder="Select your utility company"
-              readOnly
-            />
-
+        {/* Utility Company */}
+        {territories.length > 0 && (
+          <div className="w-full">
+            <label className="block tesla-caption text-sm text-gray-700 mb-3">
+              Utility Company
+            </label>
+            <div
+              className="relative group cursor-pointer text-brand-teal"
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" />
+              <input
+                readOnly
+                value={
+                  selectedTerritory ? selectedTerritory.name : ""
+                }
+                placeholder="Select a Utility"
+                className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
+              />
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <ChevronDown className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+            {showDropdown && (
+              <ul className="absolute z-10 mt-2 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 text-gray-800 shadow-lg">
+                {territories.map((territory) => (
+                  <li
+                    key={territory.lseId}
+                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer transition"
+                    onClick={async () => {
+                      setSelectedTerritory(territory);
+                      setShowDropdown(false);
+                      await validateField("utility", territory.name);
+                    }}
+                  >
+                    {territory.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {getErrorMessage(
+              "utility",
+              "Please select a utility company."
+            )}
           </div>
-
-          {getErrorMessage(
-            "utility",
-            "Please select a utility company."
-          )}
-        </div>
-
+        )}
         <div className="w-full ">
           <label className="w-full text-gray-300 text-base ">Average Electric Bill</label>
           {/* <input type="text" name="paddress" placeholder="0"
