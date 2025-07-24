@@ -1,31 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { Search,  Lock, Eye, EyeOff, Check, ChevronDown } from "lucide-react";
+import { Search, Lock, Eye, EyeOff, Check, X, ChevronDown, BarChart3, } from "lucide-react";
 //import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
-import {  useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
 import { validateField, validatePassword } from "../utils/validation";
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
-import {  submitForm } from '../store/solarSlice';
+import { submitForm } from '../store/solarSlice';
 import { RootState } from '../store';
 import { ref, set } from "firebase/database";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
 import { app, auth, db, firestore } from "../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
-const GENABILITY_APP_ID =import.meta.env.GENABILITY_APP_ID;
-const GENABILITY_API_KEY =import.meta.env.GENABILITY_API_KEY;
+const GENABILITY_APP_ID = import.meta.env.GENABILITY_APP_ID;
+const GENABILITY_API_KEY = import.meta.env.GENABILITY_API_KEY;
 const base_url = "https://api.genability.com";
-const basic_token =
-  "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
+const basic_token = "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
 type Territory = {
   name: string;
   code: string;
@@ -34,14 +25,11 @@ type Territory = {
 };
 const SolarForm = () => {
   const dispatch = useAppDispatch();
-
-  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors,zipCode,address } = useAppSelector((state) => state.solar.solarForm);
+  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address } = useAppSelector((state) => state.solar.solarForm);
   const passwordRequirements = validatePassword(password);
+  const [showKwh, setShowKwh] = useState(false);
   const passwordsMatch = password === confirmPassword && password.length > 0;
-  const getErrorMessage = (field: string, message: string) =>
-    errors[field] ? (
-      <p className="text-sm text-red-500 mt-1">{message}</p>
-    ) : null;
+  const getErrorMessage = (field: string, message: string) => errors[field] ? (<p className="text-sm text-red-500 mt-1">{message}</p>) : null;
   const handleFieldValidation = (field: string, value: any, relatedValues: { [key: string]: any } = {}) => {
     const isValid = validateField(field, value, relatedValues);
     dispatch(setFieldError({ field, hasError: !isValid }));
@@ -70,14 +58,46 @@ const SolarForm = () => {
   };
 
   const [showDropdown, setShowDropdown] = useState(false);
-
-  const addressInputRef = useRef<HTMLInputElement>(null);
   const [territories, setTerritories] = useState<Territory[]>([]);
-  const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(
-    null
-  );
-  useEffect(() => {
+  const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
 
+  const [annualUsage, setAnnualUsage] = useState("");
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const [energyInputMode, setEnergyInputMode] = useState<"annual" | "monthly">("annual");
+  const [monthlyUsages, setMonthlyUsages] = useState(Array(12).fill(""));
+
+  const [showEnergyModal, setShowEnergyModal] = useState(false);
+
+  const handleMonthlyUsageChange = (index: number, value: string) => {
+    const newUsages = [...monthlyUsages];
+    newUsages[index] = value;
+    setMonthlyUsages(newUsages);
+  };
+
+  const handleEnergyModal = (value: any) => {
+    setShowEnergyModal(value);
+  };
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const handleEnergySubmit = () => {
+    let estimatedMonthlyBill = 0;
+
+    if (energyInputMode === "annual" && annualUsage) {
+      estimatedMonthlyBill = Math.round((Number(annualUsage) * 0.15) / 12);
+    } else if (energyInputMode === "monthly") {
+      const totalAnnualUsage = monthlyUsages.reduce(
+        (sum, usage) => sum + (Number(usage) || 0),
+        0
+      );
+      estimatedMonthlyBill = Math.round((totalAnnualUsage * 0.15) / 12);
+    }
+
+    //setPowerBill(estimatedMonthlyBill);
+    handleEnergyModal(false);
+  };
+
+
+
+  useEffect(() => {
     if (addressInputRef.current && window.google) {
       const autocomplete = new window.google.maps.places.Autocomplete(
         addressInputRef.current,
@@ -94,8 +114,8 @@ const SolarForm = () => {
           addressInputRef.current?.value
         );
         let postalCode: string | undefined = undefined;
-        if(addressInputRef.current?.value)
-        dispatch(setPersonalInfo({ ['address']: addressInputRef.current?.value }));
+        if (addressInputRef.current?.value)
+          dispatch(setPersonalInfo({ ['address']: addressInputRef.current?.value }));
         // Extract postal code from address_components
         if (place.address_components) {
           for (const component of place.address_components) {
@@ -105,7 +125,7 @@ const SolarForm = () => {
               break;
             }
             if (component.types.includes("administrative_area_level_1")) {
-               dispatch(setPersonalInfo({ ['state']: component.long_name }));
+              dispatch(setPersonalInfo({ ['state']: component.long_name }));
             }
             if (component.types.includes("locality")) {
               dispatch(setPersonalInfo({ ['city']: component.long_name }));
@@ -123,11 +143,11 @@ const SolarForm = () => {
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
             //setAddress({ lat, lng });
-            dispatch(setPersonalInfo({ ['lat']: lat}));
+            dispatch(setPersonalInfo({ ['lat']: lat }));
             dispatch(setPersonalInfo({ ['lng']: lng }));
-           
+
           }
-          
+
           try {
             const response = await fetch(
               `${base_url}/rest/public/lses?addressString=${addressInputRef.current?.value}&country=US&residentialServiceTypes=ELECTRICITY&sortOn=totalCustomers&sortOrder=DESC`,
@@ -215,9 +235,6 @@ const SolarForm = () => {
       // Process form submission
       console.log("Form submitted successfully!");
       dispatch(submitForm());
-
-
-
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
 
@@ -450,16 +467,10 @@ const SolarForm = () => {
             className="mt-3 text-gray-300 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white">
             <option>Select property type</option>
           </select> */}
-          <select
-            value={propertyType}
-            onChange={async (e) => {
-              const val = e.target.value;
-              handlePropertyInfoChange("propertyType", val);
-              await validateField("propertyType", val);
-            }}
-            onBlur={async (e) =>
-              await validateField("propertyType", e.target.value)
-            }
+          <select value={propertyType} onChange={async (e) => {
+            const val = e.target.value; handlePropertyInfoChange("propertyType", val); await validateField("propertyType", val);
+          }}
+            onBlur={async (e) => await validateField("propertyType", e.target.value)}
             className={`mt-3 text-gray-300 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(8, 1, 1, 0.6)] text-black transition-all ${errors.propertyType ? "border-red-500" : "border-white/30"
               }`}
           >
@@ -473,19 +484,10 @@ const SolarForm = () => {
               </option>
             ))}
           </select>
+
           <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+              strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
 
@@ -554,7 +556,8 @@ const SolarForm = () => {
             placeholder="150"
           />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
-
+          <button className="text-sm text-gray-400 flex items-center" onClick={() => { handleEnergyModal(true), setShowKwh(true); }}>
+            <BarChart3 className="mr-1" /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
             messages and text messages to me about SunLink products and services at the telephone number I entered
             above, using an autodialer, even if I am on a national or state "Do Not Call" list. Message and data
@@ -563,16 +566,108 @@ const SolarForm = () => {
               className="underline  text-white" href="#">Privacy Policy</a></p>
         </div>
         <div className="w-full mt-10">
-          {/* <Link to="/About"
-          className=" bg-orange hover:bg-orange  py-4 px-5 me-2 mb-2 text-sm font-normal text-white uppercase rounded-xl">Create
-          Account </Link> */}
-          <button onClick={handleContinue} className=" bg-orange hover:bg-orange  py-4 px-5 me-2 mb-2 text-sm font-normal text-white uppercase rounded-xl"
-          >
-            Create Account & Continue
-            {/* <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" /> */}
+          <button onClick={handleContinue} className=" bg-orange hover:bg-orange  py-4 px-5 me-2 mb-2 text-sm font-normal text-white uppercase rounded-xl">
+            Create Account & Continue            {/* <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" /> */}
           </button>
         </div>
+        {/* Energy Consumption Modal */}
+        {showEnergyModal && (
+          <div className="p-6 bg-white rounded-lg shadow-lg relative overflow-hidden">
+            <div className="tesla-card tesla-glass max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-brand-orange to-brand-teal rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="tesla-heading text-2xl text-gray-900"> Energy Consumption    </h3> </div>
+                  <button onClick={() => { handleEnergyModal(false); }} className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200">
+                    <X className="w-4 h-4 text-gray-600" />  </button>            </div>
 
+                {/* Toggle Buttons */}
+                <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+                  <button onClick={() => setEnergyInputMode("annual")} className={`tesla-button flex-1 py-3 px-4 ${energyInputMode === "annual" ? "bg-white text-brand-teal shadow-sm" : "text-gray-600 hover:text-gray-800"}`}>Annual Total </button>
+                  <button onClick={() => setEnergyInputMode("monthly")} className={`tesla-button flex-1 py-3 px-4 ${energyInputMode === "monthly" ? "bg-white text-brand-teal shadow-sm" : "text-gray-600 hover:text-gray-800"}`}> Month by Month </button>
+                </div>
+
+                {/* Annual Input */}
+                {energyInputMode === "annual" && (
+                  <div className="w-full">
+                    <label className="w-full text-gray-300 text-base">
+                      Total Annual Energy Usage
+                    </label>
+                    <div className="relative">
+                      <input type="number" value={annualUsage} onChange={(e) => setAnnualUsage(e.target.value)} className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" placeholder="12000" />
+                      <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg"> kWh/year </span>
+                    </div>
+
+                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
+                      <p className="tesla-body text-gray-700 text-sm">
+                        <strong>Tip:</strong> You can find your annual usage on  your utility bill or by adding up 12 months of usage from your online account.   </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Monthly Input */}
+                {energyInputMode === "monthly" && (
+                  <div className="space-y-4">
+                    <p className="tesla-body text-gray-600 text-sm mb-4">
+                      Enter your monthly energy usage for each month (in kWh).
+                      You can find this information on your utility bills.
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {monthNames.map((month, index) => (
+                        <div key={month}>
+                          <label className="block tesla-caption text-xs text-gray-700 mb-1">   {month}           </label>
+                          <div className="relative">
+                            <input type="number" value={monthlyUsages[index]} onChange={(e) => handleMonthlyUsageChange(index, e.target.value)}
+                              className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" placeholder="1000" />
+                            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"> kWh     </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
+                      <p className="tesla-body text-gray-700 text-sm">
+                        <strong>Total Annual Usage:</strong>{" "}
+                        {monthlyUsages
+                          .reduce(
+                            (sum, usage) => sum + (parseInt(usage) || 0),
+                            0
+                          )
+                          .toLocaleString()}{" "}
+                        kWh
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <button
+                    onClick={() => {
+                      handleEnergyModal(false);
+                    }}
+                    className="tesla-button flex-1 bg-brand-gray hover:bg-brand-gray/80 text-gray-700 py-3 px-6"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEnergySubmit}
+                    disabled={
+                      (energyInputMode === "annual" && !annualUsage) ||
+                      (energyInputMode === "monthly" &&
+                        monthlyUsages.every((usage) => !usage))
+                    }
+                    className="tesla-button flex-1 bg-gradient-to-r from-brand-orange to-brand-teal hover:from-brand-orange-dark hover:to-brand-teal-dark text-white py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Use This Data
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

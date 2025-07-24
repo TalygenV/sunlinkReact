@@ -10,9 +10,9 @@ interface SolarFormData {
   address: string;
   lat: number;
   lng: number;
-  zipCode:number;
-  state:string,
-  city:string,
+  zipCode: number;
+  state: string,
+  city: string,
   ownsHome: string;
   propertyType: string;
   utility: string;
@@ -20,6 +20,7 @@ interface SolarFormData {
   showPassword: boolean;
   showConfirmPassword: boolean;
   errors: { [key: string]: boolean };
+  showKwh: boolean;
 }
 
 interface SolarState {
@@ -38,11 +39,11 @@ const initialState: SolarState = {
     password: '',
     confirmPassword: '',
     address: '',
-    zipCode:0,
+    zipCode: 0,
     lat: 0,
     lng: 0,
-    city:"",
-    state:"",
+    city: "",
+    state: "",
     ownsHome: 'own',
     propertyType: '',
     utility: '',
@@ -50,6 +51,7 @@ const initialState: SolarState = {
     showPassword: false,
     showConfirmPassword: false,
     errors: {},
+    showKwh: false,
   },
   isLoading: false,
   isSubmitted: false,
@@ -61,15 +63,15 @@ const solarSlice = createSlice({
   initialState,
   reducers: {
     setPersonalInfo: (
-  state,
-  action: PayloadAction<{ [key: string]: string | number | boolean }>
-) => {
-  Object.keys(action.payload).forEach(key => {
-    if (key in state.solarForm) {
-      (state.solarForm as any)[key] = action.payload[key];
-    }
-  });
-},
+      state,
+      action: PayloadAction<{ [key: string]: string | number | boolean }>
+    ) => {
+      Object.keys(action.payload).forEach(key => {
+        if (key in state.solarForm) {
+          (state.solarForm as any)[key] = action.payload[key];
+        }
+      });
+    },
     setPassword: (state, action: PayloadAction<{ password: string }>) => {
       state.solarForm.password = action.payload.password;
     },
@@ -119,19 +121,19 @@ const solarSlice = createSlice({
   },
 });
 
-export const { 
-  setPersonalInfo, 
-  setPassword, 
-  setConfirmPassword, 
-  setPropertyInfo, 
-  togglePasswordVisibility, 
-  setFieldError, 
-  setMultipleFieldErrors, 
-  clearErrors, 
+export const {
+  setPersonalInfo,
+  setPassword,
+  setConfirmPassword,
+  setPropertyInfo,
+  togglePasswordVisibility,
+  setFieldError,
+  setMultipleFieldErrors,
+  clearErrors,
   setLoading,
-  updateFormData, 
-  submitForm, 
-  resetForm 
+  updateFormData,
+  submitForm,
+  resetForm
 } = solarSlice.actions;
 
 export default solarSlice.reducer;
