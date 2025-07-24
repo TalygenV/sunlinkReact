@@ -442,7 +442,7 @@ const SolarForm = () => {
             className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.powerBill ? "border-red-500" : "border-white/30"}`}
             placeholder="150" />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
-          <button className="text-sm text-gray-400 flex items-center" onClick={() => { handleEnergyModal(true), setShowKwh(true); }}>
+          <button className="text-sm text-gray-400 flex items-center" onClick={() => setShowEdit(true)}>
             <BarChart3 className="mr-1" /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
             messages and text messages to me about SunLink products and services at the telephone number I entered
@@ -457,7 +457,7 @@ const SolarForm = () => {
           </button>
         </div>
         {/* Energy Consumption Modal */}
-        {showEnergyModal && (
+        {showEdit && (
           <div className="w-full bg-slate-800 rounded-xl border border-slate-500 p-4 mb-4 text-white">
             <div className="flex justify-between items-center text-sm mb-3">
               Edit Annual Usage
@@ -471,28 +471,15 @@ const SolarForm = () => {
             <div className="flex gap-4 mt-3 rounded-xl border border-slate-500 p-3">
               <div className="w-1/2">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="usageType"
-                    value="annual"
-                    checked={viewMode === 'annual'}
-                    onChange={() => setViewMode('annual')}
-                    className="accent-blue-600 w-5 h-5"
-                  />
+                  <input type="radio" name="usageType" value="annual" checked={viewMode === 'annual'} onChange={() => setViewMode('annual')}
+                    className="accent-blue-600 w-5 h-5" />
                   <span className="text-sm py-4 px-1 rounded-md text-center">Annual Total</span>
                 </label>
               </div>
 
               <div className="w-1/2">
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="usageType"
-                    value="monthly"
-                    checked={viewMode === 'monthly'}
-                    onChange={() => setViewMode('monthly')}
-                    className="accent-blue-600 w-5 h-5"
-                  />
+                  <input type="radio" name="usageType" value="monthly" checked={viewMode === 'monthly'} onChange={() => setViewMode('monthly')} className="accent-blue-600 w-5 h-5" />
                   <span className="text-sm py-4 px-1 rounded-md text-center">Monthly Breakdown</span>
                 </label>
               </div>
@@ -502,9 +489,7 @@ const SolarForm = () => {
             {viewMode === 'annual' && (
               <>
                 <div className="text-sm mt-4">Total Annual Usage (kWh)</div>
-                <div className="flex justify-between text-white mt-1 bg-slate-800 rounded-xl border border-slate-500 p-3">
-                  <span className="text-sm">15000</span>
-                </div>
+                <div className="flex justify-between text-white mt-1 bg-slate-800 rounded-xl border border-slate-500 p-3"><span className="text-sm">15000</span></div>
                 <div className="text-xs mt-4">Average monthly: 1,287 kWh</div>
               </>
             )}
@@ -515,11 +500,7 @@ const SolarForm = () => {
                 {months.map((month) => (
                   <div key={month} className="space-y-1">
                     <label className="text-xs text-slate-400">{month}</label>
-                    <input
-                      type="text"
-                      defaultValue="1200"
-                      className="bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded border border-slate-500 w-full"
-                    />
+                    <input type="text" defaultValue="1200" className="bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded border border-slate-500 w-full" />
                   </div>
                 ))}
               </div>
