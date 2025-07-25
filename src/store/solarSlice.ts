@@ -22,6 +22,82 @@ interface SolarFormData {
   errors: { [key: string]: boolean };
   showKwh: boolean;
 }
+export interface GenabilitySummary {
+  lifeTimeUtilityAfterCost: number;
+  lifeTimeUtilityAvoidedRate: number;
+  lifetimeAvoidedCost: number;
+  lifetimeSolarCost: number;
+  lifetimeWithoutCost: number;
+  netAvoidedCost: number;
+  netAvoidedCostPctOffset: number;
+  netAvoidedKWh: number;
+  netAvoidedKWhPctOffset: number;
+  netAvoidedRate: number;
+  postTotalCost: number;
+  postTotalKWh: number;
+  postTotalKWhCost: number;
+  postTotalKWhRate: number;
+  postTotalMinCost: number;
+  postTotalNonBypassableCost: number;
+  postTotalNonMinCost: number;
+  postTotalRate: number;
+  preTotalCost: number;
+  preTotalKWh: number;
+  preTotalKWhCost: number;
+  preTotalKWhRate: number;
+  preTotalMinCost: number;
+  preTotalNonBypassableCost: number;
+  preTotalNonMinCost: number;
+  preTotalRate: number;
+}
+export interface GenabilityData {
+  utilityName: string;
+  pricePerKwh: number;
+  estimatedMonthlyKw: number;
+  recommendedSizeKw: number;
+  estimatedAnnualSavings: number;
+  providerAccountId: string;
+  penalCount: number;
+  seriesData: {
+    filter(arg0: (d: { seriesId: number; }) => boolean): unknown;
+    series: SeriesEntry[];
+    seriesData: SeriesEntry[];
+    summary: GenabilitySummary;
+    firstYear?: number;
+  };
+}
+export interface SeriesEntry {
+  seriesId: number;
+  fromDateTime: string;
+  toDateTime: string;
+  rate: number;
+  qty: number;
+  cost: number;
+}
+export interface localUserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+  address: string;
+  ownsHome: boolean;
+  propertyType: string;
+  powerBill: number;
+  state: string;
+  genabilityInfo: GenabilityData;
+  targetMonthlyBill: number;
+  monthlyConsumption: number;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  isAutoPanelsSupported: boolean;
+  profileComplete: boolean;
+  createdAt: string; // stored as ISO string
+  stepName: string;
+  pricePerKwh?: number; // ← optional if present
+}
 
 interface SolarState {
   solarForm: SolarFormData;
