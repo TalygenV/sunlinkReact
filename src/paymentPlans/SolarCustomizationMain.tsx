@@ -18,6 +18,7 @@ import BatteryControls from "./BatteryControls";
 import AddOnService from "./AddOnService";
 import WarrantyCard from "./WarrantyCard";
 import LoanOptionCard from "./LoanOptionCard";
+import LoanApplicationModal from "./LoanApplicationModal";
 import PayInFullCard from "./PayInFullCard";
 import OrderSummary from "./OrderSummary";
 import Modal from "./Modal";
@@ -39,6 +40,10 @@ interface SolarCustomizationProps {
 const SolarCustomizationMain: React.FC<SolarCustomizationProps> = () => {
   const [batteryCount, setBatteryCount] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [results, setResults] = useState<LoanOption[]>([]);
+  const [selectedLoanOption, setSelectedLoanOption] = useState<any>(null);
+  const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
+  // const [loanOptions, setLoanOptions] = useState<any[]>([]);
   const [selectedPlan, setSelectedPlan] = useState("15-years");
   type LoanOption = {
     name: string;
@@ -52,9 +57,6 @@ const SolarCustomizationMain: React.FC<SolarCustomizationProps> = () => {
       paymentWithoutTaxCredit: number;
     };
   };
-
-  const [results, setResults] = useState<LoanOption[]>([]);
-  const [loanOptions, setLoanOptions] = useState<any[]>([]);
 
   type ToggleKey =
     | "solarLayout"
@@ -93,6 +95,10 @@ const SolarCustomizationMain: React.FC<SolarCustomizationProps> = () => {
     }));
   };
 
+  const handlePreQualifyClick = (option: any) => {
+    setSelectedLoanOption(option);
+    setIsLoanModalOpen(true);
+  };
   const incrementBattery = () =>
     setBatteryCount((prev) => Math.min(prev + 1, 5));
   const decrementBattery = () =>
@@ -493,6 +499,7 @@ const SolarCustomizationMain: React.FC<SolarCustomizationProps> = () => {
                         totalCost={totalCost}
                         selectedPlan={selectedPlan}
                         onSelectPlan={setSelectedPlan}
+                        onPreQualifyClick={() => handlePreQualifyClick(option)}
                         badgeText={badges[index]}
                         badgeColor={badgeColors[index]}
                         features={features[index]}
@@ -592,6 +599,14 @@ const SolarCustomizationMain: React.FC<SolarCustomizationProps> = () => {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           3D Models
         </Modal>
+        
+        {/* Render LoanApplicationModal as a popup */}
+        <LoanApplicationModal
+          isOpen={isLoanModalOpen}
+          onClose={() => setIsLoanModalOpen(false)}
+          selectedOption={selectedLoanOption}
+          totalPrice={totalCost}
+        />
       </div>
     </section>
   );

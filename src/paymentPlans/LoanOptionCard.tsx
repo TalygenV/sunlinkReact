@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Check, CreditCard } from "lucide-react";
+import LoanApplicationModal from "./LoanApplicationModal";
 
 export interface LoanOption {
   name: string;
@@ -18,6 +19,7 @@ export interface LoanOptionCardProps {
   totalCost: number;
   selectedPlan: any;
   onSelectPlan: (option: any) => void;
+  onPreQualifyClick: (option: any) => void;
   badgeText?: string;
   badgeColor?: string;
   features: string[];
@@ -28,6 +30,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   totalCost,
   selectedPlan,
   onSelectPlan,
+  onPreQualifyClick,
   badgeText = "Fastest Payoff",
   badgeColor = "bg-red-500",
   features,
@@ -109,7 +112,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
       </div>
 
       <button
-        onClick={() => onSelectPlan(option)}
+        onClick={() => onPreQualifyClick?.(option)}
         className={`w-full mt-4 py-2 rounded-lg text-xs flex items-center justify-center space-x-2 ${
           selectedPlan === option.key
             ? "bg-blue-600 text-white"
@@ -117,7 +120,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
         }`}
       >
         <CreditCard className="w-4 h-4" />
-        <span>Pre-Qualify Now</span>
+        <span>Submit Application</span>
       </button>
     </div>
   );
@@ -132,6 +135,8 @@ interface LoanOptionsPageProps {
 const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [loanOptions, setLoanOptions] = useState<LoanOption[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedLoanOption, setSelectedLoanOption] = useState<any>(null);
+  const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
 
   const fetchAPRTerms = async () => {
     console.log("✅ fetchAPRTerms CALLED");
@@ -226,7 +231,10 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   };
 
   const hasFetched = useRef(false);
-
+  const handlePreQualifyClick = (option: any) => {
+    setSelectedLoanOption(option);
+    setIsLoanModalOpen(true);
+  };
   useEffect(() => {
     // ✅ only allow one fetch ever
     if (!hasFetched.current) {
@@ -248,11 +256,21 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
           option={option}
           totalCost={totalCost}
           selectedPlan={selectedPlan}
+          onPreQualifyClick={handlePreQualifyClick}
           onSelectPlan={handleSelectPlan}
           features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
           recommendation="Homeowners with strong credit and stable income"
         />
+
+        
       ))}
+
+<LoanApplicationModal
+          isOpen={isLoanModalOpen}
+          onClose={() => setIsLoanModalOpen(false)}
+          selectedOption={selectedLoanOption}
+          totalPrice={totalCost}
+        />
     </div>
   );
 };
