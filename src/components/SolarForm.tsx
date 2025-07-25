@@ -2,16 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { Search, Lock, Eye, EyeOff, Check, X, ChevronDown, BarChart3, } from "lucide-react";
 //import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
-import { useSelector } from 'react-redux';
+//import { useSelector } from 'react-redux';
 import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
 import { validateField, validatePassword } from "../utils/validation";
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { submitForm } from '../store/solarSlice';
-import { RootState } from '../store';
-import { ref, set } from "firebase/database";
-import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
-import { app, auth, db, firestore } from "../firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db, firestore } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { set } from "firebase/database";
+import { ref } from "firebase/database";
+import { useNavigate } from "react-router-dom";
+//import { RootState } from '../store';
+//import { ref, set } from "firebase/database";
+//import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
+//import { app, auth, db, firestore } from "../firebase";
+//import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const GENABILITY_APP_ID = import.meta.env.GENABILITY_APP_ID;
 const GENABILITY_API_KEY = import.meta.env.GENABILITY_API_KEY;
@@ -23,11 +29,12 @@ type Territory = {
   websiteHome: string;
   lseId: number;
 };
+
 const SolarForm = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address } = useAppSelector((state) => state.solar.solarForm);
+  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address ,lat, lng ,ustate } = useAppSelector((state) => state.solar.solarForm);
   const passwordRequirements = validatePassword(password);
-  const [showKwh, setShowKwh] = useState(false);
   const passwordsMatch = password === confirmPassword && password.length > 0;
   const getErrorMessage = (field: string, message: string) => errors[field] ? (<p className="text-sm text-red-500 mt-1">{message}</p>) : null;
   const handleFieldValidation = (field: string, value: any, relatedValues: { [key: string]: any } = {}) => {
@@ -91,7 +98,7 @@ const SolarForm = () => {
       estimatedMonthlyBill = Math.round((totalAnnualUsage * 0.15) / 12);
     }
 
-    //setPowerBill(estimatedMonthlyBill);
+   dispatch(setPersonalInfo({ ['powerBill']:estimatedMonthlyBill}))
     handleEnergyModal(false);
   };
 
@@ -113,19 +120,18 @@ const SolarForm = () => {
           "addressInputRef.current?.value",
           addressInputRef.current?.value
         );
-        let postalCode: string | undefined = undefined;
         if (addressInputRef.current?.value)
           dispatch(setPersonalInfo({ ['address']: addressInputRef.current?.value }));
         // Extract postal code from address_components
         if (place.address_components) {
           for (const component of place.address_components) {
             if (component.types.includes("postal_code")) {
-              postalCode = component.long_name;
+             
               dispatch(setPersonalInfo({ ['zipCode']: component.long_name }));
               break;
             }
             if (component.types.includes("administrative_area_level_1")) {
-              dispatch(setPersonalInfo({ ['state']: component.long_name }));
+              dispatch(setPersonalInfo({ ['ustate']: component.long_name }));
             }
             if (component.types.includes("locality")) {
               dispatch(setPersonalInfo({ ['city']: component.long_name }));
@@ -185,7 +191,277 @@ const SolarForm = () => {
     }
   }, []);
 
+const fetchUtilityAndTariff = async () => {
+    try {
+      // Input validation
+      if (!lat || !lng || powerBill <= 0)
+        if (!selectedTerritory?.lseId)
+          if (!GENABILITY_APP_ID || !GENABILITY_API_KEY)
+            //throw new Error("Provide a valid address and monthly bill.");
+            //throw new Error("No utility selected.");
+            throw new Error("Missing API credentials.");
 
+      const lseId = selectedTerritory?.lseId;
+      const today = new Date().toISOString().split("T")[0];
+      const lastYear = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
+      )
+        .toISOString()
+        .split("T")[0];
+      const annualBill = powerBill * 12;
+      const randomId = Math.floor(Math.random() * 100000);
+      const providerAccountId = `provider-account-${randomId}`;
+      const accountName = `customer-account-${randomId}`;
+
+
+      // 1. Create Genability Account
+      const accountRes = await fetch(`${base_url}/rest/v1/accounts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          providerAccountId,
+          accountName,
+          address: { addressString: address },
+          properties: {
+            customerClass: {
+              keyName: "customerClass",
+              dataValue: "1",
+            },
+          },
+        }),
+      });
+
+      if (!accountRes.ok) throw new Error(await accountRes.text());
+      const accountData = await accountRes.json();
+      const accountId = accountData?.results?.[0]?.accountId;
+      if (!accountId) throw new Error("Account ID not found in response.");
+
+      // 2. Set lseId property
+      await fetch(`${base_url}/rest/v1/accounts/${accountId}/properties`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Basic ${basic_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          keyName: "lseId",
+          dataValue: lseId,
+        }),
+      });
+
+      // 3. Estimate kWh from annual bill
+      const kwhCalcRes = await fetch(
+        `${base_url}/rest/v1/accounts/${accountId}/calculate/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${basic_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fromDateTime: lastYear,
+            toDateTime: today,
+            billingPeriod: "false",
+            groupBy: "MONTH",
+            detailLevel: "TOTAL",
+            propertyInputs: [
+              { keyName: "total", dataValue: annualBill, unit: "cost" },
+              { keyName: "baselineType", dataValue: "typicalElectricity" },
+            ],
+          }),
+        }
+      );
+
+      if (!kwhCalcRes.ok) throw new Error(await kwhCalcRes.text());
+      const kwhData = await kwhCalcRes.json();
+      const pricePerKwh = kwhData?.results?.[0]?.summary?.kWh;
+      const estimatedMonthlyKw = kwhData?.results?.[0]?.summary?.kW;
+      if (!pricePerKwh) throw new Error("kWh estimate not found.");
+
+      // 4. Estimate system size in kW (used later for solar profile and display)
+
+      const recommendedSizeKw = estimatedMonthlyKw * 1000;
+      await fetch(`${base_url}/rest/v1/profiles`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          providerAccountId: providerAccountId,
+          providerProfileId: `Annual-Consumption-${providerAccountId}`,
+          profileName: `Annual Consumption for ${providerAccountId}`,
+          isDefault: true,
+          serviceTypes: "ELECTRICITY",
+          sourceId: "ReadingEntry",
+          readingData: [
+            {
+              fromDateTime: lastYear,
+              toDateTime: today,
+              quantityUnit: "kWh",
+              quantityValue: pricePerKwh,
+            },
+          ],
+        }),
+      });
+
+      // if (!profileResAnnual.ok) throw new Error(await profileResAnnual.text());
+      // const profileDataAnnual = await profileResAnnual.json();
+      // 5. Create Solar Profile
+      await fetch(`${base_url}/rest/v1/profiles`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          providerAccountId: providerAccountId,
+          providerProfileId: `Solar-Production-PVWatts-6kW-${providerAccountId}`,
+          groupBy: "YEAR",
+          serviceTypes: "SOLAR_PV",
+          source: { sourceId: "PVWatts", sourceVersion: "8" },
+          properties: {
+            systemSize: {
+              keyName: "systemSize",
+              dataValue: estimatedMonthlyKw,
+            },
+            azimuth: { keyName: "azimuth", dataValue: "180" },
+            losses: { keyName: "losses", dataValue: "15" },
+            inverterEfficiency: {
+              keyName: "inverterEfficiency",
+              dataValue: "96",
+            },
+            tilt: { keyName: "tilt", dataValue: "25" },
+          },
+        }),
+      });
+
+      // if (!profileRes.ok) throw new Error(await profileRes.text());
+      // const profileData = await profileRes.json();
+
+      const analysis = await fetch(`${base_url}/rest/v1/accounts/analysis`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          providerAccountId: providerAccountId,
+          fromDateTime: today,
+          useIntelligentBaselining: true,
+          propertyInputs: [
+            {
+              keyName: "providerProfileId",
+              dataType: "STRING",
+              dataValue: `Annual-Consumption-${providerAccountId}`,
+              scenarios: "before,after",
+              dataFactor: 1.0,
+            },
+            {
+              keyName: "providerProfileId",
+              dataType: "STRING",
+              dataValue: `Solar-Production-PVWatts-6kW-${providerAccountId}`,
+              scenarios: "solar,after",
+              dataFactor: 1.0,
+            },
+            {
+              keyName: "projectDuration",
+              dataType: "INTEGER",
+              dataValue: "31",
+            },
+            {
+              keyName: "rateInflation",
+              dataType: "DECIMAL",
+              dataValue: "3.0",
+              scenarios: "before,after",
+            },
+            {
+              keyName: "rateInflation",
+              dataType: "DECIMAL",
+              dataValue: "2.0",
+              scenarios: "solar",
+            },
+            {
+              keyName: "solarDegradation",
+              dataType: "DECIMAL",
+              dataValue: "0.5",
+              scenarios: "solar",
+            },
+          ],
+          rateInputs: [
+            {
+              chargeType: "FIXED_PRICE",
+              chargePeriod: "MONTHLY",
+              transactionType: "BUY",
+              rateBands: [
+                {
+                  rateAmount: 0.0,
+                },
+              ],
+              scenarios: "solar",
+            },
+          ],
+        }),
+      });
+
+      if (!analysis.ok) throw new Error(await analysis.text());
+      const analysisData = await analysis.json();
+      // Pull only the first result
+      const seriesResult = analysisData?.results?.[0];
+
+      const estimatedAnnualSavings =
+        estimatedMonthlyKw * 12 * pricePerKwh * 0.8; // 80% savings
+      const penalCount = recommendedSizeKw / 400;
+      console.log("emailGlobal", email || "");
+      localStorage.setItem("emailGlobal", email || "");
+      console.log("nameGlobal", firstName || "");
+      localStorage.setItem("nameGlobal", firstName || "");
+      const allData = {
+        providerAccountId,
+        pricePerKwh,
+        selectedTerritoryName: selectedTerritory?.name,
+        estimatedMonthlyKw,
+        recommendedSizeKw,
+        estimatedAnnualSavings,
+        penalCount,
+        accountName,
+        series: seriesResult?.series || [],
+        seriesData: seriesResult?.seriesData || [],
+        address,
+        ustate,
+        firstName,
+        lastName,
+        email,
+      };
+      localStorage.setItem("solarSetup", JSON.stringify(allData));
+
+      console.log("providerAccountId", providerAccountId);
+
+      return {
+        utilityName: selectedTerritory?.name || "Unknown Utility",
+        pricePerKwh,
+        estimatedMonthlyKw,
+        recommendedSizeKw,
+        estimatedAnnualSavings,
+        providerAccountId,
+        penalCount,
+        seriesData: {
+          series: seriesResult?.series || [],
+          seriesData: seriesResult?.seriesData || [],
+        },
+      };
+    } catch (error: unknown) {
+      console.error("Genability API error:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch utility data."
+      );
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   const propertyTypes = [
     "Select property type",
@@ -234,6 +510,71 @@ const SolarForm = () => {
 
       // Process form submission
       console.log("Form submitted successfully!");
+      const genabilityInfo = await fetchUtilityAndTariff();
+      let userCredential;
+      userCredential = await createUserWithEmailAndPassword(
+               auth,
+               email,
+               password
+             );
+             const user = userCredential.user;
+             
+               await setDoc(doc(firestore, "users", user.uid), {
+                 email: user.email,
+                 createdAt: new Date(),
+               });
+                await set(ref(db, `users/${user.uid}`), {
+                      displayName:firstName,
+                        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phone,
+        password: password,
+        address: address,
+        ownsHome: ownsHome,
+        propertyType: propertyType,
+        powerBill: powerBill,
+        state: ustate,
+        phoneNumber: auth.currentUser.phoneNumber,
+        annualUsage: powerBill * 12 || 12000, // Default to 12000 if not provided
+        monthlyBill: powerBill || 0,
+        genabilityData: genabilityInfo,
+        targetMonthlyBill: powerBill,
+        coordinates: {
+          latitude: lat,
+          longitude: lng,
+        },
+        isAutoPanelsSupported: true,
+        profileComplete: true,
+        createdAt: new Date(),
+        stepName: "solarResult",
+                     });
+      const data = {
+        firstName,
+        lastName,
+        email,
+        phone,
+        password,
+        address: address, // ✅ store text address
+        ownsHome,
+        propertyType,
+        powerBill,
+        state: ustate,
+        genabilityInfo: genabilityInfo,
+        targetMonthlyBill: powerBill,
+        monthlyConsumption: powerBill ? powerBill : 0,
+        coordinates: {
+          latitude: lat,
+          longitude: lng,
+        },
+        isAutoPanelsSupported: true,
+        profileComplete: true,
+        createdAt: new Date(),
+        stepName: "solarResult",
+      };
+
+        localStorage.setItem("userData", JSON.stringify(data));
+       navigate("/about");
       dispatch(submitForm());
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
@@ -556,7 +897,7 @@ const SolarForm = () => {
             placeholder="150"
           />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
-          <button className="text-sm text-gray-400 flex items-center" onClick={() => { handleEnergyModal(true), setShowKwh(true); }}>
+          <button className="text-sm text-gray-400 flex items-center" onClick={() => { handleEnergyModal(true), dispatch(setLoading(false)); }}>
             <BarChart3 className="mr-1" /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
             messages and text messages to me about SunLink products and services at the telephone number I entered

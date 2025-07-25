@@ -11,7 +11,7 @@ interface SolarFormData {
   lat: number;
   lng: number;
   zipCode: number;
-  state: string,
+  ustate: string,
   city: string,
   ownsHome: string;
   propertyType: string;
@@ -43,7 +43,7 @@ const initialState: SolarState = {
     lat: 0,
     lng: 0,
     city: "",
-    state: "",
+    ustate: "",
     ownsHome: 'own',
     propertyType: '',
     utility: '',
