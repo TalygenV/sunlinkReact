@@ -27,7 +27,7 @@ type Territory = { name: string; code: string; websiteHome: string; lseId: numbe
 const SolarForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address ,lat, lng ,ustate } = useAppSelector((state) => state.solar.solarForm);
+  const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address, lat, lng, ustate } = useAppSelector((state) => state.solar.solarForm);
   const passwordRequirements = validatePassword(password);
   const passwordsMatch = password === confirmPassword && password.length > 0;
   const getErrorMessage = (field: string, message: string) => errors[field] ? (<p className="text-sm text-red-500 mt-1">{message}</p>) : null;
@@ -97,7 +97,7 @@ const SolarForm = () => {
       estimatedMonthlyBill = Math.round((totalAnnualUsage * 0.15) / 12);
     }
 
-   dispatch(setPersonalInfo({ ['powerBill']:estimatedMonthlyBill}))
+    dispatch(setPersonalInfo({ ['powerBill']: estimatedMonthlyBill }))
     handleEnergyModal(false);
   };
 
@@ -125,7 +125,7 @@ const SolarForm = () => {
         if (place.address_components) {
           for (const component of place.address_components) {
             if (component.types.includes("postal_code")) {
-             
+
               dispatch(setPersonalInfo({ ['zipCode']: component.long_name }));
               break;
             }
@@ -190,7 +190,7 @@ const SolarForm = () => {
     }
   }, []);
 
-const fetchUtilityAndTariff = async () => {
+  const fetchUtilityAndTariff = async () => {
     try {
       // Input validation
       if (!lat || !lng || powerBill <= 0)
@@ -419,21 +419,8 @@ const fetchUtilityAndTariff = async () => {
       console.log("nameGlobal", firstName || "");
       localStorage.setItem("nameGlobal", firstName || "");
       const allData = {
-        providerAccountId,
-        pricePerKwh,
-        selectedTerritoryName: selectedTerritory?.name,
-        estimatedMonthlyKw,
-        recommendedSizeKw,
-        estimatedAnnualSavings,
-        penalCount,
-        accountName,
-        series: seriesResult?.series || [],
-        seriesData: seriesResult?.seriesData || [],
-        address,
-        ustate,
-        firstName,
-        lastName,
-        email,
+        providerAccountId, pricePerKwh, selectedTerritoryName: selectedTerritory?.name, estimatedMonthlyKw, recommendedSizeKw, estimatedAnnualSavings, penalCount, accountName,
+        series: seriesResult?.series || [], seriesData: seriesResult?.seriesData || [], address, ustate, firstName, lastName, email,
       };
       localStorage.setItem("solarSetup", JSON.stringify(allData));
 
@@ -512,19 +499,19 @@ const fetchUtilityAndTariff = async () => {
       const genabilityInfo = await fetchUtilityAndTariff();
       let userCredential;
       userCredential = await createUserWithEmailAndPassword(
-               auth,
-               email,
-               password
-             );
-             const user = userCredential.user;
-             
-               await setDoc(doc(firestore, "users", user.uid), {
-                 email: user.email,
-                 createdAt: new Date(),
-               });
-                await set(ref(db, `users/${user.uid}`), {
-                      displayName:firstName,
-                        firstName: firstName,
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      await setDoc(doc(firestore, "users", user.uid), {
+        email: user.email,
+        createdAt: new Date(),
+      });
+      await set(ref(db, `users/${user.uid}`), {
+        displayName: firstName,
+        firstName: firstName,
         lastName: lastName,
         email: email,
         phone: phone,
@@ -547,7 +534,7 @@ const fetchUtilityAndTariff = async () => {
         profileComplete: true,
         createdAt: new Date(),
         stepName: "solarResult",
-                     });
+      });
       const data = {
         firstName,
         lastName,
@@ -572,8 +559,8 @@ const fetchUtilityAndTariff = async () => {
         stepName: "solarResult",
       };
 
-        localStorage.setItem("userData", JSON.stringify(data));
-       navigate("/about");
+      localStorage.setItem("userData", JSON.stringify(data));
+      navigate("/about");
       dispatch(submitForm());
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
