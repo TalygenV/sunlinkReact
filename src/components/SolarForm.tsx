@@ -414,9 +414,7 @@ const SolarForm = () => {
       const estimatedAnnualSavings =
         estimatedMonthlyKw * 12 * pricePerKwh * 0.8; // 80% savings
       const penalCount = recommendedSizeKw / 400;
-      console.log("emailGlobal", email || "");
       localStorage.setItem("emailGlobal", email || "");
-      console.log("nameGlobal", firstName || "");
       localStorage.setItem("nameGlobal", firstName || "");
       const allData = {
         providerAccountId, pricePerKwh, selectedTerritoryName: selectedTerritory?.name, estimatedMonthlyKw, recommendedSizeKw, estimatedAnnualSavings, penalCount, accountName,
@@ -548,6 +546,7 @@ const SolarForm = () => {
         state: ustate,
         genabilityInfo: genabilityInfo,
         targetMonthlyBill: powerBill,
+        estimatedAnnualSavings:genabilityInfo.estimatedAnnualSavings,
         monthlyConsumption: powerBill ? powerBill : 0,
         coordinates: {
           latitude: lat,
