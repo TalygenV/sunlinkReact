@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Search, Lock, Eye, EyeOff, Check, X, ChevronDown, BarChart3, } from "lucide-react";
 //import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
-//import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
 import { validateField, validatePassword } from "../utils/validation";
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
@@ -23,13 +23,7 @@ const GENABILITY_APP_ID = import.meta.env.GENABILITY_APP_ID;
 const GENABILITY_API_KEY = import.meta.env.GENABILITY_API_KEY;
 const base_url = "https://api.genability.com";
 const basic_token = "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
-type Territory = {
-  name: string;
-  code: string;
-  websiteHome: string;
-  lseId: number;
-};
-
+type Territory = { name: string; code: string; websiteHome: string; lseId: number; };
 const SolarForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -42,6 +36,10 @@ const SolarForm = () => {
     dispatch(setFieldError({ field, hasError: !isValid }));
     return isValid;
   };
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
   const handlePersonalInfoChange = (field: string, value: string) => {
     dispatch(setPersonalInfo({ [field]: value }));
     handleFieldValidation(field, value);
@@ -67,7 +65,8 @@ const SolarForm = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
-
+  const [showEdit, setShowEdit] = useState(false);
+  const [viewMode, setViewMode] = useState('annual');
   const [annualUsage, setAnnualUsage] = useState("");
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [energyInputMode, setEnergyInputMode] = useState<"annual" | "monthly">("annual");
@@ -596,69 +595,32 @@ const fetchUtilityAndTariff = async () => {
       <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">First Name</label>
-          {/* <input type="text" name="fname" placeholder=""
-            className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" /> */}
-
-          <input type="text"
-            value={firstName}
-            onChange={(e) => handlePersonalInfoChange("firstName", e.target.value)}
-            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.firstName ? "border-red-500" : "border-white/30"
-              }`}
-            placeholder="Enter your first name"
-          />
+          <input type="text" value={firstName} onChange={(e) => handlePersonalInfoChange("firstName", e.target.value)} className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.firstName ? "border-red-500" : "border-white/30"}`}
+            placeholder="Enter your first name" />
           {getErrorMessage("firstName", "First name is required.")}
         </div>
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">Last Name</label>
-          {/* <input type="text" name="lname" placeholder="" className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" /> */}
-
-          <input
-            type="text"
-            value={lastName}
-            onChange={(e) => handlePersonalInfoChange("lastName", e.target.value)}
-            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.lastName ? "border-red-500" : "border-white/30"
-              }`}
-            placeholder="Enter your last name"
-          />
+          <input type="text" value={lastName} onChange={(e) => handlePersonalInfoChange("lastName", e.target.value)} className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.lastName ? "border-red-500" : "border-white/30"}`} placeholder="Enter your last name" />
           {getErrorMessage("lastName", "Last name is required.")}
         </div>
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">Email Address</label>
-          {/* <input type="email" name="fname" placeholder="" className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" /> */}
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => handlePersonalInfoChange("email", e.target.value)}
-            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.email ? "border-red-500" : "border-white/30"
-              }`}
-            placeholder="your@email.com"
-          />
-          {getErrorMessage("email", "Please enter a valid email address.")}
-
-        </div>
+          <input type="email" value={email} onChange={(e) => handlePersonalInfoChange("email", e.target.value)} className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.email ? "border-red-500" : "border-white/30"}`} placeholder="your@email.com" />
+          {getErrorMessage("email", "Please enter a valid email address.")} </div>
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">Phone Number</label>
-          {/* <input type="tel" name="lname" placeholder=""
-            className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" /> */}
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => {
-              let input = e.target.value;
-              if (input.startsWith("+")) {
-                input = "+" + input.slice(1).replace(/\D/g, "");
-              } else {
-                input = input.replace(/\D/g, "");
-              }
-
-              const digitCount = input.startsWith("+") ? input.slice(1).length : input.length;
-              if (digitCount <= 11) {
-                handlePersonalInfoChange("phone", input);
-              }
-            }}
-            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.phone ? "border-red-500" : "border-white/30"
-              }`}
-            placeholder="+15551234567"
+          <input type="tel" value={phone} onChange={(e) => {
+            let input = e.target.value; if (input.startsWith("+")) { input = "+" + input.slice(1).replace(/\D/g, ""); }
+            else {
+              input = input.replace(/\D/g, "");
+            }
+            const digitCount = input.startsWith("+") ? input.slice(1).length : input.length;
+            if (digitCount <= 11) {
+              handlePersonalInfoChange("phone", input);
+            }
+          }}
+            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.phone ? "border-red-500" : "border-white/30"}`} placeholder="+15551234567"
           />
           {getErrorMessage("phone", "Please enter a valid phone number.")}
         </div>
@@ -667,19 +629,9 @@ const fetchUtilityAndTariff = async () => {
 
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5" />
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.password ? "border-red-500" : "border-white/30"
-                }`}
-              placeholder="Create a secure password"
+            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => handlePasswordChange(e.target.value)} className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.password ? "border-red-500" : "border-white/30"}`} placeholder="Create a secure password"
             />
-            <button
-              type="button"
-              onClick={() => dispatch(togglePasswordVisibility({ field: "password" }))}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors"
-            >
+            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "password" }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
@@ -690,19 +642,10 @@ const fetchUtilityAndTariff = async () => {
           <label className="w-full text-gray-300 text-base ">Confirm Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5" />
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-              className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.confirmPassword ? "border-red-500" : "border-white/30"
-                }`}
-              placeholder="Confirm your password"
-            />
-            <button
-              type="button"
-              onClick={() => dispatch(togglePasswordVisibility({ field: "confirmPassword" }))}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors"
-            >
+            <input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+              className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.confirmPassword ? "border-red-500" : "border-white/30"}`}
+              placeholder="Confirm your password" />
+            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "confirmPassword" }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
@@ -712,23 +655,15 @@ const fetchUtilityAndTariff = async () => {
         {/* Password Requirements */}
         {password.length > 0 && (
           <div className="bg-white/50 rounded-lg p-4 border border-gray-200">
-            <p className="tesla-caption text-sm text-gray-700 mb-3">
-              Password Requirements:
-            </p>
+            <p className="tesla-caption text-sm text-gray-700 mb-3"> Password Requirements: </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div
-                className={`flex items-center gap-2 ${passwordRequirements.length ? "text-green-600" : "text-gray-500"}`} >
-                <Check className={`w-3 h-3 ${passwordRequirements.length ? "text-green-600" : "text-gray-400"}`} />
-                <span>At least 8 characters</span>      </div>
-              <div className={`flex items-center gap-2 ${passwordRequirements.uppercase ? "text-green-600" : "text-gray-500"}`}  >
-                <Check className={`w-3 h-3 ${passwordRequirements.uppercase ? "text-green-600" : "text-gray-400"}`} />
-                <span>One uppercase letter</span> </div>
-              <div className={`flex items-center gap-2 ${passwordRequirements.lowercase ? "text-green-600" : "text-gray-500"}`} >
-                <Check className={`w-3 h-3 ${passwordRequirements.lowercase ? "text-green-600" : "text-gray-400"}`} />
-                <span>One lowercase letter</span>
-              </div>
-              <div
-                className={`flex items-center gap-2 ${passwordRequirements.number ? "text-green-600" : "text-gray-500"}`} >
+              <div className={`flex items-center gap-2 ${passwordRequirements.length ? "text-green-600" : "text-gray-500"}`} >
+                <Check className={`w-3 h-3 ${passwordRequirements.length ? "text-green-600" : "text-gray-400"}`} /><span>At least 8 characters</span> </div>
+              <div className={`flex items-center gap-2 ${passwordRequirements.uppercase ? "text-green-600" : "text-gray-500"}`}>
+                <Check className={`w-3 h-3 ${passwordRequirements.uppercase ? "text-green-600" : "text-gray-400"}`} /><span>One uppercase letter</span> </div>
+              <div className={`flex items-center gap-2 ${passwordRequirements.lowercase ? "text-green-600" : "text-gray-500"}`}>
+                <Check className={`w-3 h-3 ${passwordRequirements.lowercase ? "text-green-600" : "text-gray-400"}`} /><span>One lowercase letter</span></div>
+              <div className={`flex items-center gap-2 ${passwordRequirements.number ? "text-green-600" : "text-gray-500"}`} >
                 <Check className={`w-3 h-3 ${passwordRequirements.number ? "text-green-600" : "text-gray-400"}`} />
                 <span>One number</span>
               </div>
@@ -745,25 +680,12 @@ const fetchUtilityAndTariff = async () => {
         )}
       </div>
 
-      <h4 className="mt-10 flex items-center text-white text-lg"> Property Information</h4>
+      <h4 className="mt-10 flex items-center text-white text-lg"><img className="mr-2" src={profile} alt="profile" /> Property Information</h4>
       <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
-
         <div className="w-full ">
-          <label className="w-full text-gray-300 text-base">
-            Property Address
-          </label>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 bg-white" />
-            <input
-              type="text"
-              ref={addressInputRef}
-              className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
-              placeholder="Enter your address"
-              onBlur={async (e) =>
-                await validateField("address", e.target.value)
-              }
-            />
-          </div>
+          <label className="w-full text-gray-300 text-base"> Property Address </label>
+          <input type="text" ref={addressInputRef} className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
+            placeholder="Enter your address" onBlur={async (e) => await validateField("address", e.target.value)} />
           {getErrorMessage("address", "Please select a address.")}
         </div>
         <div className="w-full ">
@@ -786,11 +708,7 @@ const fetchUtilityAndTariff = async () => {
             {/* Right Column */}
             <div className="w-1/2">
               <label className="flex items-center gap-3 cursor-pointer ">
-                <input
-                  type="radio"
-                  name="ownership"
-                  value="rent"
-                  className="accent-blue-600 w-5 h-5"
+                <input type="radio" name="ownership" value="rent" className="accent-blue-600 w-5 h-5"
                   checked={ownsHome === "rent"}
                   onChange={(e) => handlePropertyInfoChange("ownsHome", e.target.value)}
                 />
@@ -804,10 +722,7 @@ const fetchUtilityAndTariff = async () => {
 
         <div className="w-full ">
           <label className="w-full text-gray-300 text-base ">Property Type</label>
-          {/* <select
-            className="mt-3 text-gray-300 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white">
-            <option>Select property type</option>
-          </select> */}
+
           <select value={propertyType} onChange={async (e) => {
             const val = e.target.value; handlePropertyInfoChange("propertyType", val); await validateField("propertyType", val);
           }}
@@ -831,31 +746,15 @@ const fetchUtilityAndTariff = async () => {
               strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-
-          {getErrorMessage(
-            "propertyType",
-            "Please select a property type."
-          )}
+          {getErrorMessage("propertyType", "Please select a property type.")}
         </div>
         {/* Utility Company */}
         {territories.length > 0 && (
           <div className="w-full">
-            <label className="block tesla-caption text-sm text-gray-700 mb-3">
-              Utility Company
-            </label>
-            <div
-              className="relative group cursor-pointer text-brand-teal"
-              onClick={() => setShowDropdown(!showDropdown)}
-            >
+            <label className="block tesla-caption text-sm text-gray-700 mb-3">      Utility Company </label>
+            <div className="relative group cursor-pointer text-brand-teal" onClick={() => setShowDropdown(!showDropdown)}>
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" />
-              <input
-                readOnly
-                value={
-                  selectedTerritory ? selectedTerritory.name : ""
-                }
-                placeholder="Select a Utility"
-                className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
-              />
+              <input readOnly value={selectedTerritory ? selectedTerritory.name : ""} placeholder="Select a Utility" className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white" />
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-5 h-5 text-gray-400" />
               </div>
@@ -863,41 +762,26 @@ const fetchUtilityAndTariff = async () => {
             {showDropdown && (
               <ul className="absolute z-10 mt-2 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 text-gray-800 shadow-lg">
                 {territories.map((territory) => (
-                  <li
-                    key={territory.lseId}
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer transition"
-                    onClick={async () => {
-                      setSelectedTerritory(territory);
-                      setShowDropdown(false);
-                      await validateField("utility", territory.name);
-                    }}
-                  >
+                  <li key={territory.lseId} className="px-4 py-3 hover:bg-gray-100 cursor-pointer transition" onClick={async () => {
+                    setSelectedTerritory(territory);
+                    setShowDropdown(false);
+                    await validateField("utility", territory.name);
+                  }}>
                     {territory.name}
                   </li>
                 ))}
               </ul>
             )}
-            {getErrorMessage(
-              "utility",
-              "Please select a utility company."
-            )}
+            {getErrorMessage("utility", "Please select a utility company.")}
           </div>
         )}
         <div className="w-full ">
           <label className="w-full text-gray-300 text-base ">Average Electric Bill</label>
-          {/* <input type="text" name="paddress" placeholder="0"
-            className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" /> */}
-
-          <input
-            type="number"
-            value={powerBill === 0 ? "" : powerBill}
-            onChange={(e) => handlePropertyInfoChange("powerBill", parseInt(e.target.value) || 0)}
-            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.powerBill ? "border-red-500" : "border-white/30"
-              }`}
-            placeholder="150"
-          />
+          <input type="number" value={powerBill === 0 ? "" : powerBill} onChange={(e) => handlePropertyInfoChange("powerBill", parseInt(e.target.value) || 0)}
+            className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.powerBill ? "border-red-500" : "border-white/30"}`}
+            placeholder="150" />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
-          <button className="text-sm text-gray-400 flex items-center" onClick={() => { handleEnergyModal(true), dispatch(setLoading(false)); }}>
+          <button className="text-sm text-gray-400 flex items-center" onClick={() => setShowEdit(true)}>
             <BarChart3 className="mr-1" /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
             messages and text messages to me about SunLink products and services at the telephone number I entered
@@ -912,102 +796,56 @@ const fetchUtilityAndTariff = async () => {
           </button>
         </div>
         {/* Energy Consumption Modal */}
-        {showEnergyModal && (
-          <div className="p-6 bg-white rounded-lg shadow-lg relative overflow-hidden">
-            <div className="tesla-card tesla-glass max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand-orange to-brand-teal rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="tesla-heading text-2xl text-gray-900"> Energy Consumption    </h3> </div>
-                  <button onClick={() => { handleEnergyModal(false); }} className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200">
-                    <X className="w-4 h-4 text-gray-600" />  </button>            </div>
+        {showEdit && (
+          <div className="w-full bg-slate-800 rounded-xl border border-slate-500 p-4 mb-4 text-white">
+            <div className="flex justify-between items-center text-sm mb-3">
+              Edit Annual Usage
+              <span className="flex items-center gap-2">
+                <Check size={16} className="cursor-pointer text-green-400" onClick={() => setShowEdit(false)} />
+                <X size={16} className="cursor-pointer text-red-400" onClick={() => setShowEdit(false)} />
+              </span>
+            </div>
 
-                {/* Toggle Buttons */}
-                <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
-                  <button onClick={() => setEnergyInputMode("annual")} className={`tesla-button flex-1 py-3 px-4 ${energyInputMode === "annual" ? "bg-white text-brand-teal shadow-sm" : "text-gray-600 hover:text-gray-800"}`}>Annual Total </button>
-                  <button onClick={() => setEnergyInputMode("monthly")} className={`tesla-button flex-1 py-3 px-4 ${energyInputMode === "monthly" ? "bg-white text-brand-teal shadow-sm" : "text-gray-600 hover:text-gray-800"}`}> Month by Month </button>
-                </div>
+            {/* Toggle View */}
+            <div className="flex gap-4 mt-3 rounded-xl border border-slate-500 p-3">
+              <div className="w-1/2">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="usageType" value="annual" checked={viewMode === 'annual'} onChange={() => setViewMode('annual')}
+                    className="accent-blue-600 w-5 h-5" />
+                  <span className="text-sm py-4 px-1 rounded-md text-center">Annual Total</span>
+                </label>
+              </div>
 
-                {/* Annual Input */}
-                {energyInputMode === "annual" && (
-                  <div className="w-full">
-                    <label className="w-full text-gray-300 text-base">
-                      Total Annual Energy Usage
-                    </label>
-                    <div className="relative">
-                      <input type="number" value={annualUsage} onChange={(e) => setAnnualUsage(e.target.value)} className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" placeholder="12000" />
-                      <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg"> kWh/year </span>
-                    </div>
-
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Tip:</strong> You can find your annual usage on  your utility bill or by adding up 12 months of usage from your online account.   </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Monthly Input */}
-                {energyInputMode === "monthly" && (
-                  <div className="space-y-4">
-                    <p className="tesla-body text-gray-600 text-sm mb-4">
-                      Enter your monthly energy usage for each month (in kWh).
-                      You can find this information on your utility bills.
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      {monthNames.map((month, index) => (
-                        <div key={month}>
-                          <label className="block tesla-caption text-xs text-gray-700 mb-1">   {month}           </label>
-                          <div className="relative">
-                            <input type="number" value={monthlyUsages[index]} onChange={(e) => handleMonthlyUsageChange(index, e.target.value)}
-                              className="mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white" placeholder="1000" />
-                            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"> kWh     </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Total Annual Usage:</strong>{" "}
-                        {monthlyUsages
-                          .reduce(
-                            (sum, usage) => sum + (parseInt(usage) || 0),
-                            0
-                          )
-                          .toLocaleString()}{" "}
-                        kWh
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                  <button
-                    onClick={() => {
-                      handleEnergyModal(false);
-                    }}
-                    className="tesla-button flex-1 bg-brand-gray hover:bg-brand-gray/80 text-gray-700 py-3 px-6"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleEnergySubmit}
-                    disabled={
-                      (energyInputMode === "annual" && !annualUsage) ||
-                      (energyInputMode === "monthly" &&
-                        monthlyUsages.every((usage) => !usage))
-                    }
-                    className="tesla-button flex-1 bg-gradient-to-r from-brand-orange to-brand-teal hover:from-brand-orange-dark hover:to-brand-teal-dark text-white py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Use This Data
-                  </button>
-                </div>
+              <div className="w-1/2">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="usageType" value="monthly" checked={viewMode === 'monthly'} onChange={() => setViewMode('monthly')} className="accent-blue-600 w-5 h-5" />
+                  <span className="text-sm py-4 px-1 rounded-md text-center">Monthly Breakdown</span>
+                </label>
               </div>
             </div>
+
+            {/* Annual Usage View */}
+            {viewMode === 'annual' && (
+              <>
+                <div className="text-sm mt-4">Total Annual Usage (kWh)</div>
+                <div className="flex justify-between text-white mt-1 bg-slate-800 rounded-xl border border-slate-500 p-3"><span className="text-sm">15000</span></div>
+                <div className="text-xs mt-4">Average monthly: 1,287 kWh</div>
+              </>
+            )}
+
+            {/* Monthly Breakdown View */}
+            {viewMode === 'monthly' && (
+              <div className="grid grid-cols-3 py-3 gap-3">
+                {months.map((month) => (
+                  <div key={month} className="space-y-1">
+                    <label className="text-xs text-slate-400">{month}</label>
+                    <input type="text" defaultValue="1200" className="bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded border border-slate-500 w-full" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
         )}
       </div>
     </div>
