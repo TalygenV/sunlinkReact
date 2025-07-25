@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Search, Lock, Eye, EyeOff, Check, X, ChevronDown, BarChart3, } from "lucide-react";
 //import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
+import chartImage from "../assets/images/graph.svg"
 import { useSelector } from 'react-redux';
 import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
 import { validateField, validatePassword } from "../utils/validation";
@@ -613,11 +614,11 @@ const SolarForm = () => {
         <div className="w-full">
           <label className="w-full text-gray-300 text-base ">Create Password</label>
 
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5" />
-            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => handlePasswordChange(e.target.value)} className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.password ? "border-red-500" : "border-white/30"}`} placeholder="Create a secure password"
+          <div className="relative flex items-center justify-center">
+            {/* <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5 mt-1 " /> */}
+            <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => handlePasswordChange(e.target.value)} className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.password ? "border-red-500" : "border-white/30"}`} placeholder="Create a secure password"
             />
-            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "password" }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
+            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "password" }))} className="absolute right-3 mt-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
@@ -627,11 +628,11 @@ const SolarForm = () => {
         <div className="w-full ">
           <label className="w-full text-gray-300 text-base ">Confirm Password</label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5" />
+            {/* <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 w-5 h-5 mt-1" /> */}
             <input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-              className={`mt-3 w-full px-4 py-4 pl-10 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.confirmPassword ? "border-red-500" : "border-white/30"}`}
+              className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.confirmPassword ? "border-red-500" : "border-white/30"}`}
               placeholder="Confirm your password" />
-            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "confirmPassword" }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
+            <button type="button" onClick={() => dispatch(togglePasswordVisibility({ field: "confirmPassword" }))} className="absolute mt-1 right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
@@ -640,8 +641,9 @@ const SolarForm = () => {
         </div>
         {/* Password Requirements */}
         {password.length > 0 && (
-          <div className="bg-white/50 rounded-lg p-4 border border-gray-200">
-            <p className="tesla-caption text-sm text-gray-700 mb-3"> Password Requirements: </p>
+          <div className="disclaimer-bg mt-5 text-white p-4 rounded-lg text-sm bg-white/50 rounded-lg p-4 border border-gray-200">
+            <p className="tesla-caption text-sm text-gray-700 mb-3 text-white
+            "> Password Requirements: </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div className={`flex items-center gap-2 ${passwordRequirements.length ? "text-green-600" : "text-gray-500"}`} >
                 <Check className={`w-3 h-3 ${passwordRequirements.length ? "text-green-600" : "text-gray-400"}`} /><span>At least 8 characters</span> </div>
@@ -668,8 +670,9 @@ const SolarForm = () => {
 
       <h4 className="mt-10 flex items-center text-white text-lg"><img className="mr-2" src={profile} alt="profile" /> Property Information</h4>
       <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
-        <div className="w-full ">
+        <div className="w-full relative">
           <label className="w-full text-gray-300 text-base"> Property Address </label>
+           {/* <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" /> */}
           <input type="text" ref={addressInputRef} className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
             placeholder="Enter your address" onBlur={async (e) => await validateField("address", e.target.value)} />
           {getErrorMessage("address", "Please select a address.")}
@@ -717,7 +720,7 @@ const SolarForm = () => {
               }`}
           >
             {propertyTypes.map((type, index) => (
-              <option
+              <option className="text-black text lg"
                 key={index}
                 value={index === 0 ? "" : type}
                 disabled={index === 0}
@@ -727,19 +730,19 @@ const SolarForm = () => {
             ))}
           </select>
 
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+          {/* <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
               strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
-          </div>
+          </div> */}
           {getErrorMessage("propertyType", "Please select a property type.")}
         </div>
         {/* Utility Company */}
         {territories.length > 0 && (
           <div className="w-full">
-            <label className="block tesla-caption text-sm text-gray-700 mb-3">      Utility Company </label>
+            <label className="block tesla-caption text-base text-gray-300 mb-3">      Utility Company </label>
             <div className="relative group cursor-pointer text-brand-teal" onClick={() => setShowDropdown(!showDropdown)}>
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" />
+             
               <input readOnly value={selectedTerritory ? selectedTerritory.name : ""} placeholder="Select a Utility" className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white" />
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -767,8 +770,8 @@ const SolarForm = () => {
             className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.powerBill ? "border-red-500" : "border-white/30"}`}
             placeholder="150" />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
-          <button className="text-sm text-gray-400 flex items-center" onClick={() => setShowEdit(true)}>
-            <BarChart3 className="mr-1" /> or enter your energy consumption </button>
+          <button className="text-sm text-gray-400 flex items-center mt-5" onClick={() => setShowEdit(true)}>
+            <img className="mr-2" src={chartImage} /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
             messages and text messages to me about SunLink products and services at the telephone number I entered
             above, using an autodialer, even if I am on a national or state "Do Not Call" list. Message and data

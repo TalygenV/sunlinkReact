@@ -6,6 +6,7 @@ import { ArrowRight, Lock, Mail, Phone, User, X } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsEvents, trackEvent } from "../firebasedata/analytics";
+import cross from   '../assets/images/cross_svgrepo.com.svg'
 import { app, db, firestore } from "../firebasedata/firebase";
 interface SignInModalProps {
     isOpen: boolean; onClose: () => void; onSignInSuccess?: () => void; // Optional callback for successful sign-in
@@ -425,21 +426,24 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                         <div className="flex justify-center mb-4">
                             <Phone className="w-12 h-12 text-accent-400" />
                         </div>
-                        <h2 className="text-2xl font-light text-white mb-2">
+                        <h2 className="text-2xl text-black mb-4">
                             Welcome Back
                         </h2>
-                        <p className="text-gray-400 text-sm"> Enter your phone number to sign in </p>
+                        <p className="text-gray-800 mb-2 text-sm"> Enter your phone number to sign in </p>
                         <form onSubmit={handleSendCode} className="mt-8 space-y-6" noValidate>
                             <div>
-                                <button type="button" onClick={() => setStep("email")} className="text-sm text-white-400 hover:text-white-300 transition-colors duration-300 mb-4">
-                                    <p className="mt-2 text-sm text-red-400"> Use email instead</p>
+                                <button type="button" onClick={() => setStep("email")} className="gap-2 px-4 py-2 border border-gray-400 rounded-lg bg-[#e8e9ea] text-sm  hover:border-gray-700 hover:bg-gray-100 transition">
+                                    <p className="text-lg text-gray-800"> Use email instead</p>
                                 </button>
                             </div>
                             <div>
-                                <div className="relative">
-                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+
+
+
+                                <div className="w-full text-left">
+                                     <label className="w-full text-gray-800 text-base ">Enter Mobile Number</label>
                                     <input type="tel" value={phoneNumber} onChange={(e) => { setPhoneNumber(e.target.value); setFormErrors((prev) => ({ ...prev, phone: "" })); }} placeholder="(555) 555-5555"
-                                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-full text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20"
+                                        className="mt-3 w-full px-4 py-4 border border-gray-400 rounded-xl bg-[#e8e9ea] focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
                                 </div>
                                 {formErrors.phone && (
@@ -452,8 +456,8 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                                 type="submit"
                                 disabled={loading}
                                 whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="btn-sheen w-full flex items-center justify-center gap-3 px-8 py-3 text-white rounded-full shadow-xl transition-all duration-300 disabled:opacity-50"
+                                whileTap={{ scale: 0.98 }} 
+                                className="btn-sheen w-full flex items-center justify-center gap-3 orangegradbtn text-white px-8 py-3 rounded-md text-lg w-full transition-all duration-300"
                             >
                                 {loading ? (
                                     <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -534,23 +538,24 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                         <div className="flex justify-center mb-4">
                             <Mail className="w-12 h-12 text-accent-400 animate-pulse icon-glow-accent animate-fade-slide-up" />
                         </div>
-                        <h2 className="text-2xl font-light text-white mb-2 animate-fade-slide-up">
+                        <h2 className="text-2xl font-light text-black mb-2 animate-fade-slide-up">
                             {isSignUp ? "Create Account" : "Welcome Back"}
                         </h2>
-                        <p className="text-gray-400 text-sm animate-fade-slide-up">
+                        <p className="text-gray-800 text-sm animate-fade-slide-up">
                             {isSignUp ? "Sign up with your email" : "Sign in with your email"}
                         </p>
                         <form onSubmit={handleEmailAuth} className="mt-8 space-y-6" noValidate >
                             <div>
-                                <button type="button" onClick={() => setStep("phone")} className="text-sm text-accent-400 hover:text-accent-300 transition-colors duration-300 mb-4">
-                                    <p className="mt-2 text-sm text-red-400">Use phone instead</p>
+                                <button type="button" onClick={() => setStep("phone")} className="gap-2 px-4 py-2 border border-gray-400 rounded-lg bg-[#e8e9ea] text-sm  hover:border-gray-700 hover:bg-gray-100 transition">
+                                    <p className="text-lg text-gray-800">Use phone instead</p>
                                 </button>
                             </div>
                             <div>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <div className="w-full text-left">
+                                    {/* <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" /> */}
+                                    <label className="w-full text-gray-800 text-base ">Email</label>
                                     <input type="text" inputMode="email" autoComplete="email" value={email} onChange={(e) => { setEmail(e.target.value); setFormErrors((prev) => ({ ...prev, email: "" })); }}
-                                        placeholder="Enter your email" className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-full text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20"
+                                        placeholder="Enter your email" className="mt-3 w-full px-4 py-4 border border-gray-400 rounded-xl bg-[#e8e9ea] focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
                                 </div>
                                 {formErrors.email && (
@@ -560,8 +565,9 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                                 )}
                             </div>
                             <div>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <div className="w-full text-left">
+                                    {/* <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" /> */}
+                                     <label className="w-full text-gray-800 text-base ">Password</label>
                                     <input
                                         type="password"
                                         value={password}
@@ -570,7 +576,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                                             setFormErrors((prev) => ({ ...prev, password: "" }));
                                         }}
                                         placeholder="Enter your password"
-                                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-full text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20"
+                                        className="mt-3 w-full px-4 py-4 border border-gray-400 rounded-xl bg-[#e8e9ea] focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
                                 </div>
                                 {formErrors.password && (
@@ -610,7 +616,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                                 disabled={loading}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="btn-sheen w-full flex items-center justify-center gap-3 px-8 py-3 text-white rounded-full shadow-xl transition-all duration-300 disabled:opacity-50"
+                                className="btn-sheen w-full flex items-center justify-center gap-3 orangegradbtn text-white px-8 py-3 rounded-md text-lg w-full transition-all duration-300"
                             >
                                 {loading ? (
                                     <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -624,7 +630,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                             <button
                                 type="button"
                                 onClick={() => setIsSignUp(!isSignUp)}
-                                className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mt-4"
+                                className="text-sm text-gray-600 hover:text-orange transition-colors duration-300 mt-4"
                             >
                                 {isSignUp
                                     ? "Already have an account? Sign in"
@@ -719,9 +725,9 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-white/30 to-blue-500/20 rounded-3xl blur-xl" />
                         </motion.div>
 
-                        <div className="relative z-10 bg-black/80 backdrop-blur-xl rounded-3xl border border-white/10 p-8">
+                        <div className="relative z-10 bg-white text-black backdrop-blur-xl rounded-3xl border border-white/10 p-8">
                             <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors">
-                                <X className="w-5 h-5" /> </button>
+                               <img src={cross} alt="Close" className="h-6 w-6" /> </button>
                             <div className="text-center">
                                 {error && (<motion.div
                                     initial={{ opacity: 0, y: -10 }}
