@@ -721,7 +721,7 @@ dispatch(submitForm());
         </div>
         {/* Password Requirements */}
         {password.length > 0 && (
-          <div className="disclaimer-bg mt-5 text-white p-4 rounded-lg text-sm bg-white/50 rounded-lg p-4 border border-gray-200">
+          <div className="disclaimer-bg w-full mt-5 text-white p-4 rounded-lg text-sm bg-white/50 rounded-lg p-4 border border-gray-200">
             <p className="tesla-caption text-sm text-gray-700 mb-3 text-white
             "> Password Requirements: </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -937,12 +937,12 @@ dispatch(submitForm());
       {/* Energy Consumption Modal */}
         {showEnergyModal && (
           <div className="fixed inset-0 bg-slate-800 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="tesla-card tesla-glass max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand-orange to-brand-teal rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-6 h-6 text-white" />
+                    <div className="w-6 h-6 bg-gradient-to-r from-brand-orange to-brand-teal rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-black" />
                     </div>
                     <h3 className="tesla-heading text-2xl text-gray-900">
                       Energy Consumption
@@ -959,7 +959,7 @@ dispatch(submitForm());
                 </div>
 
                 {/* Toggle Buttons */}
-                <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+                <div className="flex bg-[#e8e9ea] rounded-lg p-1 mb-6">
                   <button
                     onClick={() => setEnergyInputMode("annual")}
                     className={`tesla-button flex-1 py-3 px-4 ${
@@ -994,7 +994,7 @@ dispatch(submitForm());
                           type="number"
                           value={annualUsage}
                           onChange={(e) => setAnnualUsage(e.target.value)}
-                          className="tesla-input w-full pr-16 pl-4 py-4 text-lg"
+                          className="tesla-input w-full prw-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black-16 pl-4 py-4 text-lg"
                           placeholder="12000"
                         />
                         <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">
@@ -1032,7 +1032,7 @@ dispatch(submitForm());
                               onChange={(e) =>
                                 handleMonthlyUsageChange(index, e.target.value)
                               }
-                              className="tesla-input w-full pr-10 pl-3 py-2 text-sm"
+                              className="w-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                               placeholder="1000"
                             />
                             <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs">
@@ -1063,7 +1063,7 @@ dispatch(submitForm());
                     onClick={() => {
                       handleEnergyModal(false);
                     }}
-                    className="tesla-button flex-1 bg-brand-gray hover:bg-brand-gray/80 text-gray-700 py-3 px-6"
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg"
                   >
                     Cancel
                   </button>
@@ -1074,7 +1074,7 @@ dispatch(submitForm());
                       (energyInputMode === "monthly" &&
                         monthlyUsages.every((usage) => !usage))
                     }
-                    className="tesla-button flex-1 bg-gradient-to-r from-brand-orange to-brand-teal hover:from-brand-orange-dark hover:to-brand-teal-dark text-white py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="orangegradbtn rounded-xl border border-[#F47121] py-4 px-5 text-lg font-normal text-white w-full flex justify-center"
                   >
                     Use This Data
                   </button>
@@ -1086,12 +1086,12 @@ dispatch(submitForm());
        {/* Ineligible Modal */}
         {showIneligibleModal && (
           <div className="fixed inset-0 bg-slate-800 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="tesla-card tesla-glass max-w-md w-full p-8 relative shadow-2xl">
+            <div className="bg-white rounded-3xl max-w-md w-full p-8 relative shadow-2xl">
               <button
                 onClick={closeIneligibleModal}
-                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200"
+                className="absolute top-4 right-4 w-8 h-8 bg-[#f46b30] hover:bg-black rounded-full flex items-center justify-center transition-colors duration-200"
               >
-                <X className="w-4 h-4 text-gray-600" />
+                <X className="w-4 h-4 text-white hover:text-white" />
               </button>
 
               <div className="text-center">
@@ -1141,7 +1141,7 @@ dispatch(submitForm());
 
                 <button
                   onClick={closeIneligibleModal}
-                  className="tesla-button w-full bg-gradient-to-r from-brand-orange to-brand-teal hover:from-brand-orange-dark hover:to-brand-teal-dark text-white py-3 px-6"
+                  className="btn-sheen w-full flex items-center justify-center gap-3 orangegradbtn text-white px-8 py-3 rounded-md text-lg w-full transition-all duration-300"
                 >
                   Understood
                 </button>
