@@ -85,6 +85,7 @@ export interface localUserData {
   propertyType: string;
   powerBill: number;
   state: string;
+  uid:string;
   genabilityInfo: GenabilityData;
   targetMonthlyBill: number;
   monthlyConsumption: number;
