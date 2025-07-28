@@ -28,7 +28,7 @@ function App() {
       <Header onSignInClick={() => setShowSignIn(true)} />
       <main>
         <HashRouter>
-        <Routes>
+        
           <Route path="/" element={isAuthenticated ? <Navigate to="/about" replace /> : <Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
@@ -38,7 +38,7 @@ function App() {
           <Route path="/battery-selection" element={<BatterySelection />} />
           <Route path="/battery-selection-customize" element={<BatterySelectionCustmize />} />
           <Route path="*" element={<div className="p-10 text-center text-2xl">404 - Page Not Found</div>} />
-        </Routes>
+        
         </HashRouter>
       </main>
 
