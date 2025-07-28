@@ -392,6 +392,9 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
               <form onSubmit={handleFormSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div>
+                  <h4 className="text-lg font-medium text-gray-500 mb-4">
+                    Pre-qualify for solar loan
+                  </h4>
                   <h4 className="text-lg font-medium text-black mb-4">
                     Create your personalized account
                   </h4>
