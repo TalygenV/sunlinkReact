@@ -336,58 +336,58 @@ if(!userData) return;
               </div>
             </div>
 
-            <div className="plain-black-bg p-10 rounded-2xl border-0">
-              <h3 className="text-xl mb-3 text-center text-white">Rising Utility Costs</h3>
-              <div className="bg-neutral-400 p-3 text-center text-white">
-                {utilityData.map((data, index) => {
-                  const height = Math.max((data.cost / maxCost) * 85, 8); // Minimum 8% height, max 85%
-                  const isHovered = hoveredYear === data.offset;
+            <div className="relative h-48 tesla-card-white bg-white p-4 border border-red-200 overflow-hidden">
+                    <div className="flex items-end justify-between h-full">
+                      {utilityData.map((data, index) => {
+                        const height = Math.max((data.cost / maxCost) * 85, 8); // Minimum 8% height, max 85%
+                        const isHovered = hoveredYear === data.offset;
 
-                  return (
-                    <div
-                      key={data.offset}
-                      className="relative flex flex-col items-center group cursor-pointer"
-                      style={{
-                        width: `${100 / utilityData.length - 1}%`,
-                      }}
-                      onMouseEnter={() => setHoveredYear(data.offset)}
-                      onMouseLeave={() => setHoveredYear(null)}
-                    >
-                      {/* Tooltip */}
-                      {isHovered && (
-                        <div className="absolute bottom-full mb-2 bg-red-600 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap z-20 shadow-lg transform -translate-x-1/2 left-1/2">
-                          <div className="tesla-subheading">
-                            Year {data.offset}
+                        return (
+                          <div
+                            key={data.offset}
+                            className="relative flex flex-col items-center group cursor-pointer"
+                            style={{
+                              width: `${100 / utilityData.length - 1}%`,
+                            }}
+                            onMouseEnter={() => setHoveredYear(data.offset)}
+                            onMouseLeave={() => setHoveredYear(null)}
+                          >
+                            {/* Tooltip */}
+                            {isHovered && (
+                              <div className="absolute bottom-full mb-2 bg-red-600 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap z-20 shadow-lg transform -translate-x-1/2 left-1/2">
+                                <div className="tesla-subheading">
+                                  Year {data.offset}
+                                </div>
+                                <div className="tesla-body">
+                                  ${Math.round(data.cost).toLocaleString()}
+                                  /year
+                                </div>
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-red-600"></div>
+                              </div>
+                            )}
+
+                            {/* Bar */}
+                            <div
+                              className={`w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-md transition-all duration-300 border border-red-500 ${
+                                isHovered
+                                  ? "opacity-100 shadow-lg scale-105"
+                                  : "opacity-90 hover:opacity-95"
+                              }`}
+                              style={{
+                                height: `${height}px`,
+                                minHeight: "0px",
+                              }}
+                            />
+
+                            {/* Year Label */}
+                            <div className="tesla-caption text-xs text-gray-600 mt-2 text-center">
+                              {data.offset === 0 ? "Now" : `${data.offset}y`}
+                            </div>
                           </div>
-                          <div className="tesla-body">
-                            ${Math.round(data.cost).toLocaleString()}
-                            /year
-                          </div>
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-red-600"></div>
-                        </div>
-                      )}
-
-                      {/* Bar */}
-                      <div
-                        className={`w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t-md transition-all duration-300 border border-red-500 ${isHovered
-                            ? "opacity-100 shadow-lg scale-105"
-                            : "opacity-90 hover:opacity-95"
-                          }`}
-                        style={{
-                          height: `${height}px`,
-                          minHeight: "0px",
-                        }}
-                      />
-
-                      {/* Year Label */}
-                      <div className="tesla-caption text-xs text-gray-600 mt-2 text-center">
-                        {data.offset === 0 ? "Now" : `${data.offset}y`}
-                      </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
             {kwhData && (
               <div className="space-y-2 mb-6 mt-6 plain-black-bg p-5 rounded-2xl border-0">
                 <div className="text-gray-300 text-center text-xl flex justify-center">
