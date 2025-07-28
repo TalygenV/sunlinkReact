@@ -42,30 +42,32 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
   };
 
   return (
-    <header className="relative z-50 bg-white">
+    <header className={`z-50 text-sm transition-all duration-300 ${
+  isScrolled ? 'fixed top-0 w-full bg-white shadow-md' : 'relative bg-white'
+}`}>
       {/* Top Bar */}
-      <div
-        className={`header-top hidden lg:flex items-center justify-between px-8 py-2 text-sm text-gray-700 bg-[rgba(255,249,241,1)] transition-all duration-300 ${
-          isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'
-        }`}
-      >
-        <div className="flex items-center space-x-2">
+     <div
+  className={`header-top hidden lg:flex items-center justify-between px-8 text-gray-700 bg-[rgba(255,249,241,1)] transition-all duration-500 ease-in-out overflow-hidden ${
+    isScrolled ? 'max-h-0 opacity-0' : 'max-h-24 opacity-100'
+  }`}
+>
+        <div className="flex items-center text-sm py-2">
           <img src={locationIcon} className="pe-1" alt="Location" />
           <span>Enter your location</span>
         </div>
-        <div className="flex items-center space-x-2 text-center">
+        <div className="flex items-center space-x-2 text-center py-2">
           Join 1000+ homeowners who’ve gone solar and spent $0 in sales commissions
           <img src={arrow} className="ps-1 mt-1" alt="Arrow" />
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center py-2">
           <img src={callIcon} className="pe-1" alt="Phone" />
           <span>Call us at +1 (801) 897-4270</span>
         </div>
       </div>
 
       {/* Main Nav */}
-      <div
-        className={`fixed top-10 w-full flex items-center justify-between p-6 lg:px-8 text-white bg-[#0c1a23] transition-all duration-300 z-50 ${
+      <div id="mainNav"
+        className={`fixed  w-full flex items-center justify-between p-6 lg:px-8 text-white bg-[#090f12] border-b border-[#2a2a2a] transition-all duration-300 z-50 ${
           isScrolled ? 'shadow-md scrolling' : ''
         }`}
       >

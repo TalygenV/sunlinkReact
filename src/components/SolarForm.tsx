@@ -713,7 +713,7 @@ dispatch(submitForm());
           <div className="disclaimer-bg mt-5 text-white p-4 rounded-lg text-sm bg-white/50 rounded-lg p-4 border border-gray-200">
             <p className="tesla-caption text-sm text-gray-700 mb-3 text-white
             "> Password Requirements: </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               <div className={`flex items-center gap-2 ${passwordRequirements.length ? "text-green-600" : "text-gray-500"}`} >
                 <Check className={`w-3 h-3 ${passwordRequirements.length ? "text-green-600" : "text-gray-400"}`} /><span>At least 8 characters</span> </div>
               <div className={`flex items-center gap-2 ${passwordRequirements.uppercase ? "text-green-600" : "text-gray-500"}`}>
