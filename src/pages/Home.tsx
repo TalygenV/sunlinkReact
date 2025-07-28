@@ -17,12 +17,12 @@ const Home = () => {
               <p className="mt-6 text-xl text-color">
                 Get instant quote and linked to a pre-screened, certified installer who delivers quality results without the high pressure sales tactics.
               </p>
-              <ul className="mt-6 text-xl text-white list-disc space-y-2 pl-5">
+              <ul className="mt-6 text-xl text-white space-y-2 list">
                 <li>Competitive pricing with completely transparent quotes and no hidden fees or surprises.</li>
                 <li>Receive your solar quote in minutes, not weeks, so you can start saving sooner.</li>
                 <li>
                   Licensed, insured, and background-checked installers.{' '}
-                  <a href="#" className="underline text-blue-300">
+                  <a href="#" className="underline">
                     Read more
                   </a>
                 </li>
