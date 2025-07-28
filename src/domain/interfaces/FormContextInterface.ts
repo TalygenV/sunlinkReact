@@ -1,11 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
-import { UserData } from "./UserDataInterface";
+import { localUserData } from "../../store/solarSlice";
 
 export interface FormContextType {
   showForm: boolean;
   setShowForm: Dispatch<SetStateAction<boolean>>;
   isAuthenticated: boolean;
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
-  userData: UserData;
-  setUserData: Dispatch<SetStateAction<UserData>>;
+  userData: localUserData
+  setUserData: Dispatch<SetStateAction<localUserData>>;
 }

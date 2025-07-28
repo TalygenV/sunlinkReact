@@ -557,6 +557,7 @@ const SolarForm = () => {
         profileComplete: true,
         createdAt: new Date(),
         stepName: "solarResult",
+        uid:user.uid
       };
 
       localStorage.setItem("userData", JSON.stringify(data));
