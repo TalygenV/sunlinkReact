@@ -13,7 +13,15 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const data = localStorage.getItem('userData');
+    if (data) {
+      setUserData(JSON.parse(data));
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,12 +33,19 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleSignOut = () => {
+    localStorage.removeItem('userData');
+    setUserData(null);
+    window.location.href = '/'; // optional: redirect to homepage
+  };
+
   return (
     <header className="relative z-50 bg-white">
       {/* Top Bar */}
       <div
-        className={`header-top hidden lg:flex items-center justify-between px-8 py-2 text-sm text-gray-700 bg-[rgba(255,249,241,1)] transition-all duration-300 ${isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'
-          }`}
+        className={`header-top hidden lg:flex items-center justify-between px-8 py-2 text-sm text-gray-700 bg-[rgba(255,249,241,1)] transition-all duration-300 ${
+          isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'
+        }`}
       >
         <div className="flex items-center space-x-2">
           <img src={locationIcon} className="pe-1" alt="Location" />
@@ -47,8 +62,11 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
       </div>
 
       {/* Main Nav */}
-
-      <div className={` fixed top-10 w-full flex topnavscrolled items-center justify-between p-6 lg:px-8 text-white bg-[#0c1a23] transition-all duration-300 z-50 ${isScrolled ? 'shadow-md scrolling' : ''}`}>
+      <div
+        className={`fixed top-10 w-full flex items-center justify-between p-6 lg:px-8 text-white bg-[#0c1a23] transition-all duration-300 z-50 ${
+          isScrolled ? 'shadow-md scrolling' : ''
+        }`}
+      >
         <Link to="/" className="-m-1.5 p-1.5">
           <img src={logo} alt="Sunlink Logo" className="h-8 w-auto" />
         </Link>
@@ -64,62 +82,92 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex align-center lg:gap-x-2  xl:gap-x-4 2xl:gap-x-12 uppercase">
-          <Link to="/about" className={isActive('/about') ? 'text-blue-400' : 'text-white'}>
-            About
-          </Link>
-          <Link to="/products" className={isActive('/products') ? 'text-blue-400' : 'text-white'}>
-            Products
-          </Link>
-          <Link to="/installation" className={isActive('/installation') ? 'text-blue-400' : 'text-white'}>
-            Installation
-          </Link>
-          <Link to="/financing" className={isActive('/financing') ? 'text-blue-400' : 'text-white'}>
-            Financing
-          </Link>
-          <Link to="/resources" className={isActive('/resources') ? 'text-blue-400' : 'text-white'}>
-            Resources
-          </Link>
-          <Link to="/contact" className={isActive('/contact') ? 'text-blue-400' : 'text-white'}>
-            Contact
-          </Link>
-        </nav>
+        {userData === null ? (
+          <nav className="hidden lg:flex align-center lg:gap-x-2 xl:gap-x-4 2xl:gap-x-12 uppercase">
+            <Link to="/about" className={isActive('/about') ? 'text-blue-400' : 'text-white'}>
+              About
+            </Link>
+            <Link to="/products" className={isActive('/products') ? 'text-blue-400' : 'text-white'}>
+              Products
+            </Link>
+            <Link to="/installation" className={isActive('/installation') ? 'text-blue-400' : 'text-white'}>
+              Installation
+            </Link>
+            <Link to="/financing" className={isActive('/financing') ? 'text-blue-400' : 'text-white'}>
+              Financing
+            </Link>
+            <Link to="/resources" className={isActive('/resources') ? 'text-blue-400' : 'text-white'}>
+              Resources
+            </Link>
+            <Link to="/contact" className={isActive('/contact') ? 'text-blue-400' : 'text-white'}>
+              Contact
+            </Link>
+          </nav>
+        ) : null}
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-x-3">
-          <button onClick={onSignInClick} className="uppercase text-white text-sm">Log in</button>
-          <Link to="/signup" className="hidden xl:block bg-orange-500 hover:bg-orange-600 text-white text-sm uppercase px-4 py-2 rounded"> Try Sunlink Now </Link>
+          {userData ? (
+            <button onClick={handleSignOut} className="uppercase text-white text-sm">
+              Sign Out
+            </button>
+          ) : (
+            <>
+              <button onClick={onSignInClick} className="uppercase text-white text-sm">
+                Log in
+              </button>
+              <Link
+                to="/signup"
+                className="hidden xl:block bg-orange-500 hover:bg-orange-600 text-white text-sm uppercase px-4 py-2 rounded"
+              >
+                Try Sunlink Now
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-white text-black px-6 py-4 space-y-4">
-          <Link to="/about" className="block">
-            About
-          </Link>
-          <Link to="/products" className="block">
-            Products
-          </Link>
-          <Link to="/installation" className="block">
-            Installation
-          </Link>
-          <Link to="/financing" className="block">
-            Financing
-          </Link>
-          <Link to="/resources" className="block">
-            Resources
-          </Link>
-          <Link to="/contact" className="block">
-            Contact
-          </Link>
-          {/* <Link to="/signin" className="block">
-            Log in
-          </Link> */}
-          <button onClick={() => { setIsMobileMenuOpen(false); onSignInClick(); }} className="block w-full text-left">Log in</button>
-          <Link to="/signup" className="block bg-orange-500 text-white text-center py-2 rounded">
-            Try Sunlink Now
-          </Link>
+          {userData === null ? (
+            <>
+              <Link to="/about" className="block">
+                About
+              </Link>
+              <Link to="/products" className="block">
+                Products
+              </Link>
+              <Link to="/installation" className="block">
+                Installation
+              </Link>
+              <Link to="/financing" className="block">
+                Financing
+              </Link>
+              <Link to="/resources" className="block">
+                Resources
+              </Link>
+              <Link to="/contact" className="block">
+                Contact
+              </Link>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onSignInClick();
+                }}
+                className="block w-full text-left"
+              >
+                Log in
+              </button>
+              <Link to="/signup" className="block bg-orange-500 text-white text-center py-2 rounded">
+                Try Sunlink Now
+              </Link>
+            </>
+          ) : (
+            <button onClick={handleSignOut} className="block w-full text-left text-red-500 font-semibold">
+              Sign Out
+            </button>
+          )}
         </div>
       )}
     </header>
