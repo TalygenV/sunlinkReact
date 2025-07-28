@@ -1,7 +1,7 @@
 import React from 'react';
 import { getAuth } from "firebase/auth";
 import { app } from "../src/firebasedata/firebase";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route,HashRouter } from 'react-router-dom';
 import Header from './components/Header';
 
 import Home from './pages/Home';
@@ -27,6 +27,7 @@ function App() {
     <>
       <Header onSignInClick={() => setShowSignIn(true)} />
       <main>
+        <HashRouter>
         <Routes>
           <Route path="/" element={isAuthenticated ? <Navigate to="/about" replace /> : <Home />} />
           <Route path="/about" element={<About />} />
@@ -38,6 +39,7 @@ function App() {
           <Route path="/battery-selection-customize" element={<BatterySelectionCustmize />} />
           <Route path="*" element={<div className="p-10 text-center text-2xl">404 - Page Not Found</div>} />
         </Routes>
+        </HashRouter>
       </main>
 
       <SignInModal
