@@ -91,7 +91,7 @@ const OptimizedInput: React.FC<OptimizedInputProps> = ({
         autoComplete={autoComplete}
         maxLength={maxLength}
         pattern={pattern}
-        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 ${className}`}
+        className={`w-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black  ${className}`}
       />
     </div>
   );
@@ -353,16 +353,17 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-hidden z-50">
+      <div className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col rounded-[30px]">
         {/* Modal Header - Fixed */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-white" />
+              
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-medium text-black">
+              <h3 className="text-2xl font-medium text-black">
                 Solar Loan Application
               </h3>
               <p className="text-sm text-gray-600">
@@ -475,7 +476,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                           label="Annual Income"
                           placeholder="$"
                           required
-                          className="w-full pl-8 pr-4 py-3 rounded-lg text-black placeholder-gray-500"
+                          className="w-full pl-8 pr-4 py-3 text-black"
                           formatter={formatIncome}
                           onValueChange={handleInputChange}
                         />
@@ -604,7 +605,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                     <AlertCircle className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
                     <div className="text-sm text-gray-600">
                       <p className="font-medium mb-2">Important Disclaimers:</p>
-                      <ul className="space-y-1 text-xs">
+                      <ul className="space-y-2 text-sm">
                         <li>
                           • This application does not guarantee loan approval
                         </li>
