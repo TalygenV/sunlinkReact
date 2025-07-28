@@ -1,3 +1,4 @@
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom'; // <-- import router
@@ -9,7 +10,7 @@ import "./firebase.ts";
 import { FormProvider } from './context/FormContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  //<StrictMode>
     <Provider store={store}>
       <BrowserRouter>
       <FormProvider>
@@ -17,5 +18,6 @@ createRoot(document.getElementById('root')!).render(
         </FormProvider>
       </BrowserRouter>
     </Provider>
-  </StrictMode>
+  //</StrictMode>
 );
+
