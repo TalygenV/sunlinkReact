@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Check, CreditCard } from "lucide-react";
 import LoanApplicationModal from "./LoanApplicationModal";
+import QuotationPopup from "./QuotationPopup";
+import SunlightDocuSign from "./SunlightDocuSign"
 
 export interface LoanOption {
   name: string;
@@ -19,6 +21,7 @@ export interface LoanOptionCardProps {
   totalCost: number;
   selectedPlan: any;
   onSelectPlan: (option: any) => void;
+  sfAccessToken:string,
   onPreQualifyClick: (option: any) => void;
   badgeText?: string;
   badgeColor?: string;
@@ -29,6 +32,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   option,
   totalCost,
   selectedPlan,
+  sfAccessToken,
   onSelectPlan,
   onPreQualifyClick,
   badgeText = "Fastest Payoff",
@@ -137,6 +141,16 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedLoanOption, setSelectedLoanOption] = useState<any>(null);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
+  const [sfAccessToken, setsfAccessToken] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [quotationPopup, setquotationPopup] = useState(false);
+  const [Loanapplicataiondata, setLoanapplicataiondata] = useState<any>(null);
+  const [formDataRef, setformDataRef] = useState<any>(null);
+  const [signingUrl, setSigningUrl] = useState<string>("");
+  const [showDocuSignModal, setShowDocuSignModal] = useState(false);
+
+
+
 
   const fetchAPRTerms = async () => {
     console.log("✅ fetchAPRTerms CALLED");
@@ -163,6 +177,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
       const products = initialRes?.product_response?.products || [];
       const sfAccessToken = initialRes?.access_token;
+      setsfAccessToken(sfAccessToken);
       const selectedState =
         JSON.parse(localStorage.getItem("solarSetup") || "{}")?.state ||
         "California";
@@ -232,6 +247,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   const hasFetched = useRef(false);
   const handlePreQualifyClick = (option: any) => {
+    setSelectedPlan(option);
     setSelectedLoanOption(option);
     setIsLoanModalOpen(true);
   };
@@ -242,6 +258,55 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
       fetchAPRTerms();
     }
   }, []);
+
+  const LoanApplicationCreateSubmit = async (data: any ,formDataRef: any,sfAccessToken:string) => {
+    setIsLoanModalOpen(false);
+    setquotationPopup(true);
+    setLoanapplicataiondata(data);
+    setformDataRef(formDataRef);
+    setsfAccessToken(sfAccessToken as any);
+  };
+
+  const CreateSunlightSingingLink = async (projectId: string) => {
+    console.log("In CreateSunlightSingingLink");
+    debugger;
+    const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
+
+    const response = await fetch(
+      "https://us-central1-sunlink-21942.cloudfunctions.net/loanDocsSunLight",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sfAccessToken: `Bearer ${sfAccessToken}`,
+          projectId: projectId,
+          returnUrl: returnUrl,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error || `HTTP error! status: ${response.status}`
+      );
+    }
+    const result = await response.json();
+
+    if (result.projects) {
+      setSigningUrl(result.projects[0].envelopeURL);
+      setquotationPopup(false);
+      setShowDocuSignModal(true);
+    } else {
+      throw new Error("No signing URL received from server");
+    }
+
+  }
+  const handleSigningCancel = () => {
+    setShowDocuSignModal(false);
+  };
 
   const handleSelectPlan = (option: LoanOption) => {
     setSelectedPlan(option.key);
@@ -256,6 +321,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
           option={option}
           totalCost={totalCost}
           selectedPlan={selectedPlan}
+          sfAccessToken={sfAccessToken ?? ""}
           onPreQualifyClick={handlePreQualifyClick}
           onSelectPlan={handleSelectPlan}
           features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
@@ -266,13 +332,40 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
       ))}
 
 <LoanApplicationModal
-          isOpen={isLoanModalOpen}
-          onClose={() => setIsLoanModalOpen(false)}
-          selectedOption={selectedLoanOption}
-          totalPrice={totalCost}
-        />
+        isOpen={isLoanModalOpen}
+        onClose={() => setIsLoanModalOpen(false)}
+        selectedOption={selectedLoanOption}
+        sfAccessToken={sfAccessToken ?? ""}
+        selectedPlan={selectedPlan}
+        totalPrice={totalCost}
+        onSubmit={(data, formDataRef,sfAccessToken) => LoanApplicationCreateSubmit(data,formDataRef,sfAccessToken)}
+      />
+
+      <QuotationPopup
+        isOpen={quotationPopup}
+        onClose={() => setquotationPopup(false)}
+        planChosen={selectedPlan ?? ""}
+        totalPrice={totalCost}
+        displayPrice={totalCost}
+        sfAccessToken={sfAccessToken ?? ""}
+        Loanapplicataiondata={Loanapplicataiondata}
+        handleDocuSignCompleteContract={(projectId) => CreateSunlightSingingLink(projectId)}
+        formDataRef={formDataRef}
+        isLoading={isLoading}
+      />
+
+      <SunlightDocuSign
+        isOpen={showDocuSignModal}
+        signingUrl={signingUrl}
+        onCancel={handleSigningCancel}
+      />
     </div>
   );
 };
 
+
+
+
 export default LoanOptionsPage;
+
+

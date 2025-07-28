@@ -127,7 +127,6 @@
 //   }
 //   var filteredProductsincheck = {};
 //   const fetchAPRTerms = async () => {
-//     debugger;
 //     try {
 //       const fetchJSON = async (url: string, body: any) => {
 //         const res = await fetch(url, {
@@ -206,7 +205,6 @@
 //               projectCategory: product.projectCategory || "Solar",
 //             }
 //           );
-//           debugger;
 //           return {
 //             result: data,
 //             name: product.name,

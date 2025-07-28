@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
-import { X, CreditCard, AlertCircle, Clock, CheckCircle, Mail, Send } from 'lucide-react';
+import React, { useRef, useState } from "react";
+import {
+  X,
+  CreditCard,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Mail,
+  Send,
+} from "lucide-react";
+import QuotationPopup from "./QuotationPopup";
 
 interface LoanApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedOption: any;
+  sfAccessToken: string;
+  selectedPlan: any;
   totalPrice: number;
+  onSubmit?: (data: any,formDataRef: any,sfAccessToken: string) => void;
 }
 
 interface OptimizedInputProps {
@@ -20,6 +32,7 @@ interface OptimizedInputProps {
   pattern?: string;
   className?: string;
   formatter?: (value: string) => string;
+  onValueChange?: (name: string, value: string) => void;
 }
 
 interface OptimizedSelectProps {
@@ -29,6 +42,7 @@ interface OptimizedSelectProps {
   required?: boolean;
   autoComplete?: string;
   options: Array<{ value: string; label: string }>;
+  onValueChange?: (name: string, value: string) => void;
 }
 
 const OptimizedInput: React.FC<OptimizedInputProps> = ({
@@ -42,7 +56,8 @@ const OptimizedInput: React.FC<OptimizedInputProps> = ({
   maxLength,
   pattern,
   className = "",
-  formatter
+  formatter,
+  onValueChange,
 }) => {
   const [value, setValue] = useState("");
 
@@ -52,11 +67,17 @@ const OptimizedInput: React.FC<OptimizedInputProps> = ({
       newValue = formatter(newValue);
     }
     setValue(newValue);
+    if (onValueChange) {
+      onValueChange(name, newValue);
+    }
   };
 
   return (
     <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
         {label}
       </label>
       <input
@@ -82,20 +103,30 @@ const OptimizedSelect: React.FC<OptimizedSelectProps> = ({
   label,
   required = false,
   autoComplete,
-  options
+  options,
+  onValueChange,
 }) => {
   const [value, setValue] = useState("");
-
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setValue(newValue);
+    if (onValueChange) {
+      onValueChange(name, newValue);
+    }
+  };
   return (
     <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
         {label}
       </label>
       <select
         id={id}
         name={name}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleChange}
         required={required}
         autoComplete={autoComplete}
         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -115,12 +146,39 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   isOpen,
   onClose,
   selectedOption,
-  totalPrice
+  sfAccessToken,
+  selectedPlan,
+  totalPrice,
+  onSubmit,
 }) => {
-  const [applicationStep, setApplicationStep] = useState<"form" | "processing" | "approved" | "documents">("form");
+  const [applicationStep, setApplicationStep] = useState<
+    "form" | "processing" | "approved" | "documents"
+  >("form");
   const [isLoading, setIsLoading] = useState(false);
   const [showCreditCheckModal, setShowCreditCheckModal] = useState(false);
-
+  const [projectId, setProjectId] = useState("");
+  const [applicationId, setApplicationId] = useState("");
+  const handleInputChange = (name: string, value: string) => {
+    formDataRef.current[name as keyof typeof formDataRef.current] = value;
+  };
+  const formDataRef = useRef({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    ssn: "",
+    income: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    dateOfBirth: "",
+    employerName: "",
+    jobTitle: "",
+    annualIncome: "",
+    employmentMonths: "",
+    employmentYears: "",
+  });
   if (!isOpen) return null;
 
   const handleCloseModal = () => {
@@ -129,13 +187,94 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
+    debugger;
     e.preventDefault();
-    setApplicationStep("processing");
-    
-    // Simulate processing
-    setTimeout(() => {
-      setApplicationStep("approved");
-    }, 3000);
+   // setApplicationStep("processing");
+   console.log("In Submit Form");
+    console.log(selectedPlan);
+    try {
+      const res = await fetch(
+        "https://us-central1-sunlink-21942.cloudfunctions.net/createSolarProject",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sfAccessToken: `Bearer ${sfAccessToken}`,
+            apr: selectedPlan.rate,
+            term: selectedPlan.badge.split("-")[0],
+            productType: "Solar",
+            installStreet: formDataRef.current.address,
+            installCity: formDataRef.current.city,
+            installStateName: formDataRef.current.state,
+            installZipCode: formDataRef.current.zipCode,
+            firstName: formDataRef.current.firstName,
+            lastName: formDataRef.current.lastName,
+            phone: formDataRef.current.phone,
+            otherPhone: formDataRef.current.phone,
+            email: formDataRef.current.email,
+            mailingStreet: formDataRef.current.address,
+            mailingCity: formDataRef.current.city,
+            mailingStateName: formDataRef.current.state,
+            mailingZipCode: formDataRef.current.zipCode,
+            residenceStreet: formDataRef.current.address,
+            residenceCity: formDataRef.current.city,
+            residenceStateName: formDataRef.current.state,
+            residenceZipCode: formDataRef.current.zipCode,
+            dateOfBirth: formDataRef.current.dateOfBirth || "1990-01-01",
+            ssn: formDataRef.current.ssn.replace(/-/g, ""),
+            annualIncome: formDataRef.current.income.replace(/\D/g, ""),
+            employerName: formDataRef.current.employerName,
+            jobTitle: formDataRef.current.jobTitle,
+            employmentYears: formDataRef.current.employmentYears,
+            employmentMonths: formDataRef.current.employmentMonths,
+            loanAmount: displayPrice,
+            projectType: "Rooftop PV",
+            estAnnualProductionkwh: 29581,
+            inverterCount: 1,
+            inverterMake: "a1sJ0000004kwGW",
+            inverterModel: "TUV6000",
+            moduleCount: 20,
+            moduleMake: "a1sJ0000004kwFx",
+            moduleModel: "HW320",
+            systemSize: 25,
+          }),
+        }
+      );
+      const data = await res.json();
+
+      const firstProject = data.projects?.[0];
+      const firstApplicant = firstProject?.applicants?.[0];
+      if (onSubmit) {
+        onSubmit(data,formDataRef,sfAccessToken);
+      }
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.error || `HTTP error! status: ${res.status}`
+        );
+      } else {
+        localStorage.setItem("pid", firstProject.id);
+        setProjectId(firstProject.id);
+        setApplicationId(firstApplicant.id);
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null);
+          throw new Error(
+            errorData?.error || `HTTP error! status: ${res.status}`
+          );
+        } else {
+          localStorage.removeItem("planOptionlocal");
+          setTimeout(() => {
+            setApplicationStep("approved");
+          }, 2000);
+        }
+      }
+    } catch (error) {
+      setApplicationStep("form");
+      console.log("Error submitting form:", error);
+    }
   };
 
   const submitCreditCheck = async () => {
@@ -153,34 +292,34 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 
   // Formatters
   const formatSSN = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
+    const cleaned = value.replace(/\D/g, "");
     const match = cleaned.match(/^(\d{0,3})(\d{0,2})(\d{0,4})$/);
     if (match) {
-      return [match[1], match[2], match[3]].filter(Boolean).join('-');
+      return [match[1], match[2], match[3]].filter(Boolean).join("-");
     }
     return value;
   };
 
   const formatIncome = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    return cleaned ? `$${parseInt(cleaned).toLocaleString()}` : '';
+    const cleaned = value.replace(/\D/g, "");
+    return cleaned ? `$${parseInt(cleaned).toLocaleString()}` : "";
   };
 
   const formatZipCode = (value: string) => {
-    return value.replace(/\D/g, '').slice(0, 5);
+    return value.replace(/\D/g, "").slice(0, 5);
   };
 
   const stateOptions = [
-    { value: "AL", label: "Alabama" },
-    { value: "AK", label: "Alaska" },
-    { value: "AZ", label: "Arizona" },
-    { value: "AR", label: "Arkansas" },
-    { value: "CA", label: "California" },
-    { value: "CO", label: "Colorado" },
-    { value: "CT", label: "Connecticut" },
-    { value: "DE", label: "Delaware" },
-    { value: "FL", label: "Florida" },
-    { value: "GA", label: "Georgia" },
+    { value: "Alabama", label: "Alabama" },
+    { value: "Alaska", label: "Alaska" },
+    { value: "Arizona", label: "Arizona" },
+    { value: "Arkansas", label: "Arkansas" },
+    { value: "California", label: "California" },
+    { value: "Colorado", label: "Colorado" },
+    { value: "Connecticut", label: "Connecticut" },
+    { value: "Delaware", label: "Delaware" },
+    { value: "Florida", label: "Florida" },
+    { value: "Georgia", label: "Georgia" },
     // Add more states as needed
   ];
 
@@ -189,7 +328,8 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <h3 className="text-lg font-medium mb-4">Credit Check Required</h3>
         <p className="text-gray-600 mb-6">
-          To proceed with your loan application, we need to perform a credit check.
+          To proceed with your loan application, we need to perform a credit
+          check.
         </p>
         <div className="flex space-x-4">
           <button
@@ -263,6 +403,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="Enter your first name"
                       required
                       autoComplete="given-name"
+                      onValueChange={handleInputChange}
                     />
                     <OptimizedInput
                       id="lastName"
@@ -272,6 +413,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="Enter your last name"
                       required
                       autoComplete="family-name"
+                      onValueChange={handleInputChange}
                     />
                   </div>
                 </div>
@@ -290,6 +432,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="your.email@example.com"
                       required
                       autoComplete="email"
+                      onValueChange={handleInputChange}
                     />
                     <OptimizedInput
                       id="phone"
@@ -299,6 +442,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="(555) 123-4567"
                       required
                       autoComplete="tel"
+                      onValueChange={handleInputChange}
                     />
                   </div>
                 </div>
@@ -319,6 +463,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       maxLength={11}
                       autoComplete="off"
                       formatter={formatSSN}
+                      onValueChange={handleInputChange}
                     />
                     <div className="w-full">
                       <div className="relative">
@@ -332,6 +477,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                           required
                           className="w-full pl-8 pr-4 py-3 rounded-lg text-black placeholder-gray-500"
                           formatter={formatIncome}
+                          onValueChange={handleInputChange}
                         />
                       </div>
                     </div>
@@ -352,6 +498,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="123 Main Street"
                       required
                       autoComplete="street-address"
+                      onValueChange={handleInputChange}
                     />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <OptimizedInput
@@ -362,6 +509,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         placeholder="City"
                         required
                         autoComplete="address-level2"
+                        onValueChange={handleInputChange}
                       />
                       <OptimizedSelect
                         id="state"
@@ -370,6 +518,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         required
                         autoComplete="address-level1"
                         options={stateOptions}
+                        onValueChange={handleInputChange}
                       />
                       <OptimizedInput
                         id="zipCode"
@@ -382,6 +531,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         pattern="[0-9]{5}"
                         autoComplete="postal-code"
                         formatter={formatZipCode}
+                        onValueChange={handleInputChange}
                       />
                     </div>
                   </div>
@@ -401,6 +551,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                       placeholder="Employer Name"
                       required
                       autoComplete="organization"
+                      onValueChange={handleInputChange}
                     />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <OptimizedInput
@@ -411,15 +562,17 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         placeholder="Job Title"
                         required
                         autoComplete="organization-title"
+                        onValueChange={handleInputChange}
                       />
                       <OptimizedInput
-                        id="dateofBirth"
-                        name="dateofBirth"
+                        id="dateOfBirth"
+                        name="dateOfBirth"
                         type="date"
                         label="Date of Birth"
                         placeholder="Date of Birth"
                         required
                         autoComplete="bday"
+                        onValueChange={handleInputChange}
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -430,6 +583,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         label="Employment Years"
                         placeholder="Employment Years"
                         required
+                        onValueChange={handleInputChange}
                       />
                       <OptimizedInput
                         id="employmentMonths"
@@ -438,6 +592,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                         label="Employment Months"
                         placeholder="Employment Months"
                         required
+                        onValueChange={handleInputChange}
                       />
                     </div>
                   </div>
@@ -494,134 +649,6 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
             </div>
           )}
 
-          {applicationStep === "processing" && (
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                <Clock className="w-8 h-8 text-white animate-spin" />
-              </div>
-
-              <h4 className="text-2xl font-light text-black mb-4">
-                Processing Your Application
-              </h4>
-              <p className="text-gray-600 mb-6">
-                We're reviewing your information and checking your credit...
-              </p>
-            </div>
-          )}
-
-          {applicationStep === "approved" && (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-8 h-8 text-white animate-pulse" />
-              </div>
-              <h4 className="text-2xl font-light text-black mb-2">
-                Congratulations! Quotation Generated
-              </h4>
-              <p className="text-gray-600 mb-8">
-                Your quotation has been generated for solar financing up to $
-                {totalPrice.toLocaleString()}
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                  <div className="text-2xl font-bold text-black">
-                    {planChosen?.rate || '4.49'}%
-                  </div>
-                  <div className="text-sm text-gray-600">APR Rate</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                  <div className="text-2xl font-bold text-black">
-                    ${displayPrice.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600">Approved Amount</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                  <div className="text-2xl font-bold text-black">
-                    {planChosen?.badge || '15-Year'}
-                  </div>
-                  <div className="text-sm text-gray-600">Loan Term</div>
-                </div>
-              </div>
-
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
-                <div className="flex items-center space-x-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-green-800">
-                    Quotation Generated
-                  </span>
-                </div>
-                <ul className="text-sm text-green-700 space-y-1">
-                  <li>• No impact on credit score for pre-qualification</li>
-                  <li>• Rate locked for 30 days</li>
-                  <li>• No prepayment penalties</li>
-                  <li>• Flexible payment options available</li>
-                </ul>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  onClick={submitCreditCheck}
-                  className="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
-                  type="button"
-                  disabled={isLoading}
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>Submit Credit Check</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {applicationStep === "documents" && (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Send className="w-8 h-8 text-white" />
-              </div>
-              <h4 className="text-2xl font-light text-black mb-2">
-                Documents Sent Successfully!
-              </h4>
-              <p className="text-gray-600 mb-6">
-                Your loan documents have been sent to your email address.
-              </p>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <span className="font-medium text-blue-800">Email Sent</span>
-                </div>
-                <div className="text-sm text-blue-700 space-y-2">
-                  <p>• Pre-approval letter with loan terms</p>
-                  <p>• Next steps and timeline information</p>
-                  <p>• Contact information for your loan specialist</p>
-                  <p>• Frequently asked questions</p>
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center space-x-2 mb-2">
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
-                  <span className="font-medium text-yellow-800">
-                    Important Note
-                  </span>
-                </div>
-                <p className="text-sm text-yellow-700">
-                  Look out for documents from{" "}
-                  <span className="font-semibold">"Sunlight Financial"</span> in
-                  your email inbox. Check your spam folder if you don't see them
-                  within 10 minutes.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-4">
-                  Continuing with your solar system order...
-                </p>
-                <div className="flex justify-center">
-                  <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              </div>
-            </div>
-          )}
           {showCreditCheckModal && <CreditCheckModal />}
         </div>
       </div>
