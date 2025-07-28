@@ -40,12 +40,46 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   features,
   recommendation,
 }) => {
+  
+  
+  // Extract badge value (before dash, converted to number)
+  const badgeValue = parseInt(option.badge?.split("-")[0]);
+
+  // Define default values
+  let dynamicBadgeText = badgeText || "Fastest Payoff";
+  let dynamicBadgeColor = badgeColor || "bg-red-500";
+  let dynamicFeatures = features;
+  let dynamicRecommendation = recommendation || "";
+
+  // Override values based on badgeValue
+  switch (badgeValue) {
+    case 60:
+      dynamicBadgeText = "Fastest Payoff";
+      dynamicBadgeColor = "bg-red-500";
+      dynamicFeatures = ["Lowest total interest paid", "Build equity fastest","Highest monthly tax benefits","Best for high-income households"];
+      dynamicRecommendation = "Perfect if you want to own your system quickly and have strong monthly cash flow.";
+      break;
+    case 180:
+      dynamicBadgeText = "Most Popular";
+      dynamicBadgeColor = "bg-teal-600";
+      dynamicFeatures = ["Balanced payment & savings", "Moderate monthly commitment","Good interest savings","Flexible for most budgets"];
+      dynamicRecommendation ="The sweet spot between affordability and total cost - chosen by 70% of our customers.";
+      break;
+    case 300:
+      dynamicBadgeText = "Lowest Payment";
+      dynamicBadgeColor = "bg-indigo-600";
+      dynamicFeatures = ["Lowest monthly payment", "Immediate positive cashflow","Easier budget integration","Long-term wealth building"];
+      dynamicRecommendation ="Ideal if you want maximum monthly savings from day one with minimal payment stress.";
+      break;
+    default:
+      break;
+  }
   return (
     <div className="bg-white relative rounded-2xl shadow-lg px-4 pt-8 pb-4">
       <span
-        className={`absolute -top-3 left-1/2 transform -translate-x-1/2 ${badgeColor} text-white text-xs px-3 py-1 rounded-full`}
+        className={`absolute -top-3 left-1/2 transform -translate-x-1/2 ${dynamicBadgeColor} text-white text-xs px-3 py-1 rounded-full`}
       >
-        {badgeText}
+        {dynamicBadgeText}
       </span>
 
       <div className="flex items-center space-x-3 mb-4">
@@ -102,7 +136,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
       </div>
 
       <ul className="list-none text-xs space-y-2">
-        {features.map((feature, index) => (
+        {dynamicFeatures.map((feature, index) => (
           <li key={index} className="flex items-center text-gray-500">
             <Check className="mr-3 h-4 w-4 text-black text-green-500" />
             {feature}
@@ -112,7 +146,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
 
       <div className="bg-gray-100 mt-4 p-3 rounded-xl text-sm text-gray-600">
         <p className="text-red-500 font-medium">Recommended for:</p>
-        {recommendation}
+        {dynamicRecommendation}
       </div>
 
       <button
@@ -129,7 +163,6 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
     </div>
   );
 };
-
 // Add props interface for LoanOptionsPage
 interface LoanOptionsPageProps {
   totalCost: number;
@@ -149,10 +182,15 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [signingUrl, setSigningUrl] = useState<string>("");
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
 
-
+  const skeletonLoanOptions: Partial<LoanOption>[] = [
+    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-60", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
+    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-180", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
+    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-300", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } }
+  ];
 
 
   const fetchAPRTerms = async () => {
+    setIsLoading(true); 
     console.log("✅ fetchAPRTerms CALLED");
     try {
       const fetchJSON = async (url: string, body: any) => {
@@ -243,6 +281,9 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
     } catch (error: any) {
       console.error("Error in fetchAPRTerms:", error.message);
     }
+    finally{
+      setIsLoading(false); 
+    }
   };
 
   const hasFetched = useRef(false);
@@ -315,18 +356,20 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-      {loanOptions.map((option) => (
-        <LoanOptionCard
-          key={option.key}
-          option={option}
-          totalCost={totalCost}
-          selectedPlan={selectedPlan}
-          sfAccessToken={sfAccessToken ?? ""}
-          onPreQualifyClick={handlePreQualifyClick}
-          onSelectPlan={handleSelectPlan}
-          features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
-          recommendation="Homeowners with strong credit and stable income"
-        />
+  {(isLoading ? skeletonLoanOptions : loanOptions).map((option, idx) => (
+    <LoanOptionCard
+      key={option.key || `skeleton-${idx}`}
+      option={option as LoanOption}
+      totalCost={totalCost}
+      selectedPlan={selectedPlan}
+      sfAccessToken={sfAccessToken ?? ""}
+      onPreQualifyClick={isLoading ? () => {} : handlePreQualifyClick}
+      onSelectPlan={handleSelectPlan}
+      features={isLoading ? [] : ["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
+      recommendation={isLoading ? "" : "Homeowners with strong credit and stable income"}
+      badgeText={isLoading ? "Loading..." : undefined}
+      badgeColor={isLoading ? "bg-gray-300 animate-pulse" : undefined}
+    />
 
         
       ))}

@@ -1564,7 +1564,7 @@ footer {
 
 /******************** Admin Panel - CSS Starts********************************/
 
-/* Sushil Flow 2 page*/
+/* sk Flow 2 page*/
 
 .right-panel-bg {
     background: #373838;
@@ -1597,7 +1597,20 @@ footer {
     backdrop-filter: blur(7.551496505737305px);
 }
 
-/* Sushil Flow 2 page*/
+/* sk Flow 2 page*/
+
+/* dev changes Flow 1 page*/
+
+
+
+
+/* dev changes Flow 1 page*/
+
+
+
+
+
+
 
 /*********Flow CSS HS*******/
 
@@ -1753,3 +1766,29 @@ footer {
 /*********Flow CSS HS*******/
 
 /******************** Admin Panel - CSS Ends********************************/
+
+
+/* Container styling */
+.pac-container {
+  background-color: #111 !important;
+  color: white !important;
+  z-index: 1051 !important;
+}
+
+/* Each suggestion item */
+.pac-item {
+  background-color: #222 !important;
+  color: white !important;
+  line-height: 1.75rem !important;
+  padding: 10px 15px !important;
+}
+
+/* Highlight the main query part (left side) */
+.pac-item .pac-item-query {
+  color: white !important;
+}
+
+/* Hover effect */
+.pac-item:hover {
+  background-color: #333 !important;
+}

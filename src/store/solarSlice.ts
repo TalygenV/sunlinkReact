@@ -8,6 +8,11 @@ interface SolarFormData {
   password: string;
   confirmPassword: string;
   address: string;
+  lat: number;
+  lng: number;
+  zipCode: number;
+  ustate: string,
+  city: string,
   ownsHome: string;
   propertyType: string;
   utility: string;
@@ -15,6 +20,79 @@ interface SolarFormData {
   showPassword: boolean;
   showConfirmPassword: boolean;
   errors: { [key: string]: boolean };
+  showKwh: boolean;
+}
+export interface GenabilitySummary {
+  lifeTimeUtilityAfterCost: number;
+  lifeTimeUtilityAvoidedRate: number;
+  lifetimeAvoidedCost: number;
+  lifetimeSolarCost: number;
+  lifetimeWithoutCost: number;
+  netAvoidedCost: number;
+  netAvoidedCostPctOffset: number;
+  netAvoidedKWh: number;
+  netAvoidedKWhPctOffset: number;
+  netAvoidedRate: number;
+  postTotalCost: number;
+  postTotalKWh: number;
+  postTotalKWhCost: number;
+  postTotalKWhRate: number;
+  postTotalMinCost: number;
+  postTotalNonBypassableCost: number;
+  postTotalNonMinCost: number;
+  postTotalRate: number;
+  preTotalCost: number;
+  preTotalKWh: number;
+  preTotalKWhCost: number;
+  preTotalKWhRate: number;
+  preTotalMinCost: number;
+  preTotalNonBypassableCost: number;
+  preTotalNonMinCost: number;
+  preTotalRate: number;
+}
+export interface GenabilityData {
+  utilityName: string;
+  pricePerKwh: number;
+  estimatedMonthlyKw: number;
+  recommendedSizeKw: number;
+  estimatedAnnualSavings: number;
+  providerAccountId: string;
+  penalCount: number;
+  series: SeriesEntry[];
+  seriesData: SeriesEntry[];
+}
+export interface SeriesEntry {
+  seriesId: number;
+  fromDateTime: string;
+  toDateTime: string;
+  rate: number;
+  qty: number;
+  cost: number;
+}
+export interface localUserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+  address: string;
+  ownsHome: string;
+  propertyType: string;
+  powerBill: number;
+  state: string;
+  uid:string;
+  genabilityInfo: GenabilityData;
+  targetMonthlyBill: number;
+  monthlyConsumption: number;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  isAutoPanelsSupported: boolean;
+  profileComplete: boolean;
+  createdAt: Date; // stored as ISO string
+  stepName: string;
+  pricePerKwh?: number; // ← optional if present
 }
 
 interface SolarState {
@@ -33,6 +111,11 @@ const initialState: SolarState = {
     password: '',
     confirmPassword: '',
     address: '',
+    zipCode: 0,
+    lat: 0,
+    lng: 0,
+    city: "",
+    ustate: "",
     ownsHome: 'own',
     propertyType: '',
     utility: '',
@@ -40,6 +123,7 @@ const initialState: SolarState = {
     showPassword: false,
     showConfirmPassword: false,
     errors: {},
+    showKwh: false,
   },
   isLoading: false,
   isSubmitted: false,
@@ -50,7 +134,10 @@ const solarSlice = createSlice({
   name: 'solar',
   initialState,
   reducers: {
-    setPersonalInfo: (state, action: PayloadAction<{ [key: string]: string }>) => {
+    setPersonalInfo: (
+      state,
+      action: PayloadAction<{ [key: string]: string | number | boolean }>
+    ) => {
       Object.keys(action.payload).forEach(key => {
         if (key in state.solarForm) {
           (state.solarForm as any)[key] = action.payload[key];
@@ -106,19 +193,19 @@ const solarSlice = createSlice({
   },
 });
 
-export const { 
-  setPersonalInfo, 
-  setPassword, 
-  setConfirmPassword, 
-  setPropertyInfo, 
-  togglePasswordVisibility, 
-  setFieldError, 
-  setMultipleFieldErrors, 
-  clearErrors, 
+export const {
+  setPersonalInfo,
+  setPassword,
+  setConfirmPassword,
+  setPropertyInfo,
+  togglePasswordVisibility,
+  setFieldError,
+  setMultipleFieldErrors,
+  clearErrors,
   setLoading,
-  updateFormData, 
-  submitForm, 
-  resetForm 
+  updateFormData,
+  submitForm,
+  resetForm
 } = solarSlice.actions;
 
 export default solarSlice.reducer;
