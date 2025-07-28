@@ -3,17 +3,19 @@ import { get, ref } from "firebase/database";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Lock, Mail, Phone, User, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsEvents, trackEvent } from "../firebasedata/analytics";
 import cross from   '../assets/images/cross_svgrepo.com.svg'
 import { app, db, firestore } from "../firebasedata/firebase";
+import { FormContext } from "../context/FormContext";
 interface SignInModalProps {
     isOpen: boolean; onClose: () => void; onSignInSuccess?: () => void; // Optional callback for successful sign-in
 }
 const auth = getAuth(app);
 type Step = "phone" | "verify" | "email" | "forgot-password";
 export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignInModalProps) {
+    const { setUserData, setIsAuthenticated } = useContext(FormContext);
     const [step, setStep] = useState<Step>("phone");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [verificationCode, setVerificationCode] = useState("");
@@ -234,69 +236,60 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
         try {
             trackEvent(AnalyticsEvents.SIGN_IN_START, { method: "email" });
             let userCredential;
-            if (isSignUp) {
-                userCredential = await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-                const user = userCredential.user;
-                await setDoc(
-                    doc(firestore, "users", user.uid),
-                    {
-                        email: user.email,
-                        role,
-                        createdAt: new Date(),
-                    },
-                    { merge: true }
-                );
-                console.log("emailGlobal", user.email || "");
-                localStorage.setItem("emailGlobal", user.email || "");
-                console.log("nameGlobal", user.displayName || "");
-                localStorage.setItem("nameGlobal", user.displayName || "");
-            } else {
+            // if (isSignUp) {
+            //     userCredential = await createUserWithEmailAndPassword(
+            //         auth,
+            //         email,
+            //         password
+            //     );
+            //     const user = userCredential.user;
+            //     await setDoc(
+            //         doc(firestore, "users", user.uid),
+            //         {
+            //             email: user.email,
+            //             role,
+            //             createdAt: new Date(),
+            //         },
+            //         { merge: true }
+            //     );
+               
+            // } else {
                 userCredential = await signInWithEmailAndPassword(
                     auth,
                     email,
                     password
                 );
+                 console.log("userCredential", userCredential);
                 const userDoc = await getDoc(
                     doc(firestore, "users", userCredential.user.uid)
                 );
+                 console.log("userDoc", userDoc);
                 const userData = userDoc.exists() ? userDoc.data() : null;
 
                 console.log("userData", userData);
-                const userRole = userData?.role || "Customer";
-                console.log("emailGlobal", userCredential.user.email || "");
-                localStorage.setItem("emailGlobal", userCredential.user.email || "");
-                console.log("nameGlobal", userCredential.user.displayName || "");
-                localStorage.setItem(
-                    "nameGlobal",
-                    userCredential.user.displayName || ""
-                );
 
                 const allData = {
                     ...userData?.genabilityData,
                     series: userData?.genabilityData?.series || [],
                     seriesData: userData?.genabilityData?.seriesData || [],
-                    formattedAddress: userData?.name,
                     state: userData?.state,
                     firstName: userData?.firstName,
                     lastName: userData?.lastName,
                     email: userData?.email,
                 };
-                debugger;
                 localStorage.setItem("userData", JSON.stringify(userData));
-                localStorage.setItem("solarSetup", JSON.stringify(allData));
+                setIsAuthenticated(true);
+                if(userData) setUserData(allData);
+                //localStorage.setItem("solarSetup", JSON.stringify(allData));
 
                 if (userData?.stepName === "systemOverview") {
-                    navigate("/system-overview", { state: { userData } });
+                    navigate("/financing", { state: { userData } });
                 } else if (userData?.stepName === "systemDesign") {
                     navigate("/system-design");
                 } else if (userData?.stepName === "choosePlan") {
                     navigate("/choose-plan");
                 } else {
-                    navigate("/system-overview");
+                    navigate("/financing");
                 }
 
                 // if (userRole === "Admin") {
@@ -306,7 +299,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                 // } else {
                 //   navigate("/system-overview");
                 // }
-            }
+            //}
             trackEvent(AnalyticsEvents.SIGN_IN_SUCCESS, { method: "email" });
 
             const user = userCredential.user;

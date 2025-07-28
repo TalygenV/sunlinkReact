@@ -46,10 +46,7 @@ function App() {
         onSignInSuccess={() => {
           const user = auth.currentUser;
           if (user) {
-            setUserData({
-              ...userData,
-             
-            });
+            setUserData(userData);
           }
           setIsAuthenticated(true);
           setShowSignIn(false);

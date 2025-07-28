@@ -1,6 +1,6 @@
 // FormContext.tsx
 import { FormContextType } from "../domain/interfaces/FormContextInterface";
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext, SetStateAction } from "react";
 import { localUserData } from "../store/solarSlice"; // assuming this is an interface
 import { GenabilityData } from "../store/solarSlice"; // import it from proper location
 
@@ -12,7 +12,7 @@ const defaultUserData: localUserData = {
   phone: "",
   password: "",
   address: "",
-  ownsHome: false,
+  ownsHome: "",
   propertyType: "",
   powerBill: 0,
   state: "",
@@ -22,7 +22,7 @@ const defaultUserData: localUserData = {
   coordinates: { latitude: 0, longitude: 0 },
   isAutoPanelsSupported: false,
   profileComplete: false,
-  createdAt: new Date().toISOString(),
+  createdAt: new Date(),
   stepName: "",
   pricePerKwh: undefined,
 };
@@ -32,20 +32,19 @@ export const FormContext = createContext<FormContextType>({
   setShowForm: () => {},
   isAuthenticated: false,
   setIsAuthenticated: () => {},
-  userData: defaultUserData,
+  userData: defaultUserData || null,
   setUserData: () => {},
 });
 
 export const FormProvider = ({ children }: { children: React.ReactNode }) => {
   const [showForm, setShowForm] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    console.log("localStorage.getIte",localStorage.getItem("userData"));
     return localStorage.getItem("userData") !== null;
   });
 
-  const [userData, setUserData] = useState<localUserData>(() => {
+  const [userData, setUserData] = useState<localUserData | null>(() => {
     const stored = localStorage.getItem("userData");
-    return stored ? JSON.parse(stored) : defaultUserData;
+    return stored ? JSON.parse(stored) : null;
   });
 
   useEffect(() => {
@@ -70,4 +69,9 @@ export const FormProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </FormContext.Provider>
   );
+};
+export const useFormContext = () => {
+  const context = useContext(FormContext);
+  if (!context) throw new Error('useFormContext must be used within a FormProvider');
+  return context;
 };

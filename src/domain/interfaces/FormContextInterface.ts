@@ -3,9 +3,9 @@ import { localUserData } from "../../store/solarSlice";
 
 export interface FormContextType {
   showForm: boolean;
-  setShowForm: Dispatch<SetStateAction<boolean>>;
+  setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
   isAuthenticated: boolean;
-  setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
-  userData: localUserData
-  setUserData: Dispatch<SetStateAction<localUserData>>;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  userData: localUserData | null; // ✅ Fix here
+  setUserData: React.Dispatch<React.SetStateAction<localUserData | null>>; // ✅ Fix here too
 }

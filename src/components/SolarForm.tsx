@@ -1,19 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Search, Lock, Eye, EyeOff, Check, X, ChevronDown, BarChart3, } from "lucide-react";
 //import { GenabilityData, SolarData, Tariff } from "../domain/types";
 import profile from '../assets/images/profile.svg';
 import chartImage from "../assets/images/graph.svg"
 import { useSelector } from 'react-redux';
-import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading, } from "../store";
-import { validateField, validatePassword } from "../utils/validation";
+import { setPersonalInfo, setPassword, setConfirmPassword, setPropertyInfo, togglePasswordVisibility, setFieldError, setMultipleFieldErrors, clearErrors, setLoading } from "../store";
+import { isValidEmail, validateField, validatePassword } from "../utils/validation";
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { submitForm } from '../store/solarSlice';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db, firestore } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { set } from "firebase/database";
 import { ref } from "firebase/database";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FormContext } from "../context/FormContext";
 //import { RootState } from '../store';
 //import { ref, set } from "firebase/database";
 //import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
@@ -29,6 +31,7 @@ const SolarForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address, lat, lng, ustate } = useAppSelector((state) => state.solar.solarForm);
+  const { isLoading } = useAppSelector((state) => state.solar);
   const passwordRequirements = validatePassword(password);
   const passwordsMatch = password === confirmPassword && password.length > 0;
   const getErrorMessage = (field: string, message: string) => errors[field] ? (<p className="text-sm text-red-500 mt-1">{message}</p>) : null;
@@ -41,9 +44,37 @@ const SolarForm = () => {
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
-  const handlePersonalInfoChange = (field: string, value: string) => {
+  async function checkIfEmailExists(email: string): Promise<boolean> {
+    const usersRef = collection(firestore, "users");
+    const q = query(usersRef, where("email", "==", email));
+
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  }
+  const handlePersonalInfoChange = async (field: string, value: string) => {
     dispatch(setPersonalInfo({ [field]: value }));
-    handleFieldValidation(field, value);
+    if (field === "email") {
+      const validationErrors: { [key: string]: boolean } = {};
+      const trimmed = value.trim();
+      if (isValidEmail(trimmed)) {
+        const alreadyRegistered = await checkIfEmailExists(trimmed);
+        console.log("alreadyRegistered", alreadyRegistered);
+        if (alreadyRegistered) {
+          setemailError("Email is already registered.")
+          validationErrors.email = true;
+          dispatch(setMultipleFieldErrors(validationErrors));
+        } else {
+          handleFieldValidation(field, trimmed);
+        }
+        // this should call async checkIfEmailExists
+      } else {
+        setemailError("Invalid email format")
+        validationErrors.email = true;
+        dispatch(setMultipleFieldErrors(validationErrors));
+      }
+    } else {
+      handleFieldValidation(field, value);
+    }
   };
 
   const handlePasswordChange = (value: string) => {
@@ -62,7 +93,7 @@ const SolarForm = () => {
     dispatch(setPropertyInfo({ [field]: value }));
     handleFieldValidation(field, value);
   };
-
+  const { setUserData, setIsAuthenticated } = useContext(FormContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
@@ -71,6 +102,7 @@ const SolarForm = () => {
   const [annualUsage, setAnnualUsage] = useState("");
   const addressInputRef = useRef<HTMLInputElement>(null);
   const [energyInputMode, setEnergyInputMode] = useState<"annual" | "monthly">("annual");
+  const [emailError, setemailError] = useState("");
   const [monthlyUsages, setMonthlyUsages] = useState(Array(12).fill(""));
 
   const [showEnergyModal, setShowEnergyModal] = useState(false);
@@ -421,9 +453,9 @@ const SolarForm = () => {
         providerAccountId, pricePerKwh, selectedTerritoryName: selectedTerritory?.name, estimatedMonthlyKw, recommendedSizeKw, estimatedAnnualSavings, penalCount, accountName,
         series: seriesResult?.series || [], seriesData: seriesResult?.seriesData || [], address, ustate, firstName, lastName, email,
       };
-      localStorage.setItem("solarSetup", JSON.stringify(allData));
+      //localStorage.setItem("solarSetup", JSON.stringify(allData));
 
-      console.log("providerAccountId", providerAccountId);
+      //console.log("providerAccountId", providerAccountId);
 
       return {
         utilityName: selectedTerritory?.name || "Unknown Utility",
@@ -444,7 +476,7 @@ const SolarForm = () => {
         error instanceof Error ? error.message : "Failed to fetch utility data."
       );
     } finally {
-      dispatch(setLoading(false));
+      //dispatch(setLoading(false));
     }
   };
 
@@ -467,13 +499,13 @@ const SolarForm = () => {
       if (!validateField("firstName", firstName)) validationErrors.firstName = true;
       if (!validateField("lastName", lastName)) validationErrors.lastName = true;
       if (!validateField("email", email)) validationErrors.email = true;
+      if (!validateField("email", email)) setemailError("Invalid email format");
       if (!validateField("phone", phone)) validationErrors.phone = true;
       if (!validateField("ownsHome", ownsHome)) validationErrors.ownsHome = true;
       if (!validateField("propertyType", propertyType)) validationErrors.propertyType = true;
       if (!validateField("powerBill", powerBill)) validationErrors.powerBill = true;
       if (!validateField("password", password)) validationErrors.password = true;
       if (!validateField("confirmPassword", confirmPassword, { password })) validationErrors.confirmPassword = true;
-
       if (Object.keys(validationErrors).length > 0) {
         dispatch(setMultipleFieldErrors(validationErrors));
         dispatch(setLoading(false));
@@ -493,8 +525,6 @@ const SolarForm = () => {
         return;
       }
 
-      // Process form submission
-      console.log("Form submitted successfully!");
       const genabilityInfo = await fetchUtilityAndTariff();
       let userCredential;
       userCredential = await createUserWithEmailAndPassword(
@@ -508,64 +538,102 @@ const SolarForm = () => {
         email: user.email,
         createdAt: new Date(),
       });
-      await set(ref(db, `users/${user.uid}`), {
-        displayName: firstName,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phone: phone,
-        password: password,
-        address: address,
-        ownsHome: ownsHome,
-        propertyType: propertyType,
-        powerBill: powerBill,
-        state: ustate,
-        phoneNumber: auth.currentUser.phoneNumber,
-        annualUsage: powerBill * 12 || 12000, // Default to 12000 if not provided
-        monthlyBill: powerBill || 0,
-        genabilityData: genabilityInfo,
-        targetMonthlyBill: powerBill,
-        coordinates: {
-          latitude: lat,
-          longitude: lng,
-        },
-        isAutoPanelsSupported: true,
-        profileComplete: true,
-        createdAt: new Date(),
-        stepName: "solarResult",
-      });
-      const data = {
-        firstName,
-        lastName,
-        email,
-        phone,
-        password,
-        address: address, // ✅ store text address
-        ownsHome,
-        propertyType,
-        powerBill,
-        state: ustate,
-        genabilityInfo: genabilityInfo,
-        targetMonthlyBill: powerBill,
-        estimatedAnnualSavings:genabilityInfo.estimatedAnnualSavings,
-        monthlyConsumption: powerBill ? powerBill : 0,
-        coordinates: {
-          latitude: lat,
-          longitude: lng,
-        },
-        isAutoPanelsSupported: true,
-        profileComplete: true,
-        createdAt: new Date(),
-        stepName: "solarResult",
-        uid:user.uid
-      };
 
-      localStorage.setItem("userData", JSON.stringify(data));
-      navigate("/about");
-      dispatch(submitForm());
+      if (genabilityInfo) {
+        await set(ref(db, `users/${user.uid}`), {
+          displayName: firstName,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          phone: phone,
+          password: password,
+          address: address,
+          ownsHome: ownsHome,
+          propertyType: propertyType,
+          powerBill: powerBill,
+          state: ustate,
+          phoneNumber: auth.currentUser.phoneNumber,
+          annualUsage: powerBill * 12 || 12000, // Default to 12000 if not provided
+          monthlyBill: powerBill || 0,
+          genabilityInfo: {
+            utilityName: genabilityInfo.utilityName,
+            pricePerKwh: genabilityInfo.pricePerKwh,
+            estimatedMonthlyKw: genabilityInfo.estimatedMonthlyKw,
+            recommendedSizeKw: genabilityInfo.recommendedSizeKw,
+            estimatedAnnualSavings: genabilityInfo.estimatedAnnualSavings,
+            providerAccountId: genabilityInfo.providerAccountId,
+            penalCount: genabilityInfo.penalCount,
+            series: genabilityInfo.seriesData.series ?? [],
+            seriesData: genabilityInfo.seriesData.seriesData ?? [],
+            summary: {
+              totalGeneration: 0,
+              averageMonthlyGeneration: 0,
+            },
+          },
+          targetMonthlyBill: powerBill,
+          coordinates: {
+            latitude: lat,
+            longitude: lng,
+          },
+          isAutoPanelsSupported: true,
+          profileComplete: true,
+          createdAt: new Date(),
+          stepName: "solarResult",
+        });
+        const data = {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password,
+          address: address, // ✅ store text address
+          ownsHome: "yes",
+          propertyType,
+          powerBill,
+          state: ustate,
+          genabilityInfo: {
+            utilityName: genabilityInfo.utilityName,
+            pricePerKwh: genabilityInfo.pricePerKwh,
+            estimatedMonthlyKw: genabilityInfo.estimatedMonthlyKw,
+            recommendedSizeKw: genabilityInfo.recommendedSizeKw,
+            estimatedAnnualSavings: genabilityInfo.estimatedAnnualSavings,
+            providerAccountId: genabilityInfo.providerAccountId,
+            penalCount: genabilityInfo.penalCount,
+            series: genabilityInfo.seriesData.series ?? [],
+            seriesData: genabilityInfo.seriesData.seriesData ?? [],
+            summary: {
+              totalGeneration: 0,
+              averageMonthlyGeneration: 0,
+            },
+          },
+          targetMonthlyBill: powerBill,
+          estimatedAnnualSavings: genabilityInfo.estimatedAnnualSavings,
+          monthlyConsumption: powerBill ? powerBill : 0,
+          coordinates: {
+            latitude: lat,
+            longitude: lng,
+          },
+          isAutoPanelsSupported: true,
+          profileComplete: true,
+          createdAt: new Date(),
+          stepName: "solarResult",
+          uid: user.uid
+        };
+        
+        localStorage.setItem("userData", JSON.stringify(data));
+        setIsAuthenticated(true);
+        setUserData(data);
+        //
+        setTimeout(()=>{
+dispatch(setLoading(false));
+dispatch(submitForm());
+        },2000);
+        console.log("form");
+        
+      }
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
-
+      dispatch(setLoading(false));
     }
   };
 
@@ -595,7 +663,7 @@ const SolarForm = () => {
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">Email Address</label>
           <input type="email" value={email} onChange={(e) => handlePersonalInfoChange("email", e.target.value)} className={`mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500 border-[rgba(255,255,255,0.6)] text-white transition-all ${errors.email ? "border-red-500" : "border-white/30"}`} placeholder="your@email.com" />
-          {getErrorMessage("email", "Please enter a valid email address.")} </div>
+          {getErrorMessage("email", emailError)} </div>
         <div className="w-full sm:w-[calc(50%-0.75rem)]">
           <label className="w-full text-gray-300 text-base ">Phone Number</label>
           <input type="tel" value={phone} onChange={(e) => {
@@ -673,7 +741,7 @@ const SolarForm = () => {
       <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
         <div className="w-full relative">
           <label className="w-full text-gray-300 text-base"> Property Address </label>
-           {/* <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" /> */}
+          {/* <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-teal w-5 h-5 text-black" /> */}
           <input type="text" ref={addressInputRef} className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white"
             placeholder="Enter your address" onBlur={async (e) => await validateField("address", e.target.value)} />
           {getErrorMessage("address", "Please select a address.")}
@@ -743,7 +811,7 @@ const SolarForm = () => {
           <div className="w-full">
             <label className="block tesla-caption text-base text-gray-300 mb-3">      Utility Company </label>
             <div className="relative group cursor-pointer text-brand-teal" onClick={() => setShowDropdown(!showDropdown)}>
-             
+
               <input readOnly value={selectedTerritory ? selectedTerritory.name : ""} placeholder="Select a Utility" className="tesla-input w-full px-4 py-2 text-black mt-3 w-full px-4 py-4 border bg-[#ffffff1a] focus:ring-blue-500 focus:border-blue-500  text-white" />
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                 <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -785,6 +853,20 @@ const SolarForm = () => {
             Create Account & Continue            {/* <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" /> */}
           </button>
         </div>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-blue-400 text-sm font-medium">
+                Loading...
+              </p>
+            </div>
+          </motion.div>
+        )}
         {/* Energy Consumption Modal */}
         {showEdit && (
           <div className="w-full bg-slate-800 rounded-xl border border-slate-500 p-4 mb-4 text-white">

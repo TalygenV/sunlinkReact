@@ -228,13 +228,13 @@ if(!userData) return;
  
  
   const chartYears = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30];
-  const years = userData?.genabilityInfo.seriesData?.seriesData.filter(d => d.seriesId === 5).map(d => new Date(d.fromDateTime).getFullYear());
+  const years = userData?.genabilityInfo?.seriesData.filter(d => d.seriesId === 5).map(d => new Date(d.fromDateTime).getFullYear());
   const minYear = Math.min(...years);
   let utilityData = [];
   for (const offset of chartYears) {
     const year = minYear + offset;
 
-    const cost = userData?.genabilityInfo.seriesData?.seriesData.find(d => d.seriesId === 6 && d.fromDateTime.startsWith(`${year}`))?.cost || 0;
+    const cost = userData?.genabilityInfo?.seriesData.find(d => d.seriesId === 6 && d.fromDateTime.startsWith(`${year}`))?.cost || 0;
 
     utilityData.push({ offset, cost });
   }

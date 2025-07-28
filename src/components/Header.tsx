@@ -5,15 +5,16 @@ import logo from '../assets/images/sunlink-logo.svg';
 import locationIcon from '../assets/images/location.svg';
 import callIcon from '../assets/images/call_svgrepo.com.svg';
 import arrow from '../assets/images/ht-arrow.svg';
+import { useFormContext } from '../context/FormContext';
 
 interface HeaderProps {
   onSignInClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
+  const { userData, setUserData, setIsAuthenticated } = useFormContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
   const handleSignOut = () => {
     localStorage.removeItem('userData');
     setUserData(null);
+    setIsAuthenticated(false);
     window.location.href = '/'; // optional: redirect to homepage
   };
 
@@ -175,3 +177,5 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
 };
 
 export default Header;
+
+
