@@ -30,13 +30,16 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import "./firebase.ts";
 import { FormProvider } from './context/FormContext.tsx';
+import { LoaderProvider } from "./context/LoaderContext";
 
 createRoot(document.getElementById('root')!).render(
   //<StrictMode>
     <Provider store={store}>
       <HashRouter>
         <FormProvider>
+        <LoaderProvider>
           <App />
+        </LoaderProvider>
         </FormProvider>
       </HashRouter>
     </Provider>

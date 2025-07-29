@@ -3,17 +3,18 @@ import { Check, CreditCard } from "lucide-react";
 import LoanApplicationModal from "./LoanApplicationModal";
 import QuotationPopup from "./QuotationPopup";
 import SunlightDocuSign from "./SunlightDocuSign"
+import { useLoader } from "../context/LoaderContext";
 
 export interface LoanOption {
   name: string;
   badge: string;
-  rate: number;
+  rate: any;
   key: string;
   icon: any;
   loanDetails: {
-    lowestPayment: number;
-    paymentWithTaxCredit: number;
-    paymentWithoutTaxCredit: number;
+    lowestPayment: any;
+    paymentWithTaxCredit: any;
+    paymentWithoutTaxCredit: any;
   };
 }
 export interface LoanOptionCardProps {
@@ -27,6 +28,7 @@ export interface LoanOptionCardProps {
   badgeColor?: string;
   features: string[];
   recommendation: string;
+  isLoading?: boolean;
 }
 const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   option,
@@ -39,6 +41,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   badgeColor = "bg-red-500",
   features,
   recommendation,
+  isLoading,
 }) => {
   
   
@@ -138,7 +141,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
       <ul className="list-none text-xs space-y-2">
         {dynamicFeatures.map((feature, index) => (
           <li key={index} className="flex items-center text-gray-500">
-            <Check className="mr-3 h-4 w-4 text-green-500" />
+            <Check className="mr-3 h-4 w-4 text-black text-green-500" />
             {feature}
           </li>
         ))}
@@ -148,7 +151,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
         <p className="text-red-500 font-medium">Recommended for:</p>
         {dynamicRecommendation}
       </div>
-
+      {!isLoading && (
       <button
         onClick={() => onPreQualifyClick?.(option)}
         className={`w-full mt-4 py-2 rounded-lg text-xs flex items-center justify-center space-x-2 ${
@@ -160,6 +163,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
         <CreditCard className="w-4 h-4" />
         <span>Submit Application</span>
       </button>
+      )}
     </div>
   );
 };
@@ -181,16 +185,17 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [formDataRef, setformDataRef] = useState<any>(null);
   const [signingUrl, setSigningUrl] = useState<string>("");
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
 
   const skeletonLoanOptions: Partial<LoanOption>[] = [
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-60", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-180", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-300", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } }
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-60", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-180", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-300", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } }
   ];
 
 
   const fetchAPRTerms = async () => {
-    setIsLoading(true); 
+    
     console.log("✅ fetchAPRTerms CALLED");
     try {
       const fetchJSON = async (url: string, body: any) => {
@@ -309,6 +314,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   };
 
   const CreateSunlightSingingLink = async (projectId: string) => {
+    showLoader("Genrating Sunlignt Document to Sign");
     console.log("In CreateSunlightSingingLink");
     debugger;
     const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
@@ -369,6 +375,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
       recommendation={isLoading ? "" : "Homeowners with strong credit and stable income"}
       badgeText={isLoading ? "Loading..." : undefined}
       badgeColor={isLoading ? "bg-gray-300 animate-pulse" : undefined}
+      isLoading={isLoading}
     />
 
         

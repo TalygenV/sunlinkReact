@@ -75,6 +75,7 @@ import Resources from './pages/Resources';
 import BatterySelection from './pages/BatterySelection';
 import BatterySelectionCustmize from './pages/BatterySelectionCustmize';
 import SignInModal from './pages/SignInModal';
+import GlobalSpinner from "./components/GlobalSpinner";
 
 const auth = getAuth(app);
 
@@ -90,6 +91,7 @@ function App() {
 
   return (
     <>
+    <GlobalSpinner />
       <Header onSignInClick={() => setShowSignIn(true)} />
       <main>
         <Routes>

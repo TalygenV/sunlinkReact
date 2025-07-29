@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useLoader } from "../context/LoaderContext";
 import {
   X,
   CreditCard,
@@ -91,7 +92,7 @@ const OptimizedInput: React.FC<OptimizedInputProps> = ({
         autoComplete={autoComplete}
         maxLength={maxLength}
         pattern={pattern}
-        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 ${className}`}
+        className={`w-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black  ${className}`}
       />
     </div>
   );
@@ -129,7 +130,7 @@ const OptimizedSelect: React.FC<OptimizedSelectProps> = ({
         onChange={handleChange}
         required={required}
         autoComplete={autoComplete}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+        className="w-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
       >
         <option value="">Select {label}</option>
         {options.map((option) => (
@@ -161,6 +162,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   const handleInputChange = (name: string, value: string) => {
     formDataRef.current[name as keyof typeof formDataRef.current] = value;
   };
+  const { showLoader, hideLoader } = useLoader();
   const formDataRef = useRef({
     firstName: "",
     lastName: "",
@@ -188,6 +190,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     debugger;
+    showLoader("Processing your loan application");
     e.preventDefault();
    // setApplicationStep("processing");
    console.log("In Submit Form");
@@ -247,9 +250,11 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
       const firstProject = data.projects?.[0];
       const firstApplicant = firstProject?.applicants?.[0];
       if (onSubmit) {
+        hideLoader();
         onSubmit(data,formDataRef,sfAccessToken);
       }
       if (!res.ok) {
+        hideLoader();
         const errorData = await res.json().catch(() => null);
         throw new Error(
           errorData?.error || `HTTP error! status: ${res.status}`
@@ -258,13 +263,14 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         localStorage.setItem("pid", firstProject.id);
         setProjectId(firstProject.id);
         setApplicationId(firstApplicant.id);
-
+        hideLoader();
         if (!res.ok) {
           const errorData = await res.json().catch(() => null);
           throw new Error(
             errorData?.error || `HTTP error! status: ${res.status}`
           );
         } else {
+          hideLoader();
           localStorage.removeItem("planOptionlocal");
           setTimeout(() => {
             setApplicationStep("approved");
@@ -272,6 +278,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         }
       }
     } catch (error) {
+      hideLoader();
       setApplicationStep("form");
       console.log("Error submitting form:", error);
     }
@@ -353,16 +360,17 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-hidden z-50">
+      <div className="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[30px]">
         {/* Modal Header - Fixed */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-white" />
+            <div className="bg-white rounded-lg flex items-center justify-center">
+              <CreditCard className="w-7 h-7 text-black" />
+              
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-medium text-black">
+              <h3 className="text-2xl font-medium text-black">
                 Solar Loan Application
               </h3>
               <p className="text-sm text-gray-600">
@@ -377,10 +385,10 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
           </div>
           <button
             onClick={handleCloseModal}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-[#f46b30] hover:bg-black flex items-center justify-center transition-colors"
             type="button"
           >
-            <X className="w-4 h-4 text-gray-600" />
+            <X className="w-4 h-4 text-white hover:text-white" />
           </button>
         </div>
 
@@ -391,8 +399,11 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
               <form onSubmit={handleFormSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div>
+                  <h4 className="text-lg font-medium text-gray-500 mb-4">
+                    Pre-qualify for solar loan
+                  </h4>
                   <h4 className="text-lg font-medium text-black mb-4">
-                    Personal Information
+                    Create your personalized account
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <OptimizedInput
@@ -420,9 +431,9 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 
                 {/* Contact Information */}
                 <div>
-                  <h4 className="text-lg font-medium text-black mb-4">
+                  {/* <h4 className="text-lg font-medium text-black mb-4">
                     Contact Information
-                  </h4>
+                  </h4> */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <OptimizedInput
                       id="email"
@@ -475,7 +486,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                           label="Annual Income"
                           placeholder="$"
                           required
-                          className="w-full pl-8 pr-4 py-3 rounded-lg text-black placeholder-gray-500"
+                          className="w-full pl-8 pr-4 py-3 text-black"
                           formatter={formatIncome}
                           onValueChange={handleInputChange}
                         />
@@ -599,28 +610,23 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                 </div>
 
                 {/* Disclaimers */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="bg-[#e8e9ea] rounded-lg p-4 border border-gray-200">
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-gray-600">
-                      <p className="font-medium mb-2">Important Disclaimers:</p>
-                      <ul className="space-y-1 text-xs">
-                        <li>
-                          • This application does not guarantee loan approval
+                    <div className="text-sm">
+                      <p className="font-medium mb-2 text-black">Important Disclaimers:</p>
+                      <ul className="space-y-2 list-disc pl-4 text-sm text-gray-600">
+                        <li>This application does not guarantee loan approval
                         </li>
-                        <li>
-                          • A soft credit check will be performed for
+                        <li>A soft credit check will be performed for
                           pre-qualification
                         </li>
-                        <li>
-                          • Final loan terms may vary based on creditworthiness
+                        <li>Final loan terms may vary based on creditworthiness
                         </li>
-                        <li>
-                          • All information provided must be accurate and
+                        <li>All information provided must be accurate and
                           complete
                         </li>
-                        <li>
-                          • By submitting, you consent to credit and background
+                        <li>By submitting, you consent to credit and background
                           checks
                         </li>
                       </ul>
@@ -628,23 +634,24 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
                   </div>
                 </div>
 
-                {/* Submit Button */}
-                <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+               {/* Submit and Cancel Buttons */}
+                <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 w-full">
                   <button
                     type="submit"
-                    className="bg-black text-white flex-1 py-4 px-6 rounded-xl font-medium flex items-center justify-center space-x-2"
+                    className="bg-black text-white w-full sm:w-auto px-6 py-4 rounded-xl font-medium flex items-center justify-center space-x-2"
                   >
                     <CreditCard className="w-5 h-5" />
                     <span>Submit Application</span>
                   </button>
-                  <button
+                  {/* <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="bg-gray-100 text-black px-6 py-4 rounded-xl font-medium"
+                    className="bg-gray-100 text-black w-full sm:w-auto px-6 py-4 rounded-xl font-medium"
                   >
                     Cancel
-                  </button>
+                  </button> */}
                 </div>
+
               </form>
             </div>
           )}
@@ -657,3 +664,5 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 };
 
 export default LoanApplicationModal;
+
+
