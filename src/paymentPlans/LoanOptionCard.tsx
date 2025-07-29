@@ -140,7 +140,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
       <ul className="list-none text-xs space-y-2">
         {dynamicFeatures.map((feature, index) => (
           <li key={index} className="flex items-center text-gray-500">
-            <Check className="mr-3 h-4 w-4 text-green-500" />
+            <Check className="mr-3 h-4 w-4 text-black text-green-500" />
             {feature}
           </li>
         ))}

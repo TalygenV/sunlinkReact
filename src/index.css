@@ -635,10 +635,10 @@ h6 {
 .hover\:bg-orange:hover {
     opacity: 0.9;
 }
-
+/* 
 .text-gray-500 {
     color: #E4EEF0
-}
+} */
 
 .text-orange {
     color: #FE4819;
