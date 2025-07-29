@@ -3,8 +3,13 @@ import SolarForm from '../components/SolarForm';
 import { BarChart3, X, Home as HomeIcon } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { setPersonalInfo } from "../store";
+import { FormContext } from '../context/FormContext';
+import About from './About';
 
 const Home = () => {
+  const {
+    isAuthenticated,
+  } = React.useContext(FormContext);
   const dispatch = useAppDispatch();
   const [showEnergyModal, setShowEnergyModal] = useState(false);
   const [showIneligibleModal, setShowIneligibleModal] = useState(false);
@@ -48,7 +53,12 @@ const Home = () => {
     setMonthlyUsages(newUsages);
   };
 
+
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  if(isAuthenticated){
+    return (<About/>)
+  }
 
   return (
     <section className="pt-[100px] py-24 sm:py-48 bg-black-custom relative">

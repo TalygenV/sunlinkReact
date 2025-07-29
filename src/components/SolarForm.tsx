@@ -16,6 +16,7 @@ import { ref } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FormContext } from "../context/FormContext";
+import React from "react";
 //import { RootState } from '../store';
 //import { ref, set } from "firebase/database";
 //import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
@@ -32,11 +33,13 @@ interface SolarFormProps {
   onSubmitEnergyData: () => void;
   showIneligibleModal: () => void;
 }
+
 const SolarForm: React.FC<SolarFormProps> = ({
   onOpenEnergyModal,
   onSubmitEnergyData,
   showIneligibleModal,
 }) => {
+  
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address, lat, lng, ustate } = useAppSelector((state) => state.solar.solarForm);
@@ -625,8 +628,8 @@ dispatch(submitForm());
   };
 
 
-
   return (
+     
 
     <div className="custom-formcls p-10 rounded-xl max-w-[700px] ml-auto">
       <h3 className="text-gray-300 text-3xl mb-3">Design your solar system</h3>
