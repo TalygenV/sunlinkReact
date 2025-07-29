@@ -108,24 +108,25 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           <h4 className="text-2xl font-light text-black mb-2">
             Congratulations! Quotation Generated
           </h4>
-          <p className="text-gray-600 mb-8">
+          <p className="text-lg text-[#858c8f] mb-8">
             Your Quotation Generated for solar financing up to ${totalPrice.toLocaleString()}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-              <div className="text-2xl font-bold text-black">{planChosen?.rate}%</div>
+            <div className="bg-[#e4eef0] rounded-lg p-4 text-center border border-gray-200">
               <div className="text-sm text-gray-600">APR Rate</div>
+              <div className="text-2xl font-bold text-black">{planChosen?.rate}%</div>
+              
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-              <div className="text-2xl font-bold text-black">${displayPrice.toLocaleString()}</div>
+            <div className="bg-[#e4eef0] rounded-lg p-4 text-center border border-gray-200">
               <div className="text-sm text-gray-600">Approved Amount</div>
+              <div className="text-2xl font-bold text-black">${displayPrice.toLocaleString()}</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
+            <div className="bg-[#e4eef0] rounded-lg p-4 text-center border border-gray-200">
+              <div className="text-sm text-gray-600">Loan Term</div>
               <div className="text-2xl font-bold text-black">
                 {planChosen?.badge?.split("-")[0]}
               </div>
-              <div className="text-sm text-gray-600">Loan Term</div>
             </div>
           </div>
 
