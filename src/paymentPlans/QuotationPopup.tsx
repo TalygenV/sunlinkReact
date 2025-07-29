@@ -36,7 +36,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
   const submitCreditCheck = async () => {
     debugger;
-    showLoader("Running Credit check");
+    showLoader("Performing credit check...");
     console.log("In Credit Check method");
     const firstProject = Loanapplicataiondata.projects?.[0];
     const firstApplicant = firstProject?.applicants?.[0];
