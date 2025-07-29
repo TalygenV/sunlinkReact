@@ -6,9 +6,10 @@ import { ArrowRight, Lock, Mail, Phone, User, X } from "lucide-react";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsEvents, trackEvent } from "../firebasedata/analytics";
-import cross from   '../assets/images/cross_svgrepo.com.svg'
+import cross from '../assets/images/cross_svgrepo.com.svg'
 import { app, db, firestore } from "../firebasedata/firebase";
 import { FormContext } from "../context/FormContext";
+import { getDatabase } from "firebase/database";
 interface SignInModalProps {
     isOpen: boolean; onClose: () => void; onSignInSuccess?: () => void; // Optional callback for successful sign-in
 }
@@ -252,53 +253,49 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
             //         },
             //         { merge: true }
             //     );
-               
+
             // } else {
-                userCredential = await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-                 console.log("userCredential", userCredential);
-                const userDoc = await getDoc(
-                    doc(firestore, "users", userCredential.user.uid)
-                );
-                 console.log("userDoc", userDoc);
-                const userData = userDoc.exists() ? userDoc.data() : null;
-
-                console.log("userData", userData);
-
+            userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+            const db = getDatabase();
+            const userDoc = await get(ref(db, `users/${userCredential.user.uid}`));
+            const userData = await userDoc.exists() ? userDoc.val() : null;
+            if (userData) {
+                console.log("userData",userData);
+                
                 const allData = {
-                    ...userData?.genabilityData,
-                    series: userData?.genabilityData?.series || [],
-                    seriesData: userData?.genabilityData?.seriesData || [],
-                    state: userData?.state,
-                    firstName: userData?.firstName,
-                    lastName: userData?.lastName,
-                    email: userData?.email,
+                    ...userData,
                 };
-                localStorage.setItem("userData", JSON.stringify(userData));
-                setIsAuthenticated(true);
-                if(userData) setUserData(allData);
+                //
+                setTimeout(()=>{
+localStorage.setItem("userData", JSON.stringify(allData));
+                },1000)
                 //localStorage.setItem("solarSetup", JSON.stringify(allData));
+                setUserData(allData);
+                setIsAuthenticated(true);
+            }
+            
+            if (userData?.stepName === "systemOverview") {
+                navigate("/financing", { state: { userData } });
+            } else if (userData?.stepName === "systemDesign") {
+                navigate("/system-design");
+            } else if (userData?.stepName === "choosePlan") {
+                navigate("/choose-plan");
+            } else {
+                navigate("/financing");
+            }
+            
 
-                if (userData?.stepName === "systemOverview") {
-                    navigate("/financing", { state: { userData } });
-                } else if (userData?.stepName === "systemDesign") {
-                    navigate("/system-design");
-                } else if (userData?.stepName === "choosePlan") {
-                    navigate("/choose-plan");
-                } else {
-                    navigate("/financing");
-                }
-
-                // if (userRole === "Admin") {
-                //   navigate("/installer");
-                // } else if (userRole === "Installer") {
-                //   navigate("/installer");
-                // } else {
-                //   navigate("/system-overview");
-                // }
+            // if (userRole === "Admin") {
+            //   navigate("/installer");
+            // } else if (userRole === "Installer") {
+            //   navigate("/installer");
+            // } else {
+            //   navigate("/system-overview");
+            // }
             //}
             trackEvent(AnalyticsEvents.SIGN_IN_SUCCESS, { method: "email" });
 
@@ -434,7 +431,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
 
 
                                 <div className="w-full text-left">
-                                     <label className="w-full text-gray-800 text-base ">Enter Mobile Number</label>
+                                    <label className="w-full text-gray-800 text-base ">Enter Mobile Number</label>
                                     <input type="tel" value={phoneNumber} onChange={(e) => { setPhoneNumber(e.target.value); setFormErrors((prev) => ({ ...prev, phone: "" })); }} placeholder="(555) 555-5555"
                                         className="mt-3 w-full px-4 py-4 border border-gray-400 rounded-xl bg-[#e8e9ea] focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
@@ -449,7 +446,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                                 type="submit"
                                 disabled={loading}
                                 whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }} 
+                                whileTap={{ scale: 0.98 }}
                                 className="btn-sheen w-full flex items-center justify-center gap-3 orangegradbtn text-white px-8 py-3 rounded-md text-lg w-full transition-all duration-300"
                             >
                                 {loading ? (
@@ -560,7 +557,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
                             <div>
                                 <div className="w-full text-left">
                                     {/* <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" /> */}
-                                     <label className="w-full text-gray-800 text-base ">Password</label>
+                                    <label className="w-full text-gray-800 text-base ">Password</label>
                                     <input
                                         type="password"
                                         value={password}
@@ -720,7 +717,7 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
 
                         <div className="relative z-10 bg-white text-black backdrop-blur-xl rounded-3xl border border-white/10 p-8">
                             <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors">
-                               <img src={cross} alt="Close" className="h-6 w-6" /> </button>
+                                <img src={cross} alt="Close" className="h-6 w-6" /> </button>
                             <div className="text-center">
                                 {error && (<motion.div
                                     initial={{ opacity: 0, y: -10 }}
