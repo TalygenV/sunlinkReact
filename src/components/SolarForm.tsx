@@ -27,12 +27,20 @@ const GENABILITY_API_KEY = import.meta.env.GENABILITY_API_KEY;
 const base_url = "https://api.genability.com";
 const basic_token = "ZGI5MTczMGItNWUwNi00N2I1LWI3MjAtNzcyZDc5ODUyNTA1OjBiY2U1M2RiLTc3NjItNGQ0Zi1iZDA1LWYzODEwNWE1OWI5YQ==";
 type Territory = { name: string; code: string; websiteHome: string; lseId: number; };
-const SolarForm = () => {
+interface SolarFormProps {
+  onOpenEnergyModal: () => void;
+  onSubmitEnergyData: () => void;
+  showIneligibleModal: () => void;
+}
+const SolarForm: React.FC<SolarFormProps> = ({
+  onOpenEnergyModal,
+  onSubmitEnergyData,
+  showIneligibleModal,
+}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address, lat, lng, ustate } = useAppSelector((state) => state.solar.solarForm);
   const { isLoading } = useAppSelector((state) => state.solar);
-  const [showIneligibleModal, setShowIneligibleModal] = useState(false);
   const [showKwh, setShowKwh] = useState(false);
    const [ineligibilityReason, setIneligibilityReason] = useState<
     "renter" | "property-type"
@@ -56,9 +64,7 @@ const SolarForm = () => {
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
   }
-    const closeIneligibleModal = () => {
-    setShowIneligibleModal(false);
-  };
+
   const handlePersonalInfoChange = async (field: string, value: string) => {
     dispatch(setPersonalInfo({ [field]: value }));
     if (field === "email") {
@@ -114,34 +120,6 @@ const SolarForm = () => {
   const [monthlyUsages, setMonthlyUsages] = useState(Array(12).fill(""));
 
   const [showEnergyModal, setShowEnergyModal] = useState(false);
-
-  const handleMonthlyUsageChange = (index: number, value: string) => {
-    const newUsages = [...monthlyUsages];
-    newUsages[index] = value;
-    setMonthlyUsages(newUsages);
-  };
-
-  const handleEnergyModal = (value: any) => {
-    setShowEnergyModal(value);
-  };
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const handleEnergySubmit = () => {
-    let estimatedMonthlyBill = 0;
-
-    if (energyInputMode === "annual" && annualUsage) {
-      estimatedMonthlyBill = Math.round((Number(annualUsage) * 0.15) / 12);
-    } else if (energyInputMode === "monthly") {
-      const totalAnnualUsage = monthlyUsages.reduce(
-        (sum, usage) => sum + (Number(usage) || 0),
-        0
-      );
-      estimatedMonthlyBill = Math.round((totalAnnualUsage * 0.15) / 12);
-    }
-
-    dispatch(setPersonalInfo({ ['powerBill']: estimatedMonthlyBill }))
-    handleEnergyModal(false);
-  };
-
 
 
   useEffect(() => {
@@ -522,16 +500,14 @@ const SolarForm = () => {
       }
 
             if (ownsHome === "rent") {
-        setIneligibilityReason("renter");
-        setShowIneligibleModal(true);
+       showIneligibleModal();
         dispatch(setLoading(false));
         return;
       }
 
       // Check for disqualified property type
       if (propertyType === "Townhome" || propertyType === "Condo") {
-        setIneligibilityReason("property-type");
-        setShowIneligibleModal(true);
+        showIneligibleModal();
         dispatch(setLoading(false));
         return;
       }
@@ -851,7 +827,7 @@ dispatch(submitForm());
             placeholder="150" />
           {getErrorMessage("powerBill", "Please enter your electric bill amount.")}
           <button className="text-sm text-gray-400 flex items-center mt-5" onClick={() => {
-                        handleEnergyModal(true), setShowKwh(true);
+                        onOpenEnergyModal(), setShowKwh(true);
                       }}>
             <img className="mr-2" src={chartImage} /> or enter your energy consumption </button>
           <p className="text-sm text-gray-400 mt-3">By clicking below, I authorize SunLink to call me and send pre-recorded
@@ -934,221 +910,7 @@ dispatch(submitForm());
         )}
       </div>
 
-      {/* Energy Consumption Modal */}
-        {showEnergyModal && (
-          <div className="fixed inset-0 bg-slate-800 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-gradient-to-r from-brand-orange to-brand-teal rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-6 h-6 text-black" />
-                    </div>
-                    <h3 className="tesla-heading text-2xl text-gray-900">
-                      Energy Consumption
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => {
-                      handleEnergyModal(false);
-                    }}
-                    className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200"
-                  >
-                    <X className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Toggle Buttons */}
-                <div className="flex bg-[#e8e9ea] rounded-lg p-1 mb-6">
-                  <button
-                    onClick={() => setEnergyInputMode("annual")}
-                    className={`tesla-button flex-1 py-3 px-4 ${
-                      energyInputMode === "annual"
-                        ? "bg-white text-brand-teal shadow-sm"
-                        : "text-gray-600 hover:text-gray-800"
-                    }`}
-                  >
-                    Annual Total
-                  </button>
-                  <button
-                    onClick={() => setEnergyInputMode("monthly")}
-                    className={`tesla-button flex-1 py-3 px-4 ${
-                      energyInputMode === "monthly"
-                        ? "bg-white text-brand-teal shadow-sm"
-                        : "text-gray-600 hover:text-gray-800"
-                    }`}
-                  >
-                    Month by Month
-                  </button>
-                </div>
-
-                {/* Annual Input */}
-                {energyInputMode === "annual" && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block tesla-caption text-sm text-gray-700 mb-2">
-                        Total Annual Energy Usage
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={annualUsage}
-                          onChange={(e) => setAnnualUsage(e.target.value)}
-                          className="tesla-input w-full prw-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black-16 pl-4 py-4 text-lg"
-                          placeholder="12000"
-                        />
-                        <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">
-                          kWh/year
-                        </span>
-                      </div>
-                    </div>
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Tip:</strong> You can find your annual usage on
-                        your utility bill or by adding up 12 months of usage
-                        from your online account.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Monthly Input */}
-                {energyInputMode === "monthly" && (
-                  <div className="space-y-4">
-                    <p className="tesla-body text-gray-600 text-sm mb-4">
-                      Enter your monthly energy usage for each month (in kWh).
-                      You can find this information on your utility bills.
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      {monthNames.map((month, index) => (
-                        <div key={month}>
-                          <label className="block tesla-caption text-xs text-gray-700 mb-1">
-                            {month}
-                          </label>
-                          <div className="relative">
-                            <input
-                              type="number"
-                              value={monthlyUsages[index]}
-                              onChange={(e) =>
-                                handleMonthlyUsageChange(index, e.target.value)
-                              }
-                              className="w-full px-4 py-3 border border-[#7a8185] h-[60px] bg-[#e8e9ea] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                              placeholder="1000"
-                            />
-                            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs">
-                              kWh
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Total Annual Usage:</strong>{" "}
-                        {monthlyUsages
-                          .reduce(
-                            (sum, usage) => sum + (parseInt(usage) || 0),
-                            0
-                          )
-                          .toLocaleString()}{" "}
-                        kWh
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                  <button
-                    onClick={() => {
-                      handleEnergyModal(false);
-                    }}
-                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleEnergySubmit}
-                    disabled={
-                      (energyInputMode === "annual" && !annualUsage) ||
-                      (energyInputMode === "monthly" &&
-                        monthlyUsages.every((usage) => !usage))
-                    }
-                    className="orangegradbtn rounded-xl border border-[#F47121] py-4 px-5 text-lg font-normal text-white w-full flex justify-center"
-                  >
-                    Use This Data
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-       {/* Ineligible Modal */}
-        {showIneligibleModal && (
-          <div className="fixed inset-0 bg-slate-800 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl max-w-md w-full p-8 relative shadow-2xl">
-              <button
-                onClick={closeIneligibleModal}
-                className="absolute top-4 right-4 w-8 h-8 bg-[#f46b30] hover:bg-black rounded-full flex items-center justify-center transition-colors duration-200"
-              >
-                <X className="w-4 h-4 text-white hover:text-white" />
-              </button>
-
-              <div className="text-center">
-                <div className="w-16 h-16 tesla-gradient-bg rounded-lg flex items-center justify-center mx-auto mb-6">
-                  <Home className="w-8 h-8 text-brand-orange" />
-                </div>
-
-                <h3 className="tesla-heading text-2xl text-gray-900 mb-4">
-                  We're Sorry
-                </h3>
-
-                {ineligibilityReason === "renter" ? (
-                  <>
-                    <p className="tesla-body text-gray-600 text-lg mb-6">
-                      Solar installation is only available for homeowners. As a
-                      renter, you would need permission from your landlord and
-                      they would receive the benefits of the solar system.
-                    </p>
-
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10 mb-6">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Homeowners only:</strong> Solar systems require
-                        property ownership for installation, financing, and to
-                        receive tax credits and incentives.
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="tesla-body text-gray-600 text-lg mb-6">
-                      Your property type is not eligible for solar installation
-                      at this time. Solar systems work best on single-family
-                      homes with adequate roof space and proper orientation.
-                    </p>
-
-                    <div className="tesla-gradient-bg rounded-lg p-4 border border-brand-orange/10 mb-6">
-                      <p className="tesla-body text-gray-700 text-sm">
-                        <strong>Eligible property types:</strong> Single-family
-                        homes with suitable roof conditions for solar panel
-                        installation. Townhomes and condos typically have shared
-                        roofs or HOA restrictions that prevent solar
-                        installation.
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                <button
-                  onClick={closeIneligibleModal}
-                  className="btn-sheen w-full flex items-center justify-center gap-3 orangegradbtn text-white px-8 py-3 rounded-md text-lg w-full transition-all duration-300"
-                >
-                  Understood
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+     
     </div>
   );
 };
