@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FormContext } from "../context/FormContext";
 import React from "react";
+import { useLoader } from "../context/LoaderContext";
 //import { RootState } from '../store';
 //import { ref, set } from "firebase/database";
 //import { doc, setDoc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
@@ -42,8 +43,8 @@ const SolarForm: React.FC<SolarFormProps> = ({
   
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { showLoader, hideLoader } = useLoader();
   const { firstName, lastName, email, phone, password, confirmPassword, ownsHome, propertyType, powerBill, showPassword, showConfirmPassword, errors, zipCode, address, lat, lng, ustate } = useAppSelector((state) => state.solar.solarForm);
-  const { isLoading } = useAppSelector((state) => state.solar);
   const [showKwh, setShowKwh] = useState(false);
    const [ineligibilityReason, setIneligibilityReason] = useState<
     "renter" | "property-type"
@@ -479,7 +480,8 @@ const SolarForm: React.FC<SolarFormProps> = ({
 
   const handleContinue = async () => {
     try {
-      dispatch(setLoading(true));
+      //dispatch(setLoading(true));
+      showLoader("Signing In....");
       dispatch(clearErrors());
 
 
@@ -498,20 +500,23 @@ const SolarForm: React.FC<SolarFormProps> = ({
       if (!validateField("confirmPassword", confirmPassword, { password })) validationErrors.confirmPassword = true;
       if (Object.keys(validationErrors).length > 0) {
         dispatch(setMultipleFieldErrors(validationErrors));
-        dispatch(setLoading(false));
+        //dispatch(setLoading(false));
+        hideLoader();
         return;
       }
 
             if (ownsHome === "rent") {
        showIneligibleModal();
-        dispatch(setLoading(false));
+        //dispatch(setLoading(false));
+        hideLoader();
         return;
       }
 
       // Check for disqualified property type
       if (propertyType === "Townhome" || propertyType === "Condo") {
         showIneligibleModal();
-        dispatch(setLoading(false));
+        //dispatch(setLoading(false));
+        hideLoader();
         return;
       }
 
@@ -615,7 +620,8 @@ const SolarForm: React.FC<SolarFormProps> = ({
         setUserData(data);
         //
         setTimeout(()=>{
-dispatch(setLoading(false));
+//dispatch(setLoading(false));
+hideLoader();
 dispatch(submitForm());
         },2000);
         console.log("form");
@@ -623,7 +629,8 @@ dispatch(submitForm());
       }
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
-      dispatch(setLoading(false));
+      //dispatch(setLoading(false));
+      hideLoader();
     }
   };
 
@@ -808,7 +815,7 @@ dispatch(submitForm());
               </div>
             </div>
             {showDropdown && (
-              <ul className="absolute z-10 mt-2 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 text-gray-800 shadow-lg">
+              <ul className=" z-10 mt-2 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 text-gray-800 shadow-lg">
                 {territories.map((territory) => (
                   <li key={territory.lseId} className="px-4 py-3 hover:bg-gray-100 cursor-pointer transition" onClick={async () => {
                     setSelectedTerritory(territory);
@@ -845,20 +852,7 @@ dispatch(submitForm());
             Create Account & Continue            {/* <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" /> */}
           </button>
         </div>
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-              <p className="text-blue-400 text-sm font-medium">
-                Loading...
-              </p>
-            </div>
-          </motion.div>
-        )}
+       
         {/* Energy Consumption Modal */}
         {showEdit && (
           <div className="w-full bg-slate-800 rounded-xl border border-slate-500 p-4 mb-4 text-white">
