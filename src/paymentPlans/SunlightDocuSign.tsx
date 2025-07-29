@@ -24,16 +24,16 @@ const SunlightDocuSign: React.FC<SunlightDocuSignProps> = ({
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <FileTextIcon className="w-5 h-5 text-black" />
-            <h3 className="text-lg font-semibold text-black">
+            <h3 className="text-lg text-black">
               Sunlight Loan Contract
             </h3>
           </div>
           <button
             onClick={onCancel}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-[#f46b30] hover:bg-black flex items-center justify-center transition-colors"
             type="button"
           >
-            <X className="w-4 h-4 text-gray-600" />
+            <X className="w-4 h-4 text-white" />
           </button>
         </div>
 
@@ -65,11 +65,11 @@ const SunlightDocuSign: React.FC<SunlightDocuSignProps> = ({
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <ShieldIcon className="w-5 h-5 text-gray-600" />
+              <ShieldIcon className="w-4 h-4 text-gray-600" />
               <span>Secure & Legally Binding</span>
             </div>
             <div className="flex items-center gap-2">
-              <MailIcon className="w-5 h-5 text-gray-600" />
+              <MailIcon className="w-4 h-4 text-gray-600" />
               <span>Auto-notification Enabled</span>
             </div>
           </div>
