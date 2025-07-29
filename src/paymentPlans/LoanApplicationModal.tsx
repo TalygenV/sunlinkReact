@@ -18,7 +18,7 @@ interface LoanApplicationModalProps {
   sfAccessToken: string;
   selectedPlan: any;
   totalPrice: number;
-  onSubmit?: (data: any,formDataRef: any,sfAccessToken: string) => void;
+  onSubmit?: (data: any, formDataRef: any, sfAccessToken: string) => void;
 }
 
 interface OptimizedInputProps {
@@ -159,6 +159,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   const [showCreditCheckModal, setShowCreditCheckModal] = useState(false);
   const [projectId, setProjectId] = useState("");
   const [applicationId, setApplicationId] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const handleInputChange = (name: string, value: string) => {
     formDataRef.current[name as keyof typeof formDataRef.current] = value;
   };
@@ -247,19 +248,21 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
       );
       const data = await res.json();
 
-      const firstProject = data.projects?.[0];
-      const firstApplicant = firstProject?.applicants?.[0];
-      if (onSubmit) {
+     
+      if (data.returnCode != 200) {
         hideLoader();
-        onSubmit(data,formDataRef,sfAccessToken);
-      }
-      if (!res.ok) {
-        hideLoader();
+        setShowErrorPopup(true);
         const errorData = await res.json().catch(() => null);
         throw new Error(
           errorData?.error || `HTTP error! status: ${res.status}`
         );
       } else {
+        const firstProject = data.projects?.[0];
+        const firstApplicant = firstProject?.applicants?.[0];
+        if (onSubmit) {
+          hideLoader();
+          onSubmit(data, formDataRef, sfAccessToken);
+        }
         localStorage.setItem("pid", firstProject.id);
         setProjectId(firstProject.id);
         setApplicationId(firstApplicant.id);
@@ -279,6 +282,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
       }
     } catch (error) {
       hideLoader();
+      setShowErrorPopup(true);
       setApplicationStep("form");
       console.log("Error submitting form:", error);
     }
@@ -655,6 +659,20 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
               </form>
             </div>
           )}
+          {showErrorPopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-4 text-red-600">Something went wrong</h2>
+      <p className="text-gray-700 mb-6">Please try again later.</p>
+      <button
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+        onClick={() => setShowErrorPopup(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
           {showCreditCheckModal && <CreditCheckModal />}
         </div>
