@@ -3,7 +3,12 @@ import SolarForm from '../components/SolarForm';
 import { BarChart3, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { setPersonalInfo } from "../store";
+import { FormContext } from '../context/FormContext';
+import About from './About';
 const Home = () => {
+  const {
+    isAuthenticated,
+  } = React.useContext(FormContext);
   const dispatch = useAppDispatch();
   const [showEnergyModal, setShowEnergyModal] = useState(false);
   const [showIneligibleModal, setShowIneligibleModal] = useState(false);
@@ -43,6 +48,9 @@ const Home = () => {
     newUsages[index] = value;
     setMonthlyUsages(newUsages);
   };
+  if(isAuthenticated){
+    return (<About/>)
+  }
   return (
     <section className="pt-[100px] py-24 sm:py-48 bg-black-custom relative">
       <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-8 relative">
