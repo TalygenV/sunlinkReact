@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CheckCircle, Mail, FileSignature } from "lucide-react";
+import { useLoader } from "../context/LoaderContext";
 
 interface QuotationPopupProps {
   isOpen: boolean;
@@ -28,11 +29,13 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 }) => {
   const [showCreditCheckPassedPopup, setShowCreditCheckPassedPopup] = useState(false);
   const [isContractSignLoading, setIsContractSignLoading] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
   const [projectId, setProjectId] = useState("");
   if (!isOpen) return null;
 
   const submitCreditCheck = async () => {
     debugger;
+    showLoader("Running Credit check");
     console.log("In Credit Check method");
     const firstProject = Loanapplicataiondata.projects?.[0];
     const firstApplicant = firstProject?.applicants?.[0];
@@ -70,6 +73,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
       const data = await res.json();
       setProjectId(firstProject.id);
+      hideLoader();
       setShowCreditCheckPassedPopup(true); // ✅ Show success popup
     } catch (error) {
       console.error("Credit check failed:", error);

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useLoader } from "../context/LoaderContext";
 import {
   X,
   CreditCard,
@@ -161,6 +162,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   const handleInputChange = (name: string, value: string) => {
     formDataRef.current[name as keyof typeof formDataRef.current] = value;
   };
+  const { showLoader, hideLoader } = useLoader();
   const formDataRef = useRef({
     firstName: "",
     lastName: "",
@@ -188,6 +190,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     debugger;
+    showLoader("Processing your loan application");
     e.preventDefault();
    // setApplicationStep("processing");
    console.log("In Submit Form");
@@ -247,9 +250,11 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
       const firstProject = data.projects?.[0];
       const firstApplicant = firstProject?.applicants?.[0];
       if (onSubmit) {
+        hideLoader();
         onSubmit(data,formDataRef,sfAccessToken);
       }
       if (!res.ok) {
+        hideLoader();
         const errorData = await res.json().catch(() => null);
         throw new Error(
           errorData?.error || `HTTP error! status: ${res.status}`
@@ -258,13 +263,14 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         localStorage.setItem("pid", firstProject.id);
         setProjectId(firstProject.id);
         setApplicationId(firstApplicant.id);
-
+        hideLoader();
         if (!res.ok) {
           const errorData = await res.json().catch(() => null);
           throw new Error(
             errorData?.error || `HTTP error! status: ${res.status}`
           );
         } else {
+          hideLoader();
           localStorage.removeItem("planOptionlocal");
           setTimeout(() => {
             setApplicationStep("approved");
@@ -272,6 +278,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         }
       }
     } catch (error) {
+      hideLoader();
       setApplicationStep("form");
       console.log("Error submitting form:", error);
     }
@@ -657,3 +664,5 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
 };
 
 export default LoanApplicationModal;
+
+

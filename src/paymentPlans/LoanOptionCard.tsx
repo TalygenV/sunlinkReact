@@ -3,6 +3,7 @@ import { Check, CreditCard } from "lucide-react";
 import LoanApplicationModal from "./LoanApplicationModal";
 import QuotationPopup from "./QuotationPopup";
 import SunlightDocuSign from "./SunlightDocuSign"
+import { useLoader } from "../context/LoaderContext";
 
 export interface LoanOption {
   name: string;
@@ -181,6 +182,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [formDataRef, setformDataRef] = useState<any>(null);
   const [signingUrl, setSigningUrl] = useState<string>("");
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
 
   const skeletonLoanOptions: Partial<LoanOption>[] = [
     { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-60", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
@@ -190,7 +192,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
 
   const fetchAPRTerms = async () => {
-    setIsLoading(true); 
+    
     console.log("✅ fetchAPRTerms CALLED");
     try {
       const fetchJSON = async (url: string, body: any) => {
@@ -309,6 +311,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   };
 
   const CreateSunlightSingingLink = async (projectId: string) => {
+    showLoader("Genrating Sunlignt Document to Sign");
     console.log("In CreateSunlightSingingLink");
     debugger;
     const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
