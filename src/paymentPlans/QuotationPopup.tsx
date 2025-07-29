@@ -173,9 +173,10 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
       {/* ✅ Credit Check Success Popup */}
       {showCreditCheckPassedPopup && (  
         <div className="fixed inset-0 z-60 bg-black bg-opacity-60 flex items-center justify-center px-4">
-          <div className="bg-white p-8 max-w-2xl max-h-[90vh] rounded-[30px] text-center space-y-6 shadow-2xl">
+          <div className="bg-white p-8 max-w-2xl rounded-[30px] text-center space-y-5 shadow-2xl">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto animate-bounce" />
             <h2 className="text-2xl text-black">Credit Check Passed!</h2>
+            <h2 className="text-lg mt-2 text-gray-600">Congratulations! Your Loan Approved</h2>
             
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-[#e4eef0] rounded-lg p-4 text-center border border-gray-200">
@@ -196,22 +197,19 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           </div>
 
           <div className="bg-[#d0f2e7] border border-green-200 rounded-lg p-4 mb-8">
-            <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-[#26a95b]" />
-              <span className="font-medium text-green-800">Quotation Generated</span>
-            </div>
-            */}
-            <ul className="text-sm text-green-700 space-y-1 text-left pl-6">
-              <li>• No impact on credit score for pre-qualification</li>
-              <li>• Rate locked for 30 days</li>
-              <li>• No prepayment penalties</li>
-              <li>• Flexible payment options available</li>
+            
+            
+            <ul className="text-sm text-green-700 list-disc space-y-1 text-left pl-6">
+              <li>No impact on credit score for pre-qualification</li>
+              <li>Rate locked for 30 days</li>
+              <li>No prepayment penalties</li>
+              <li>Flexible payment options available</li>
             </ul>
           </div>
           
             <button
               onClick={DocuSignSunlightSubmit}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition mx-auto"
+              className="bg-black text-white w-full px-6 py-4 rounded-xl font-medium flex items-center justify-center space-x-2"
               disabled={isContractSignLoading}
               type="button"
             >
@@ -222,18 +220,45 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
         </div>
       )}
       {showErrorPopup && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-4 text-red-600">Credit Check Fail.</h2>
-      <p className="text-gray-700 mb-6">Please Pay in Full</p>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-        onClick={() => setShowErrorPopup(false)}
-      >
-        Close
-      </button>
-    </div>
-  </div>
+  // <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  //   <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+  //     <h2 className="text-lg font-semibold mb-4 text-red-600">Credit Check Fail.</h2>
+  //     <p className="text-gray-700 mb-6">Please Pay in Full</p>
+  //     <button
+  //       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+  //       onClick={() => setShowErrorPopup(false)}
+  //     >
+  //       Close
+  //     </button>
+  //   </div>
+  // </div>
+     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
+            <div className="mx-auto mb-4 flex items-center justify-center">
+                <svg
+                  className="w-12 h-12 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-medium mb-4 text-black">Credit Check Fail.</h2>
+              <p className="text-gray-700 mb-6">Please Pay in Full.</p>
+              <button
+                className="bg-black text-white w-full px-6 py-4 rounded-xl font-medium"
+                onClick={() => setShowErrorPopup(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
 )}
     </div>
     
