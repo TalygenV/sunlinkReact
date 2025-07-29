@@ -36,7 +36,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
   const submitCreditCheck = async () => {
     debugger;
-    showLoader("Running Credit check");
+    showLoader("Performing credit check...");
     console.log("In Credit Check method");
     const firstProject = Loanapplicataiondata.projects?.[0];
     const firstApplicant = firstProject?.applicants?.[0];
@@ -116,7 +116,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
             <CheckCircle className="w-8 h-8 text-white animate-pulse" />
           </div>
           <h4 className="text-2xl font-light text-black mb-2">
-            Congratulations! Quotation Generated
+            Quotation Generated..
           </h4>
           <p className="text-lg text-[#858c8f] mb-8">
             Your Quotation Generated for solar financing up to ${totalPrice.toLocaleString()}
@@ -163,7 +163,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
               disabled={isLoading}
             >
               <Mail className="w-4 h-4" />
-              <span>Submit Credit Check</span>
+              <span>Run Credit Check</span>
             </button>
           </div>
         </div>
@@ -175,6 +175,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           <div className="bg-white rounded-lg p-8 max-w-md w-full text-center space-y-6 shadow-2xl">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto animate-bounce" />
             <h2 className="text-2xl font-semibold text-black">Credit Check Passed!</h2>
+            <h2 className="text-2xl font-semibold text-black">Congratulations! Your Loan Approved</h2>
             
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-[#e4eef0] rounded-lg p-4 text-center border border-gray-200">
@@ -195,10 +196,12 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           </div>
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+            {/* 
             <div className="flex items-center space-x-2 mb-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <span className="font-medium text-green-800">Quotation Generated</span>
             </div>
+            */}
             <ul className="text-sm text-green-700 space-y-1 text-left pl-6">
               <li>• No impact on credit score for pre-qualification</li>
               <li>• Rate locked for 30 days</li>
