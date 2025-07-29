@@ -195,7 +195,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
 
   const fetchAPRTerms = async () => {
-    
+    setIsLoading(true);
     console.log("✅ fetchAPRTerms CALLED");
     try {
       const fetchJSON = async (url: string, body: any) => {
@@ -345,6 +345,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
     if (result.projects) {
       setSigningUrl(result.projects[0].envelopeURL);
       setquotationPopup(false);
+      hideLoader();
       setShowDocuSignModal(true);
     } else {
       throw new Error("No signing URL received from server");
