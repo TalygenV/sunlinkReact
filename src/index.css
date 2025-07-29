@@ -1777,18 +1777,18 @@ footer {
 
 /* Each suggestion item */
 .pac-item {
-  background-color: #222 !important;
-  color: white !important;
+  background-color: #ffffff !important;
+  color: rgb(0, 0, 0) !important;
   line-height: 1.75rem !important;
   padding: 10px 15px !important;
 }
 
 /* Highlight the main query part (left side) */
 .pac-item .pac-item-query {
-  color: white !important;
+  color: rgb(2, 2, 2) !important;
 }
 
 /* Hover effect */
 .pac-item:hover {
-  background-color: #333 !important;
+  background-color: #e7e7e7 !important;
 }

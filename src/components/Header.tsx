@@ -5,13 +5,16 @@ import logo from '../assets/images/sunlink-logo.svg';
 import locationIcon from '../assets/images/location.svg';
 import callIcon from '../assets/images/call_svgrepo.com.svg';
 import arrow from '../assets/images/ht-arrow.svg';
-import { useFormContext } from '../context/FormContext';
+import { FormContext, useFormContext } from '../context/FormContext';
 
 interface HeaderProps {
   onSignInClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
+  const {
+      isAuthenticated,
+    } = React.useContext(FormContext);
   const { userData, setUserData, setIsAuthenticated } = useFormContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -86,11 +89,11 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
         </div>
 
         {/* Desktop Nav */}
-        {userData === null ? (
+        {isAuthenticated === false ? (
           <nav className="hidden lg:flex align-center lg:gap-x-2 xl:gap-x-4 2xl:gap-x-12 uppercase">
-            <Link to="/about" className={isActive('/about') ? 'text-blue-400' : 'text-white'}>
+            {/* <Link to="/about" className={isActive('/about') ? 'text-blue-400' : 'text-white'}>
               About
-            </Link>
+            </Link> */}
             <Link to="/products" className={isActive('/products') ? 'text-blue-400' : 'text-white'}>
               Products
             </Link>
@@ -111,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-x-3">
-          {userData ? (
+          {isAuthenticated ? (
             <button onClick={handleSignOut} className="uppercase text-white text-sm">
               Sign Out
             </button>
@@ -134,11 +137,11 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-white text-black px-6 py-4 space-y-4">
-          {userData === null ? (
+          {isAuthenticated === false ? (
             <>
-              <Link to="/about" className="block">
+              {/* <Link to="/about" className="block">
                 About
-              </Link>
+              </Link> */}
               <Link to="/products" className="block">
                 Products
               </Link>
