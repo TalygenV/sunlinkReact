@@ -526,9 +526,16 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         />
           ))
         ) : loanOptions.length === 0 ? (
-          <div className="col-span-full text-center text-gray-600 text-lg py-8">
-            No product is available for this region.
-          </div>
+          <div className="col-span-full bg-[#3c3c3c] text-center rounded-xl text-white text-lg py-8 flex items-center justify-center gap-3">
+  {/* Alert icon */}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-off-icon lucide-map-pin-off"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/><path d="m2 2 20 20"/><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/></svg>
+
+
+  
+  {/* Message */}
+  No product is available for this region.
+</div>
+
         ) : (
           loanOptions.map((option, idx) => (
             <LoanOptionCard
@@ -575,18 +582,45 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         onCancel={handleSigningCancel}
       />
           {showErrorPopup && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-4 text-red-600">Document generation Fail</h2>
-      <p className="text-gray-700 mb-6">Please try again later.</p>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-        onClick={() => setShowErrorPopup(false)}
-      >
-        Close
-      </button>
-    </div>
-  </div>
+  // <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  //   <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+  //     <h2 className="text-lg font-semibold mb-4 text-red-600">Document generation Fail</h2>
+  //     <p className="text-gray-700 mb-6">Please try again later.</p>
+  //     <button
+  //       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+  //       onClick={() => setShowErrorPopup(false)}
+  //     >
+  //       Close
+  //     </button>
+  //   </div>
+  // </div>
+   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
+            <div className="mx-auto mb-4 flex items-center justify-center">
+                <svg
+                  className="w-12 h-12 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-medium mb-4 text-black">Document generation Fail</h2>
+              <p className="text-gray-700 mb-6">Please try again later.</p>
+              <button
+                className="bg-black text-white w-full px-6 py-4 rounded-xl font-medium"
+                onClick={() => setShowErrorPopup(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
 )}
     </>
   );
