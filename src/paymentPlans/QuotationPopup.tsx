@@ -36,7 +36,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
   const submitCreditCheck = async () => {
     debugger;
-    showLoader("Running Credit check");
+    showLoader("Performing credit check...");
     console.log("In Credit Check method");
     const firstProject = Loanapplicataiondata.projects?.[0];
     const firstApplicant = firstProject?.applicants?.[0];
@@ -117,7 +117,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
             <CheckCircle className="w-8 h-8 text-white animate-pulse" />
           </div>
           <h4 className="text-2xl font-medium text-black mb-2">
-            Congratulations! Quotation Generated
+            Quotation Generated...
           </h4>
           <p className="text-lg text-[#333333] mb-8">
             Your Quotation Generated for solar financing up to ${totalPrice.toLocaleString()}
@@ -164,7 +164,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
               disabled={isLoading}
             >
               <Mail className="w-4 h-4" />
-              <span>Submit Credit Check</span>
+              <span>Run Credit Check</span>
             </button>
           </div>
         </div>
@@ -200,6 +200,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
               <CheckCircle className="w-5 h-5 text-[#26a95b]" />
               <span className="font-medium text-green-800">Quotation Generated</span>
             </div>
+            */}
             <ul className="text-sm text-green-700 space-y-1 text-left pl-6">
               <li>• No impact on credit score for pre-qualification</li>
               <li>• Rate locked for 30 days</li>

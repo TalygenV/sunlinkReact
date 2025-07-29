@@ -458,7 +458,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   };
 
   const CreateSunlightSingingLink = async (projectId: string) => {
-    showLoader("Genrating Sunlignt Document to Sign");
+    showLoader("Preparing your documents for e-signature...");
     console.log("In CreateSunlightSingingLink");
     debugger;
     const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
