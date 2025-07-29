@@ -96,7 +96,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
-      <div className="bg-white max-w-3xl w-full rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-white max-w-1/2 rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh]">
         {/* Close Button */}
         <button
           onClick={onClose}
