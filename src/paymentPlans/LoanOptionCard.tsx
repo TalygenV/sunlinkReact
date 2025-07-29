@@ -7,13 +7,13 @@ import SunlightDocuSign from "./SunlightDocuSign"
 export interface LoanOption {
   name: string;
   badge: string;
-  rate: number;
+  rate: any;
   key: string;
   icon: any;
   loanDetails: {
-    lowestPayment: number;
-    paymentWithTaxCredit: number;
-    paymentWithoutTaxCredit: number;
+    lowestPayment: any;
+    paymentWithTaxCredit: any;
+    paymentWithoutTaxCredit: any;
   };
 }
 export interface LoanOptionCardProps {
@@ -27,6 +27,7 @@ export interface LoanOptionCardProps {
   badgeColor?: string;
   features: string[];
   recommendation: string;
+  isLoading?: boolean;
 }
 const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   option,
@@ -39,6 +40,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   badgeColor = "bg-red-500",
   features,
   recommendation,
+  isLoading,
 }) => {
   
   
@@ -148,7 +150,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
         <p className="text-red-500 font-medium">Recommended for:</p>
         {dynamicRecommendation}
       </div>
-
+      {!isLoading && (
       <button
         onClick={() => onPreQualifyClick?.(option)}
         className={`w-full mt-4 py-2 rounded-lg text-xs flex items-center justify-center space-x-2 ${
@@ -160,6 +162,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
         <CreditCard className="w-4 h-4" />
         <span>Submit Application</span>
       </button>
+      )}
     </div>
   );
 };
@@ -183,9 +186,9 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
 
   const skeletonLoanOptions: Partial<LoanOption>[] = [
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-60", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-180", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } },
-    { badge: "Loading...", name: "Loading...", rate: 0, key: "skeleton-300", icon: null, loanDetails: { lowestPayment: 0, paymentWithTaxCredit: 0, paymentWithoutTaxCredit: 0 } }
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-60", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-180", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
+    { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-300", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } }
   ];
 
 
@@ -369,6 +372,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
       recommendation={isLoading ? "" : "Homeowners with strong credit and stable income"}
       badgeText={isLoading ? "Loading..." : undefined}
       badgeColor={isLoading ? "bg-gray-300 animate-pulse" : undefined}
+      isLoading={isLoading}
     />
 
         
