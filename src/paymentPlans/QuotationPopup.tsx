@@ -29,6 +29,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 }) => {
   const [showCreditCheckPassedPopup, setShowCreditCheckPassedPopup] = useState(false);
   const [isContractSignLoading, setIsContractSignLoading] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const { showLoader, hideLoader } = useLoader();
   const [projectId, setProjectId] = useState("");
   if (!isOpen) return null;
@@ -66,16 +67,21 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           }),
         }
       );
-      if (!res.ok) {
+      const data = await res.json();
+      if (data.returnCode != 200) {
+        setShowErrorPopup(true);
+        hideLoader();
         const errorData = await res.json().catch(() => null);
         throw new Error(errorData?.error || `HTTP error! status: ${res.status}`);
+      }else{
+        setProjectId(firstProject.id);
+        hideLoader();
+        setShowCreditCheckPassedPopup(true); // ✅ Show success popup
       }
-
-      const data = await res.json();
-      setProjectId(firstProject.id);
-      hideLoader();
-      setShowCreditCheckPassedPopup(true); // ✅ Show success popup
+      
     } catch (error) {
+      hideLoader();
+      setShowErrorPopup(true);
       console.error("Credit check failed:", error);
     }
   };
@@ -213,7 +219,22 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
           </div>
         </div>
       )}
+      {showErrorPopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-4 text-red-600">Credit Check Fail.</h2>
+      <p className="text-gray-700 mb-6">Please Pay in Full</p>
+      <button
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+        onClick={() => setShowErrorPopup(false)}
+      >
+        Close
+      </button>
     </div>
+  </div>
+)}
+    </div>
+    
   );
 };
 

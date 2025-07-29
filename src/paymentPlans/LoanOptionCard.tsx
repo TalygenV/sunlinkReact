@@ -224,6 +224,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [signingUrl, setSigningUrl] = useState<string>("");
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
   const { showLoader, hideLoader } = useLoader();
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
 
   const skeletonLoanOptions: Partial<LoanOption>[] = [
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-60", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
@@ -476,24 +477,24 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         }),
       }
     );
-
-    if (!response.ok) {
+    const result = await response.json();
+    if (result.returnCode != 200) {
+      setShowErrorPopup(true);
       const errorData = await response.json().catch(() => null);
       throw new Error(
         errorData?.error || `HTTP error! status: ${response.status}`
       );
-    }
-    const result = await response.json();
-
-    if (result.projects) {
+    }else{
+      if (result.projects) {
       setSigningUrl(result.projects[0].envelopeURL);
       setquotationPopup(false);
       hideLoader();
       setShowDocuSignModal(true);
     } else {
+      setShowErrorPopup(true);
       throw new Error("No signing URL received from server");
     }
-
+    }
   }
   const handleSigningCancel = () => {
     setShowDocuSignModal(false);
@@ -573,6 +574,20 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         signingUrl={signingUrl}
         onCancel={handleSigningCancel}
       />
+          {showErrorPopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-4 text-red-600">Document generation Fail</h2>
+      <p className="text-gray-700 mb-6">Please try again later.</p>
+      <button
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+        onClick={() => setShowErrorPopup(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </>
   );
 };
