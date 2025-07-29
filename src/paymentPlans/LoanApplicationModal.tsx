@@ -397,7 +397,7 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         </div>
 
         {/* Modal Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto mb-4">
           {applicationStep === "form" && (
             <div className="p-4 sm:p-6">
               <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -660,19 +660,35 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
             </div>
           )}
           {showErrorPopup && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
-      <h2 className="text-lg font-semibold mb-4 text-red-600">Something went wrong</h2>
-      <p className="text-gray-700 mb-6">Please try again later.</p>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-        onClick={() => setShowErrorPopup(false)}
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
+            <div className="mx-auto mb-4 flex items-center justify-center">
+                <svg
+                  className="w-12 h-12 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-medium mb-4 text-black">Something went wrong</h2>
+              <p className="text-gray-700 mb-6">Please try again later.</p>
+              <button
+                className="bg-black text-white w-full px-6 py-4 rounded-xl font-medium"
+                onClick={() => setShowErrorPopup(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          )}
 
           {showCreditCheckModal && <CreditCheckModal />}
         </div>
