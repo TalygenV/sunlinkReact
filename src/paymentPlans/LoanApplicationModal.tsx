@@ -190,7 +190,6 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
-    debugger;
     showLoader("Processing your loan application");
     e.preventDefault();
    // setApplicationStep("processing");
@@ -260,20 +259,20 @@ const LoanApplicationModal: React.FC<LoanApplicationModalProps> = ({
         const firstProject = data.projects?.[0];
         const firstApplicant = firstProject?.applicants?.[0];
         if (onSubmit) {
-          hideLoader();
+          //hideLoader();
           onSubmit(data, formDataRef, sfAccessToken);
         }
         localStorage.setItem("pid", firstProject.id);
         setProjectId(firstProject.id);
         setApplicationId(firstApplicant.id);
-        hideLoader();
+        //hideLoader();
         if (!res.ok) {
           const errorData = await res.json().catch(() => null);
           throw new Error(
             errorData?.error || `HTTP error! status: ${res.status}`
           );
         } else {
-          hideLoader();
+          //hideLoader();
           localStorage.removeItem("planOptionlocal");
           setTimeout(() => {
             setApplicationStep("approved");
