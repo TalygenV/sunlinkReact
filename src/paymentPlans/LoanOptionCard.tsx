@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Check, CreditCard } from "lucide-react";
+import { BadgeCheck, Check, CreditCard } from "lucide-react";
 import LoanApplicationModal from "./LoanApplicationModal";
 import QuotationPopup from "./QuotationPopup";
 import SunlightDocuSign from "./SunlightDocuSign"
@@ -29,6 +29,7 @@ export interface LoanOptionCardProps {
   features: string[];
   recommendation: string;
   isLoading?: boolean;
+  selectedPlanShow:boolean;
 }
 const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   option,
@@ -42,6 +43,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   features,
   recommendation,
   isLoading,
+  selectedPlanShow,
 }) => {
   
   
@@ -213,7 +215,7 @@ interface LoanOptionsPageProps {
 // Update LoanOptionsPage to accept totalCost as a prop
 const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [loanOptions, setLoanOptions] = useState<LoanOption[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
   const [selectedLoanOption, setSelectedLoanOption] = useState<any>(null);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [sfAccessToken, setsfAccessToken] = useState();
@@ -227,6 +229,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [showCreditCheckPassedPopup, setShowCreditCheckPassedPopup] = useState(false);
   const [projectId, setProjectId] = useState("");
   const { showLoader, hideLoader } = useLoader();
+  const [showStaticCard, setShowStaticCard] = useState(false);
   const skeletonLoanOptions: Partial<LoanOption>[] = [
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-60", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-180", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
@@ -397,7 +400,6 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         const errorData = await res.json().catch(() => null);
         throw new Error(errorData?.error || `HTTP error! status: ${res.status}`);
       }else{
-        debugger;
         setProjectId(firstProject.id);
         hideLoader();
         setquotationPopup(true); 
@@ -414,7 +416,6 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
     showLoader("Preparing your documents for e-signature...");
     console.log("In CreateSunlightSingingLink");
     console.log("projectId for docusign link sunlight",projectId);
-    debugger;
     const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
 
     const response = await fetch(
@@ -431,7 +432,6 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
         }),
       }
     );
-    debugger;
     const result = await response.json();
     if (result.returnCode != 200) {
       setShowErrorPopup(true);
@@ -453,6 +453,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   }
   const handleSigningCancel = () => {
     setShowDocuSignModal(false);
+    setShowStaticCard(true);
   };
 
   const handleSelectPlan = (option: LoanOption) => {
@@ -462,53 +463,114 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+    
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {isLoading ? (
-      Array.from({ length: 3 }).map((_, idx) => (
-        <LoanOptionCard
-          key={`skeleton-${idx}`}
-          option={{} as LoanOption}
-          totalCost={totalCost}
-          selectedPlan={selectedPlan}
-          sfAccessToken=""
-          onPreQualifyClick={() => {}}
-          onSelectPlan={() => {}}
-          features={[]}
-          recommendation=""
-          badgeText="Loading..."
-          badgeColor="bg-gray-300 animate-pulse"
-          isLoading={true}
-        />
-          ))
-        ) : loanOptions.length === 0 ? (
-                     <div className="col-span-full bg-[#3c3c3c] text-center rounded-xl text-white text-lg py-8 flex items-center justify-center gap-3">
-   {/* Alert icon */}
- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin-off-icon lucide-map-pin-off"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/><path d="m2 2 20 20"/><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/></svg>
+        Array.from({ length: 3 }).map((_, idx) => (
+          <LoanOptionCard
+            key={`skeleton-${idx}`}
+            option={{} as LoanOption}
+            totalCost={totalCost}
+            selectedPlan={selectedPlan}
+            sfAccessToken=""
+            onPreQualifyClick={() => {}}
+            onSelectPlan={() => {}}
+            features={[]}
+            recommendation=""
+            badgeText="Loading..."
+            badgeColor="bg-gray-300 animate-pulse"
+            isLoading={true}
+            selectedPlanShow={showStaticCard}
+          />
+        ))
+      ) : showStaticCard && selectedPlan ? (
+        <div className="bg-white relative rounded-2xl shadow-lg px-4 pt-4 pb-4 col-span-full">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center space-x-2">
+              <CreditCard className="text-gray-800" />
+              <h2 className="text-lg text-gray-800">Payment Plan</h2>
+            </div>
+            <button
+              onClick={() => setShowStaticCard(false)}
+              className="bg-gradient-to-b from-zinc-900 to-zinc-800 text-white text-xs px-4 py-2 rounded-md hover:bg-gray-700 transition"
+            >
+              Choose Different Plan
+            </button>
+          </div>
+      
+          <h3 className="flex items-center text-green-500 mt-3 text-xl sm:text-base md:text-2xl lg:text-xl">
+            <BadgeCheck className="mr-3" />
+            {selectedPlan.name}
+          </h3>
+      
+          <div className="border-t border-gray-300 my-4"></div>
+      
+          <div className="text-sm text-gray-700 space-y-2">
+            <div className="flex justify-between">
+              <span>Plan Name</span>
+              <span className="font-medium">{selectedPlan.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Lowest Payment</span>
+              <span className="font-medium">
+                ${selectedPlan.rate}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Payment With Tax Credit</span>
+              <span className="font-medium">
+                ${selectedPlan.loanDetails?.paymentWithoutTaxCredit}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Payment Without Tax Credit</span>
+              <span className="font-medium">
+                ${selectedPlan.loanDetails?.paymentWithTaxCredit}
+              </span>
+            </div>
+          </div>
+      
+          <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl mt-5 px-4 py-3">
+            <div className="flex items-center">
+              <BadgeCheck className="mr-3" />
+              <p className="text-xl sm:text-base md:text-2xl lg:text-xl">
+                Your Loan has been Approved
+              </p>
+            </div>
+          </div>
+        </div>
 
-
-  
-  {/* Message */}
-  No product is available for this region.
-</div>
-
-        ) : (
-          loanOptions.map((option, idx) => (
-            <LoanOptionCard
-              key={option.key || `loan-${idx}`}
-              option={option as LoanOption}
-              totalCost={totalCost}
-              selectedPlan={selectedPlan}
-              sfAccessToken={sfAccessToken ?? ""}
-              onPreQualifyClick={handlePreQualifyClick}
-              onSelectPlan={handleSelectPlan}
-              features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
-              recommendation="Homeowners with strong credit and stable income"
-              badgeText={undefined}
-              badgeColor={undefined}
-              isLoading={false}
-            />
-          ))
-        )}
+      ) : loanOptions.length === 0 ? (
+        <div className="col-span-full bg-[#3c3c3c] text-center rounded-xl text-white text-lg py-8 flex items-center justify-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin-off">
+            <path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/>
+            <path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/>
+            <path d="m2 2 20 20"/>
+            <path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/>
+            <path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/>
+          </svg>
+          No product is available for this region.
+        </div>
+      ) : (
+        loanOptions.map((option, idx) => (
+          <LoanOptionCard
+            key={option.key || `loan-${idx}`}
+            option={option as LoanOption}
+            totalCost={totalCost}
+            selectedPlan={selectedPlan}
+            sfAccessToken={sfAccessToken ?? ""}
+            onPreQualifyClick={handlePreQualifyClick}
+            onSelectPlan={handleSelectPlan}
+            features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
+            recommendation="Homeowners with strong credit and stable income"
+            badgeText={undefined}
+            badgeColor={undefined}
+            isLoading={false}
+            selectedPlanShow={showStaticCard}
+          />
+        ))
+      )}
+      
       </div>
       <LoanApplicationModal
         isOpen={isLoanModalOpen}
