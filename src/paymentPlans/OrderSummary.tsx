@@ -29,6 +29,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 }) => {
   const [battery, setBattery] = useState<Battery | null>(null);
   const [quantity, setQuantity] = useState<number>(0);
+  const [quantityPanel, setQuantityPanel] = useState<number>(0);
+  const [TotalPanelCost, setTotalPanelCost] = useState<number>(0);
 
 
   useEffect(() => {
@@ -39,6 +41,20 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         if (storedBattery && storedQty) {
           setBattery(storedBattery);
           setQuantity(storedQty);
+        }
+      } catch (err) {
+        console.error('Failed to parse battery from localStorage:', err);
+      }
+    }
+    debugger;
+    const panelCountlocal = localStorage.getItem('panelCount');
+    if (panelCountlocal) {
+      try {
+        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
+        if (panelCount) {
+          setQuantityPanel(panelCount);
+          setTotalPanelCost(totalcost);
+
         }
       } catch (err) {
         console.error('Failed to parse battery from localStorage:', err);
@@ -60,10 +76,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div>
               <p className="text-gray-300">Solar System (12.8kW)</p>
               <p className="text-sm text-gray-300 flex items-center ml-3">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> x 32 Panels
+                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {quantityPanel}
               </p>
             </div>
-            <p className="text-gray-300">$22,400</p>
+            <p className="text-gray-300">{TotalPanelCost}</p>
           </div>
 
               {/* Battery Storage */}
