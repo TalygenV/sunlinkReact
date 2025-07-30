@@ -52,6 +52,10 @@ const transformedBattery = {
     console.log("checkk");
    // navigate("/choose-plan");
   };
+  const nextGoPage = () => {
+    localStorage.setItem("battery", JSON.stringify({ selectedBattery, quantity }));
+    navigate("/installation");
+};
     return (
         <section className="overflow-hidden py-24 sm:py-20 bg-black-custom relative">
             <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-8 relative">
@@ -162,7 +166,7 @@ const transformedBattery = {
                     )}
                 </div>
             </div>
-            <p className="mt-12 text-center text-gray-400 text-sm">
+            <p className="mt-12 text-center text-gray-400 text-sm" onClick={() => nextGoPage()}>
                 Don't need a battery? <a href="dashboard-flow4-1.html" className="underline text-white">Skip</a>
             </p>
         </section>
