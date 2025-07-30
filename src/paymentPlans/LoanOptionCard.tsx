@@ -238,6 +238,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   const fetchAPRTerms = async () => {
     setIsLoading(true);
+    console.log("localStorage.getItem(userData)",localStorage.getItem("userData"));
     console.log("✅ fetchAPRTerms CALLED");
   
     try {
@@ -530,10 +531,10 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
             </div>
           </div>
       
-          <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl mt-5 px-4 py-3">
+          <div className="bg-[#d0f2e7] border border-green-400 rounded-lg mt-5 px-4 py-3">
             <div className="flex items-center">
-              <BadgeCheck className="mr-3" />
-              <p className="text-xl sm:text-base md:text-2xl lg:text-xl">
+              <BadgeCheck className="mr-3 text-[#1ba452]" />
+              <p className="text-xl text-[#1ba452] sm:text-base md:text-2xl lg:text-xl">
                 Your Loan has been Approved
               </p>
             </div>
