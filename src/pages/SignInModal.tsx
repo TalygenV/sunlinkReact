@@ -31,7 +31,10 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
     const [formErrors, setFormErrors] = useState({ phone: "", email: "", password: "", verificationCode: "", });
     const navigate = useNavigate();
     const recaptchaContainerRef = React.useRef<HTMLDivElement>(null);
-
+    const signUpPageNext = () =>{
+    console.log("checkk");
+        navigate("/");
+    }
     // Cleanup reCAPTCHA on modal close
     React.useEffect(() => {
         if (!isOpen) {
@@ -278,13 +281,13 @@ localStorage.setItem("userData", JSON.stringify(allData));
             }
             
             if (userData?.stepName === "systemOverview") {
-                navigate("/financing", { state: { userData } });
+                navigate("/System-Overview", { state: { userData } });
             } else if (userData?.stepName === "systemDesign") {
-                navigate("/system-design");
+                navigate("/System-Overview");
             } else if (userData?.stepName === "choosePlan") {
                 navigate("/choose-plan");
             } else {
-                navigate("/financing");
+                navigate("/System-Overview");
             }
             
 
@@ -583,23 +586,7 @@ localStorage.setItem("userData", JSON.stringify(allData));
                                     </button>
                                 )}
                             </div>
-                            {isSignUp && (
-                                <div>
-                                    <div className="relative">
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                                        <select
-                                            value={role}
-                                            onChange={(e) => setRole(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-full text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400/20 appearance-none"
-                                            required
-                                        >
-                                            <option value="Customer">Customer</option>
-                                            <option value="Installer">Installer</option>
-                                            {/* <option value="Admin">Admin</option> */}
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
+                           
                             <motion.button
                                 type="submit"
                                 disabled={loading}
@@ -618,7 +605,11 @@ localStorage.setItem("userData", JSON.stringify(allData));
                             </motion.button>
                             <button
                                 type="button"
-                                onClick={() => setIsSignUp(!isSignUp)}
+                              
+                                onClick={() => {
+  signUpPageNext();
+  onClose();
+}}
                                 className="text-sm text-gray-600 hover:text-orange transition-colors duration-300 mt-4"
                             >
                                 {isSignUp

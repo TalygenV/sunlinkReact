@@ -1,0 +1,182 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Battery } from '../types/Battery'; // define the Battery type separately
+
+interface BatteryState {
+  list: Battery[];
+}
+
+const initialState: BatteryState = {
+  list: [
+  {
+    id: "tesla-powerwall-3",
+    name: "Powerwall",
+    manufacturer: "Tesla",
+    capacity: "13.5 kWh",
+    warranty: "10 years",
+    efficiency: "89%",
+    price: 15000,
+    batteryNameplatePower: 11.5,
+    batteryNameplateCapacity: 13.5,
+    batteryMinSoc: 0.0,
+    batteryMaxSoc: 0.0,
+    batteryInitialSoc: 0.25,
+    batteryDcCoupled: true,
+    batteryAcToDcEfficiency: 0.0,
+    batteryDcToAcEfficiency: 0.0,
+    batteryInputEfficiency: 0.1,
+    batteryDegradationCost: 0.0,
+    solarDcToAcEfficiency: 0.97,
+    allowBatteryToGrid: true,
+    allowGridToBattery: true,
+    allowSolarToGrid: true,
+    allowSolarToBattery: true,
+    features: [
+      "Integrated inverter",
+      "App-based monitoring",
+      "Storm Watch feature",
+      "Time-based control",
+      "Scalable system",
+    ],
+  },
+  {
+    id: "enphase-5p",
+    name: "IQ Battery 5P",
+    manufacturer: "Enphase",
+    capacity: "5.0 kWh",
+    warranty: "15 years",
+    efficiency: "96%",
+    price: 8500,
+    batteryNameplatePower: 3.84,
+    batteryNameplateCapacity: 5.0,
+    batteryMinSoc: 0.0,
+    batteryMaxSoc: 0.0,
+    batteryInitialSoc: 0.0,
+    batteryDcCoupled: true,
+    batteryAcToDcEfficiency: 0.0,
+    batteryDcToAcEfficiency: 0.96,
+    batteryInputEfficiency: 0.9,
+    batteryDegradationCost: 0,
+    solarDcToAcEfficiency: 0.0,
+    allowBatteryToGrid: true,
+    allowGridToBattery: true,
+    allowSolarToGrid: true,
+    allowSolarToBattery: true,
+    features: [
+      "Modular design",
+      "Hot-swappable",
+      "Built-in microinverters",
+      "Enlighten monitoring",
+      "Grid-forming capability",
+    ],
+  },
+  //   {
+  //   "id": "franklin-wh-a2",
+  //   "name": "aPower A2",
+  //   "manufacturer": "Franklin WH",
+  //   "capacity": "15 kWh",
+  //   "warranty": "12 years",
+  //   "efficiency": "95%",
+  //   "price": 12800,
+  //   batteryNameplatePower: 8.0,
+  //   batteryNameplateCapacity: 15.0,
+  //   batteryMinSoc: 0.0,
+  //   batteryMaxSoc: 0.0,
+  //   batteryInitialSoc: 0.0,
+  //   batteryDcCoupled: true,
+  //   batteryAcToDcEfficiency: 0.0,
+  //   batteryDcToAcEfficiency: 90,
+  //   batteryInputEfficiency: 0.0,
+  //   batteryDegradationCost: 0,
+  //   solarDcToAcEfficiency: 0.0,
+  //   allowBatteryToGrid: true,
+  //   allowGridToBattery: true,
+  //   allowSolarToGrid: true,
+  //   allowSolarToBattery: true,
+  //   "features": [
+  //     "Iron phosphate chemistry",
+  //     "Integrated inverter",
+  //     "Smart energy management",
+  //     "Mobile app control",
+  //     "Expandable capacity"
+  //   ]
+  // }
+  // {
+  //   id: "franklin-wh-a2",
+  //   name: "aPower A2",
+  //   manufacturer: "Franklin WH",
+  //   capacity: "13.6 kWh",
+  //   warranty: "12 years",
+  //   efficiency: "95%",
+  //   price: 12800,
+  //   "batteryNameplatePower": "8.0",
+  //       "batteryNameplateCapacity": "15.0",
+  //       "batteryMinSoc": "0.1",
+  //       "batteryMaxSoc": "1.0",
+  //       "batteryInitialSoc": "0.5",
+  //       "batteryDcCoupled": true,
+  //       "batteryAcToDcEfficiency": "0.00",
+  //       "batteryDcToAcEfficiency": "0.00",
+  //       "batteryInputEfficiency": "0.00",
+  //       "batteryDegradationCost": "0",
+  //       "solarDcToAcEfficiency": "0.00",
+  //       "allowBatteryToGrid": true,
+  //       "allowGridToBattery": true,
+  //       "allowSolarToGrid": true,
+  //       "allowSolarToBattery": true,
+  //   features: [
+  //     "Iron phosphate chemistry",
+  //     "Integrated inverter",
+  //     "Smart energy management",
+  //     "Mobile app control",
+  //     "Expandable capacity",
+  //   ],
+  // },
+  {
+    id: "solaredge-home",
+    name: "Home Battery",
+    manufacturer: "SolarEdge",
+    capacity: "9.7 kWh",
+    warranty: "10 years",
+    efficiency: "94.5%",
+    price: 11200,
+    batteryNameplatePower: 5.0,
+    batteryNameplateCapacity: 9.7,
+    batteryMinSoc: 0.0,
+    batteryMaxSoc: 0.0,
+    batteryInitialSoc: 0.0,
+    batteryDcCoupled: true,
+    batteryAcToDcEfficiency: 0.0,
+    batteryDcToAcEfficiency: 0.0,
+    batteryInputEfficiency: 0.94,
+    batteryDegradationCost: 0,
+    solarDcToAcEfficiency: 0.0,
+    allowBatteryToGrid: true,
+    allowGridToBattery: true,
+    allowSolarToGrid: true,
+    allowSolarToBattery: true,
+    features: [
+      "DC-coupled system",
+      "Compact design",
+      "Fire safety features",
+      "Remote monitoring",
+      "Weather-resistant",
+    ],
+  },
+]
+};
+
+const batteriesSlice = createSlice({
+  name: 'batteries',
+  initialState,
+  reducers: {
+    addBattery: (state, action: PayloadAction<Battery>) => {
+      state.list.push(action.payload);
+    },
+    removeBattery: (state, action: PayloadAction<string>) => {
+      state.list = state.list.filter(battery => battery.id !== action.payload);
+    },
+  },
+});
+
+export const { addBattery, removeBattery } = batteriesSlice.actions;
+export default batteriesSlice.reducer;
