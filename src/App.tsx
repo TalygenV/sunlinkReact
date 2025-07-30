@@ -45,7 +45,7 @@ function App() {
           <Route path="/financing" element={<Financing />} />
           <Route path="/System-Overview" element={<SystemOverview />} />
           <Route path="/resources" element={<Resources />} />
-          <Route path="/battery-selection" element={<BatterySelection />} />
+          <Route path="/system-design" element={<BatterySelection />} />
           <Route path="/battery-selection-customize" element={<BatterySelectionCustmize />} />
           <Route path="*" element={<div className="p-10 text-center text-2xl">404 - Page Not Found</div>} />
         </Routes>

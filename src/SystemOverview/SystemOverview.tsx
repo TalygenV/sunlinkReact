@@ -89,7 +89,7 @@ function SystemOverview() {
             <span>Customer Portal</span>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-6 items-start">
+        <div >
 
 
           <div className="rounded-xl relative sticky top-20 h-screen">

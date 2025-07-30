@@ -553,9 +553,7 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
           console.log("No existing data, generating new data");
 
           // Get address from userData
-          const address = JSON.parse(
-            localStorage.getItem("solarSetup") || "{}"
-          ).formattedAddress;
+          const address = userData.address;
           // const address = userData.address;
           console.log("address", address);
 
@@ -673,11 +671,12 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
 
               // Create a storage reference with formatted address
               const formattedAddress = formatAddressForStorage(address);
+              console.log("formattedAddress",formattedAddress);
               const imageRef = storageRef(
                 storage,
                 `nearmap-images/${formattedAddress}`
               );
-
+ console.log("imageRef",imageRef);
               // Upload the blob to Firebase Storage
               const uploadResult = await uploadBytes(imageRef, blob);
 

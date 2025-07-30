@@ -411,7 +411,7 @@ if(!userData) return;
         </div>
 
         <div className="w-full mt-10 text-center">
-          <Link to="/financing" className="orangegradbtn rounded-xl py-4 px-5 mb-2 text-lg font-normal text-white">
+          <Link to="/System-Overview" className="orangegradbtn rounded-xl py-4 px-5 mb-2 text-lg font-normal text-white">
             Customise my solar system
           </Link>
         </div>
