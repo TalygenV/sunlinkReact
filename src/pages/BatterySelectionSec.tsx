@@ -67,7 +67,7 @@ const BatterySelectionSec = () => {
                 <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-2 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
                     <div className="lg:pt-4 lg:pr-2">
                         <div className="w-full mx-auto">
-                            <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg font-semibold">
+                            {/* <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg font-semibold">
                                 Dummy 3D Model
                                 <button
                                     onClick={() => setModalOpen(true)}
@@ -76,7 +76,7 @@ const BatterySelectionSec = () => {
                                 >
                                     <img src={vectorIcon} className="h-5 w-5" alt="Expand" />
                                 </button>
-                            </div>
+                            </div> */}
 
                             <div className="mt-4 flex justify-between gap-4">
                                 <div className="flex-1 bg-gray-400 rounded-md aspect-square" />
