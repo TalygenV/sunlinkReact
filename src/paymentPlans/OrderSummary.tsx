@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Shield, Check, Lock } from 'lucide-react';
+import { Battery } from '../types/Battery';
 
 interface OrderSummaryProps {
   batteryCount: number;
@@ -26,6 +27,42 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   formData,
   onInputChange
 }) => {
+  const [battery, setBattery] = useState<Battery | null>(null);
+  const [quantity, setQuantity] = useState<number>(0);
+  const [quantityPanel, setQuantityPanel] = useState<number>(0);
+  const [TotalPanelCost, setTotalPanelCost] = useState<number>(0);
+
+
+  useEffect(() => {
+    const stored = localStorage.getItem('battery');
+    if (stored) {
+      try {
+        const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
+        if (storedBattery && storedQty) {
+          setBattery(storedBattery);
+          setQuantity(storedQty);
+        }
+      } catch (err) {
+        console.error('Failed to parse battery from localStorage:', err);
+      }
+    }
+    debugger;
+    const panelCountlocal = localStorage.getItem('panelCount');
+    if (panelCountlocal) {
+      try {
+        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
+        if (panelCount) {
+          setQuantityPanel(panelCount);
+          setTotalPanelCost(totalcost);
+
+        }
+      } catch (err) {
+        console.error('Failed to parse battery from localStorage:', err);
+      }
+    }
+
+  }, []);
+
   return (
     <div className="w-full sticky top-20">
       <div className="w-full max-w-[400px] rounded-3xl p-6 text-white border border-neutral-600 bg-slate-800">
@@ -39,22 +76,26 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div>
               <p className="text-gray-300">Solar System (12.8kW)</p>
               <p className="text-sm text-gray-300 flex items-center ml-3">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> x 32 Panels
+                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {quantityPanel}
               </p>
             </div>
-            <p className="text-gray-300">$22,400</p>
+            <p className="text-gray-300">{TotalPanelCost}</p>
           </div>
 
-          {/* Battery Storage */}
-          <div className="flex justify-between mb-4">
-            <div>
-              <p className="text-gray-300">Battery Storage</p>
-              <p className="text-sm text-gray-300 flex items-center ml-3">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {batteryCount}x Tesla Powerwall 3
+              {/* Battery Storage */}
+              {battery && quantity > 0 && (
+            <div className="flex justify-between mb-4">
+              <div>
+                <p className="text-gray-300">Battery Storage</p>
+                <p className="text-sm text-gray-300 flex items-center ml-3">
+                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {quantity}x {battery.name}
+                </p>
+              </div>
+              <p className="text-gray-300">
+                ${(quantity * battery.price).toLocaleString()}
               </p>
             </div>
-            <p className="text-gray-300">${(batteryCount * 15000).toLocaleString()}</p>
-          </div>
+          )}
 
           <div className="bg-neutral-600 w-full h-px my-3"></div>
 
@@ -92,12 +133,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <p className="text-sm text-gray-300">${afterTaxCredit.toLocaleString()}</p>
           </div>
 
-          <div className="bg-neutral-600 w-full h-px my-3"></div>
+          {/* <div className="bg-neutral-600 w-full h-px my-3"></div>
 
           <div className="flex justify-between">
             <p className="text-sm text-gray-300">Monthly Payment Plan</p>
             <p className="text-sm text-orange-400">$145/mo</p>
-          </div>
+          </div> */}
         </div>
 
         {/* Payment Information */}

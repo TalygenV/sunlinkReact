@@ -48,7 +48,10 @@ const BatterySelection = () => {
     const navigateToPrevious = () => { setSelectedBatteryIndex(selectedBatteryIndex > 0 ? selectedBatteryIndex - 1 : batteries.length - 1); };
 
     const navigateToNext = () => { setSelectedBatteryIndex(selectedBatteryIndex < batteries.length - 1 ? selectedBatteryIndex + 1 : 0); };
-
+    const nextGoPage = () => {
+        localStorage.setItem("battery", JSON.stringify({ selectedBattery, quantity }));
+        navigate("/installation");
+    };
     useEffect(() => {
         if (batteries[selectedBatteryIndex]) {
             setSelectedId(batteries[selectedBatteryIndex].id);
@@ -179,7 +182,7 @@ const BatterySelection = () => {
                     )}
                 </div>
             </div>
-            <p className="mt-12 text-center text-gray-400 text-sm">
+            <p className="mt-12 text-center text-gray-400 text-sm" onClick={() => nextGoPage()}>
                 Don't need a battery? <a href="dashboard-flow4-1.html" className="underline text-white">Skip</a>
             </p>
         </section>

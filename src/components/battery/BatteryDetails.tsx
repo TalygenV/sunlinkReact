@@ -403,8 +403,8 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
         }
     }
     const nextGoPage = () => {
-        console.log("checkk");
-        navigate("/choose-plan");
+        localStorage.setItem("battery", JSON.stringify({ battery, quantity }));
+        navigate("/installation");
     };
     return (
         <div className="lg:pt-4 lg:pl-2">
