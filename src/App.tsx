@@ -12,12 +12,13 @@ import About from './pages/About';
 import Products from './pages/Products';
 import Installation from './pages/SolarCustomization';
 import Financing from './pages/CustomizeSolarSystem';
-import { FormContext }  from './context/FormContext';
+import { FormContext } from './context/FormContext';
 import Resources from './pages/Resources';
 import BatterySelection from './pages/BatterySelection';
 import BatterySelectionCustmize from './pages/BatterySelectionCustmize';
 import SignInModal from './pages/SignInModal';
 import GlobalSpinner from "./components/GlobalSpinner";
+import SystemOverview from './SystemOverview/SystemOverview';
 
 const auth = getAuth(app);
 
@@ -33,18 +34,16 @@ function App() {
 
   return (
     <>
-    <GlobalSpinner />
+      <GlobalSpinner />
       <Header onSignInClick={() => setShowSignIn(true)} />
       <main>
         <Routes>
-          <Route
-            path="/"
-            element={<Home />}
-          />
-          
+          <Route path="/" element={<Home />} />
+
           <Route path="/products" element={<Products />} />
           <Route path="/installation" element={<Installation />} />
           <Route path="/financing" element={<Financing />} />
+          <Route path="/System-Overview" element={<SystemOverview />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/battery-selection" element={<BatterySelection />} />
           <Route path="/battery-selection-customize" element={<BatterySelectionCustmize />} />
