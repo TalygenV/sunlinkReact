@@ -9,7 +9,7 @@ const initialState: BatteryState = {
   list: [
   {
     id: "tesla-powerwall-3",
-    name: "Powerwall 3dsfsdf",
+    name: "Powerwall",
     manufacturer: "Tesla",
     capacity: "13.5 kWh",
     warranty: "10 years",

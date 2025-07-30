@@ -984,7 +984,7 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
   }
 
   async function callSurveyApi(address: any, preview: any) {
-    const apiKey = "ZWYzZWI4MGQtYjY1MC00YTRmLWJjYjQtNmU3NTAzNGI5N2Yz";
+    const apiKey = "MjAyYTY0ZTUtYTIwNC00MzMzLWIzNjEtNThiZWQ5YjY0NWY3";
 
     if (!apiKey) throw new Error("Missing Nearmap API key");
 
