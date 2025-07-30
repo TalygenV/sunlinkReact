@@ -31,35 +31,42 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const [quantity, setQuantity] = useState<number>(0);
   const [quantityPanel, setQuantityPanel] = useState<number>(0);
   const [TotalPanelCost, setTotalPanelCost] = useState<number>(0);
+  const [TotalBill, setTotalBill] = useState<number>(0);
+  const [TotalBillATC, setTotalBillATC] = useState<number>(0);
 
 
-  useEffect(() => {
+  useEffect( () => {
     const stored = localStorage.getItem('battery');
     if (stored) {
-      try {
-        const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
-        if (storedBattery && storedQty) {
-          setBattery(storedBattery);
-          setQuantity(storedQty);
-        }
-      } catch (err) {
-        console.error('Failed to parse battery from localStorage:', err);
-      }
-    }
-    debugger;
-    const panelCountlocal = localStorage.getItem('panelCount');
-    if (panelCountlocal) {
-      try {
-        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
-        if (panelCount) {
-          setQuantityPanel(panelCount);
-          setTotalPanelCost(totalcost);
 
+        const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
+        const panelCountlocal = localStorage.getItem('panelCount');
+        if (storedBattery && storedQty && panelCountlocal) {
+        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
+        setTotalPanelCost(totalcost);
+          if(storedBattery) {
+              const batterypricesingle = storedBattery.price;
+            const totalbillcost =  totalcost + (batterypricesingle * storedQty);
+            console.log("totalbillcost",TotalPanelCost);
+            console.log("storedQty",storedQty);
+            const TotalBillAfterTexCredit = (totalbillcost * 70)/100;
+            console.log("TotalBillAfterTexCredit",TotalBillAfterTexCredit);
+            setBattery(storedBattery);
+          setQuantity(storedQty);
+          setQuantityPanel(panelCount);
+           
+            setTotalBill(totalbillcost);
+            setTotalBillATC(TotalBillAfterTexCredit);
+          }
         }
-      } catch (err) {
-        console.error('Failed to parse battery from localStorage:', err);
-      }
+
+    
+    
+     
     }
+
+   
+   
 
   }, []);
 
@@ -126,11 +133,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="bg-slate-700 border border-neutral-600 text-white p-5 rounded-xl shadow-lg w-full mt-4">
           <div className="flex justify-between">
             <p className="text-gray-300">Total System Cost</p>
-            <p className="text-gray-300">${totalCost.toLocaleString()}</p>
+            <p className="text-gray-300">${TotalBill}</p>
           </div>
           <div className="flex justify-between">
             <p className="text-sm text-gray-300">After Tax Credits (30%)</p>
-            <p className="text-sm text-gray-300">${afterTaxCredit.toLocaleString()}</p>
+            <p className="text-sm text-gray-300">${TotalBillATC}</p>
           </div>
 
           {/* <div className="bg-neutral-600 w-full h-px my-3"></div>
