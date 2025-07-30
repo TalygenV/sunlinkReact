@@ -100,8 +100,8 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
   };
 
   const gotoNextScreen = () => {
-    const totalcost = panelCount * 400 *2.5;
-    localStorage.setItem("panelCount",JSON.stringify({panelCount,totalcost}))
+    const totalcost = panelCount * 400 * 2.5;
+    localStorage.setItem("panelCount", JSON.stringify({ panelCount, totalcost }))
     navigate("/system-design");
   };
 
@@ -206,8 +206,8 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
                   key={target.percentage}
                   onClick={() => handleTargetSelect(target.percentage)}
                   className={`w-full p-3 lg:p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] shadow-sm hover:shadow-md ${isSelected
-                      ? "bg-black ring-2 ring-white shadow-lg text-white"
-                      : "bg-white border border-gray-200 hover:border-gray-300 text-[#1f2937]"
+                    ? "bg-black ring-2 ring-white shadow-lg text-white"
+                    : "bg-white border border-gray-200 hover:border-gray-300 text-[#1f2937]"
                     }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -229,8 +229,8 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
                         {isAchieved && (
                           <span
                             className={`ml-2 text-xs px-2 py-1 rounded-full ${isSelected
-                                ? "bg-white/20 text-white"
-                                : "bg-green-500/20 text-green-600"
+                              ? "bg-white/20 text-white"
+                              : "bg-green-500/20 text-green-600"
                               }`}
                           >
                             ✓ Achieved
@@ -344,9 +344,9 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
         {/* Finalize Design Button */}
         <button
           onClick={gotoNextScreen}
-          className="w-full btn-primary text-white font-semibold py-2 lg:py-4 px-3 lg:px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 text-sm lg:text-base mb-4"
+          className="w-full btn-primary text-white font-semibold py-2 lg:py-4 px-3 lg:px-6 rounded-xl transition-all duration-200 orangegradbtn flex items-center justify-center space-x-2 text-sm lg:text-base mb-4"
         >
-          <span>Finalize Design</span>
+          <span>Finalize Design </span>
           <svg
             className="w-4 h-4 lg:w-5 lg:h-5"
             fill="none"
