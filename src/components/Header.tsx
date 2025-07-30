@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = () => {
-    localStorage.removeItem('userData');
+    localStorage.clear();
     setUserData(null);
     setIsAuthenticated(false);
     window.location.href = '/'; // optional: redirect to homepage

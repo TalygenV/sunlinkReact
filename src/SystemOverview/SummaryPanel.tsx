@@ -100,6 +100,8 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
   };
 
   const gotoNextScreen = () => {
+    const totalcost = panelCount * 400 *2.5;
+    localStorage.setItem("panelCount",JSON.stringify({panelCount,totalcost}))
     navigate("/system-design");
   };
 
