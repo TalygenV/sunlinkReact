@@ -58,8 +58,13 @@ export interface GenabilityData {
   estimatedAnnualSavings: number;
   providerAccountId: string;
   penalCount: number;
-  series: SeriesEntry[];
-  seriesData: SeriesEntry[];
+  seriesData: {
+    filter(arg0: (d: { seriesId: number; }) => boolean): unknown;
+    series: SeriesEntry[];
+    seriesData: SeriesEntry[];
+    summary: GenabilitySummary;
+    firstYear?: number;
+  };
 }
 export interface SeriesEntry {
   seriesId: number;
@@ -76,11 +81,11 @@ export interface localUserData {
   phone: string;
   password: string;
   address: string;
-  ownsHome: string;
+  ownsHome: boolean;
   propertyType: string;
   powerBill: number;
   state: string;
-  uid:string;
+  uid: string;
   genabilityInfo: GenabilityData;
   targetMonthlyBill: number;
   monthlyConsumption: number;
@@ -88,9 +93,11 @@ export interface localUserData {
     latitude: number;
     longitude: number;
   };
+  solarData?: any;
+  annualUsage?: number;
   isAutoPanelsSupported: boolean;
   profileComplete: boolean;
-  createdAt: Date; // stored as ISO string
+  createdAt: string; // stored as ISO string
   stepName: string;
   pricePerKwh?: number; // ← optional if present
 }
