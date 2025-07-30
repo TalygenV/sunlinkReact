@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Shield, Check, Lock } from 'lucide-react';
+import { Battery } from '../types/Battery';
 
 interface OrderSummaryProps {
   batteryCount: number;
@@ -26,6 +27,49 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   formData,
   onInputChange
 }) => {
+  const [battery, setBattery] = useState<Battery | null>(null);
+  const [quantity, setQuantity] = useState<number>(0);
+  const [quantityPanel, setQuantityPanel] = useState<number>(0);
+  const [TotalPanelCost, setTotalPanelCost] = useState<number>(0);
+  const [TotalBill, setTotalBill] = useState<number>(0);
+  const [TotalBillATC, setTotalBillATC] = useState<number>(0);
+
+
+  useEffect( () => {
+    const stored = localStorage.getItem('battery');
+    if (stored) {
+
+        const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
+        const panelCountlocal = localStorage.getItem('panelCount');
+        if (storedBattery && storedQty && panelCountlocal) {
+        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
+        setTotalPanelCost(totalcost);
+          if(storedBattery) {
+              const batterypricesingle = storedBattery.price;
+            const totalbillcost =  totalcost + (batterypricesingle * storedQty);
+            console.log("totalbillcost",TotalPanelCost);
+            console.log("storedQty",storedQty);
+            const TotalBillAfterTexCredit = (totalbillcost * 70)/100;
+            console.log("TotalBillAfterTexCredit",TotalBillAfterTexCredit);
+            setBattery(storedBattery);
+          setQuantity(storedQty);
+          setQuantityPanel(panelCount);
+           
+            setTotalBill(totalbillcost);
+            setTotalBillATC(TotalBillAfterTexCredit);
+          }
+        }
+
+    
+    
+     
+    }
+
+   
+   
+
+  }, []);
+
   return (
     <div className="w-full sticky top-20">
       <div className="w-full max-w-[400px] rounded-3xl p-6 text-white border border-neutral-600 bg-slate-800">
@@ -39,22 +83,26 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div>
               <p className="text-gray-300">Solar System (12.8kW)</p>
               <p className="text-sm text-gray-300 flex items-center ml-3">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> x 32 Panels
+                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {quantityPanel}
               </p>
             </div>
-            <p className="text-gray-300">$22,400</p>
+            <p className="text-gray-300">{TotalPanelCost}</p>
           </div>
 
-          {/* Battery Storage */}
-          <div className="flex justify-between mb-4">
-            <div>
-              <p className="text-gray-300">Battery Storage</p>
-              <p className="text-sm text-gray-300 flex items-center ml-3">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {batteryCount}x Tesla Powerwall 3
+              {/* Battery Storage */}
+              {battery && quantity > 0 && (
+            <div className="flex justify-between mb-4">
+              <div>
+                <p className="text-gray-300">Battery Storage</p>
+                <p className="text-sm text-gray-300 flex items-center ml-3">
+                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mr-2"></span> {quantity}x {battery.name}
+                </p>
+              </div>
+              <p className="text-gray-300">
+                ${(quantity * battery.price).toLocaleString()}
               </p>
             </div>
-            <p className="text-gray-300">${(batteryCount * 15000).toLocaleString()}</p>
-          </div>
+          )}
 
           <div className="bg-neutral-600 w-full h-px my-3"></div>
 
@@ -85,19 +133,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="bg-slate-700 border border-neutral-600 text-white p-5 rounded-xl shadow-lg w-full mt-4">
           <div className="flex justify-between">
             <p className="text-gray-300">Total System Cost</p>
-            <p className="text-gray-300">${totalCost.toLocaleString()}</p>
+            <p className="text-gray-300">${TotalBill}</p>
           </div>
           <div className="flex justify-between">
             <p className="text-sm text-gray-300">After Tax Credits (30%)</p>
-            <p className="text-sm text-gray-300">${afterTaxCredit.toLocaleString()}</p>
+            <p className="text-sm text-gray-300">${TotalBillATC}</p>
           </div>
 
-          <div className="bg-neutral-600 w-full h-px my-3"></div>
+          {/* <div className="bg-neutral-600 w-full h-px my-3"></div>
 
           <div className="flex justify-between">
             <p className="text-sm text-gray-300">Monthly Payment Plan</p>
             <p className="text-sm text-orange-400">$145/mo</p>
-          </div>
+          </div> */}
         </div>
 
         {/* Payment Information */}

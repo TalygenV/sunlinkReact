@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Check, CreditCard } from "lucide-react";
+import { BadgeCheck, Check, CreditCard } from "lucide-react";
 import LoanApplicationModal from "./LoanApplicationModal";
 import QuotationPopup from "./QuotationPopup";
 import SunlightDocuSign from "./SunlightDocuSign"
 import { useLoader } from "../context/LoaderContext";
+import { Battery } from "../types/Battery";
 
 export interface LoanOption {
   name: string;
@@ -29,6 +30,7 @@ export interface LoanOptionCardProps {
   features: string[];
   recommendation: string;
   isLoading?: boolean;
+  selectedPlanShow:boolean;
 }
 const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   option,
@@ -42,6 +44,7 @@ const LoanOptionCard: React.FC<LoanOptionCardProps> = ({
   features,
   recommendation,
   isLoading,
+  selectedPlanShow,
 }) => {
   
   
@@ -213,7 +216,7 @@ interface LoanOptionsPageProps {
 // Update LoanOptionsPage to accept totalCost as a prop
 const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [loanOptions, setLoanOptions] = useState<LoanOption[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
   const [selectedLoanOption, setSelectedLoanOption] = useState<any>(null);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [sfAccessToken, setsfAccessToken] = useState();
@@ -223,117 +226,30 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const [formDataRef, setformDataRef] = useState<any>(null);
   const [signingUrl, setSigningUrl] = useState<string>("");
   const [showDocuSignModal, setShowDocuSignModal] = useState(false);
-  const { showLoader, hideLoader } = useLoader();
   const [showErrorPopup, setShowErrorPopup] = useState(false);
-
+  const [showCreditCheckPassedPopup, setShowCreditCheckPassedPopup] = useState(false);
+  const [projectId, setProjectId] = useState("");
+  const { showLoader, hideLoader } = useLoader();
+  const [showStaticCard, setShowStaticCard] = useState(false);
   const skeletonLoanOptions: Partial<LoanOption>[] = [
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-60", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-180", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } },
     { badge: "Loading...", name: "Loading...", rate: "--", key: "skeleton-300", icon: null, loanDetails: { lowestPayment: "--", paymentWithTaxCredit: "--", paymentWithoutTaxCredit: "--" } }
   ];
 
-
-  // const fetchAPRTerms = async () => {
-  //   setIsLoading(true);
-  //   console.log("✅ fetchAPRTerms CALLED");
-  //   try {
-  //     const fetchJSON = async (url: string, body: any) => {
-  //       const res = await fetch(url, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(body),
-  //       });
-  //       if (!res.ok) {
-  //         const errorData = await res.json().catch(() => null);
-  //         throw new Error(
-  //           errorData?.error || `HTTP error! status: ${res.status}`
-  //         );
-  //       }
-  //       return res.json();
-  //     };
-  //
-  //     const initialRes = await fetchJSON(
-  //       "https://us-central1-sunlink-21942.cloudfunctions.net/fetchProducts",
-  //       {}
-  //     );
-  //
-  //     const products = initialRes?.product_response?.products || [];
-  //     const sfAccessToken = initialRes?.access_token;
-  //     setsfAccessToken(sfAccessToken);
-  //     const selectedState =
-  //       JSON.parse(localStorage.getItem("solarSetup") || "{}")?.state ||
-  //       "California";
-  //
-  //     const allowedTerms = [60, 180, 300];
-  //     const eligibleProducts = products.filter(
-  //       (item: any) =>
-  //         item.isACH &&
-  //         item.productType.toLowerCase() === "solar" &&
-  //         item.stateName.toLowerCase() === selectedState.toLowerCase()
-  //     );
-  //
-  //     const filteredProducts: any[] = [];
-  //     allowedTerms.forEach((term) => {
-  //       const productsForTerm = eligibleProducts.filter(
-  //         (item: any) => item.term === term
-  //       );
-  //       if (productsForTerm.length > 0) {
-  //         const minApr = Math.min(...productsForTerm.map((p: any) => p.apr));
-  //         const bestProducts = productsForTerm.filter(
-  //           (p: any) => p.apr === minApr
-  //         );
-  //         filteredProducts.push(...bestProducts);
-  //       }
-  //     });
-  //     
-  //     console.log("Filtered products:", filteredProducts);
-  //     const resultPromises = filteredProducts.map(async (product) => {
-  //       try {
-  //         const data = await fetchJSON(
-  //           "https://us-central1-sunlink-21942.cloudfunctions.net/calculateLoanProduct",
-  //           {
-  //             sfAccessToken: `Bearer ${sfAccessToken}`,
-  //             term: product.term,
-  //             stateName: product.stateName,
-  //             name: product.name,
-  //             loanAmount: totalCost, // Use totalCost from props
-  //             apr: product.apr,
-  //             productType: product.productType,
-  //             projectCategory: product.projectCategory || "Solar",
-  //           }
-  //         );
-  //         console.log("Calculated data:", data);
-  //         return {
-  //           name: product.name,
-  //           badge: `${product.term}-month`,
-  //           rate: product.apr,
-  //           key: `${product.name}-${product.term}`,
-  //           icon: null,
-  //           loanDetails: {
-  //             lowestPayment: data.monthlyPayment,
-  //             paymentWithTaxCredit: data.finalMonthlyPayment,
-  //             paymentWithoutTaxCredit: data.escalatedMonthlyPayment,
-  //           },
-  //         };
-  //       } catch (error: any) {
-  //         console.warn("Failed to calculate loan product:", error.message);
-  //         return null;
-  //       }
-  //     });
-  //
-  //     const results = (await Promise.all(resultPromises)).filter(Boolean);
-  //     setLoanOptions(results as LoanOption[]);
-  //   } catch (error: any) {
-  //     console.error("Error in fetchAPRTerms:", error.message);
-  //   }
-  //   finally{
-  //     setIsLoading(false); 
-  //   }
-  // };
-
-
   const fetchAPRTerms = async () => {
     setIsLoading(true);
+    console.log("localStorage.getItem(userData)",localStorage.getItem("userData"));
+    const stored = localStorage.getItem("battery");
+
+if (stored) {
+  const { battery, quantity } = JSON.parse(stored) as {
+    battery: Battery;
+    quantity: number;
+  };
+
+  console.log(battery, quantity);
+}
     console.log("✅ fetchAPRTerms CALLED");
   
     try {
@@ -451,16 +367,67 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   const LoanApplicationCreateSubmit = async (data: any ,formDataRef: any,sfAccessToken:string) => {
     setIsLoanModalOpen(false);
-    setquotationPopup(true);
     setLoanapplicataiondata(data);
     setformDataRef(formDataRef);
     setsfAccessToken(sfAccessToken as any);
+    submitCreditCheck(data,formDataRef);
+  };
+
+  const submitCreditCheck = async (data:any,formDataRef: any) => {
+    showLoader("Performing credit check...");
+    console.log("In Credit Check method");
+    const firstProject = data.projects?.[0];
+    const firstApplicant = firstProject?.applicants?.[0];
+    try {
+      const res = await fetch(
+        "https://us-central1-sunlink-21942.cloudfunctions.net/submitCreditCheck",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sfAccessToken: `Bearer ${sfAccessToken}`,
+            projectId: firstProject.id,
+            applicantId: firstApplicant.id,
+            firstName: firstApplicant.firstName,
+            lastName: firstApplicant.lastName,
+            phone: firstApplicant.phone,
+            otherPhone: firstApplicant.phone,
+            email: firstApplicant.email,
+            annualIncome: firstApplicant.annualIncome,
+            employerName: firstApplicant.employerName,
+            employmentMonths: firstApplicant.employmentMonths,
+            employmentYears: firstApplicant.employmentYears,
+            jobTitle: firstApplicant.jobTitle,
+            dateOfBirth: formDataRef.current.dateOfBirth || "1990-01-01",
+            ssn: formDataRef.current.ssn.replace(/-/g, ""),
+          }),
+        }
+      );
+      const data = await res.json();
+      if (data.returnCode != 200) {
+        setShowErrorPopup(true);
+        hideLoader();
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || `HTTP error! status: ${res.status}`);
+      }else{
+        setProjectId(firstProject.id);
+        hideLoader();
+        setquotationPopup(true); 
+      }
+      
+    } catch (error) {
+      hideLoader();
+      setShowErrorPopup(true);
+      console.error("Credit check failed:", error);
+    }
   };
 
   const CreateSunlightSingingLink = async (projectId: string) => {
     showLoader("Preparing your documents for e-signature...");
     console.log("In CreateSunlightSingingLink");
-    debugger;
+    console.log("projectId for docusign link sunlight",projectId);
     const returnUrl = `${window.location.origin}${window.location.pathname}?event=signing_complete`;
 
     const response = await fetch(
@@ -498,6 +465,7 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   }
   const handleSigningCancel = () => {
     setShowDocuSignModal(false);
+    setShowStaticCard(true);
   };
 
   const handleSelectPlan = (option: LoanOption) => {
@@ -507,53 +475,114 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+    
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {isLoading ? (
-      Array.from({ length: 3 }).map((_, idx) => (
-        <LoanOptionCard
-          key={`skeleton-${idx}`}
-          option={{} as LoanOption}
-          totalCost={totalCost}
-          selectedPlan={selectedPlan}
-          sfAccessToken=""
-          onPreQualifyClick={() => {}}
-          onSelectPlan={() => {}}
-          features={[]}
-          recommendation=""
-          badgeText="Loading..."
-          badgeColor="bg-gray-300 animate-pulse"
-          isLoading={true}
-        />
-          ))
-        ) : loanOptions.length === 0 ? (
-          <div className="col-span-full bg-[#3c3c3c] text-center rounded-xl text-white text-lg py-8 flex items-center justify-center gap-3">
-  {/* Alert icon */}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-off-icon lucide-map-pin-off"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/><path d="m2 2 20 20"/><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/></svg>
+        Array.from({ length: 3 }).map((_, idx) => (
+          <LoanOptionCard
+            key={`skeleton-${idx}`}
+            option={{} as LoanOption}
+            totalCost={totalCost}
+            selectedPlan={selectedPlan}
+            sfAccessToken=""
+            onPreQualifyClick={() => {}}
+            onSelectPlan={() => {}}
+            features={[]}
+            recommendation=""
+            badgeText="Loading..."
+            badgeColor="bg-gray-300 animate-pulse"
+            isLoading={true}
+            selectedPlanShow={showStaticCard}
+          />
+        ))
+      ) : showStaticCard && selectedPlan ? (
+        <div className="bg-white relative rounded-2xl shadow-lg px-4 pt-4 pb-4 col-span-full">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center space-x-2">
+              <CreditCard className="text-gray-800" />
+              <h2 className="text-lg text-gray-800">Payment Plan</h2>
+            </div>
+            <button
+              onClick={() => setShowStaticCard(false)}
+              className="bg-gradient-to-b from-zinc-900 to-zinc-800 text-white text-xs px-4 py-2 rounded-md hover:bg-gray-700 transition"
+            >
+              Choose Different Plan
+            </button>
+          </div>
+      
+          <h3 className="flex items-center text-green-500 mt-3 text-xl sm:text-base md:text-2xl lg:text-xl">
+            <BadgeCheck className="mr-3" />
+            {selectedPlan.name}
+          </h3>
+      
+          <div className="border-t border-gray-300 my-4"></div>
+      
+          <div className="text-sm text-gray-700 space-y-2">
+            <div className="flex justify-between">
+              <span>Plan Name</span>
+              <span className="font-medium">{selectedPlan.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Lowest Payment</span>
+              <span className="font-medium">
+                ${selectedPlan.rate}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Payment With Tax Credit</span>
+              <span className="font-medium">
+                ${selectedPlan.loanDetails?.paymentWithoutTaxCredit}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Loan Payment Without Tax Credit</span>
+              <span className="font-medium">
+                ${selectedPlan.loanDetails?.paymentWithTaxCredit}
+              </span>
+            </div>
+          </div>
+      
+          <div className="bg-[#d0f2e7] border border-green-400 rounded-lg mt-5 px-4 py-3">
+            <div className="flex items-center">
+              <BadgeCheck className="mr-3 text-[#1ba452]" />
+              <p className="text-xl text-[#1ba452] sm:text-base md:text-2xl lg:text-xl">
+                Your Loan has been Approved
+              </p>
+            </div>
+          </div>
+        </div>
 
-
-  
-  {/* Message */}
-  No product is available for this region.
-</div>
-
-        ) : (
-          loanOptions.map((option, idx) => (
-            <LoanOptionCard
-              key={option.key || `loan-${idx}`}
-              option={option as LoanOption}
-              totalCost={totalCost}
-              selectedPlan={selectedPlan}
-              sfAccessToken={sfAccessToken ?? ""}
-              onPreQualifyClick={handlePreQualifyClick}
-              onSelectPlan={handleSelectPlan}
-              features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
-              recommendation="Homeowners with strong credit and stable income"
-              badgeText={undefined}
-              badgeColor={undefined}
-              isLoading={false}
-            />
-          ))
-        )}
+      ) : loanOptions.length === 0 ? (
+        <div className="col-span-full bg-[#3c3c3c] text-center rounded-xl text-white text-lg py-8 flex items-center justify-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin-off">
+            <path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/>
+            <path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/>
+            <path d="m2 2 20 20"/>
+            <path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/>
+            <path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/>
+          </svg>
+          No product is available for this region.
+        </div>
+      ) : (
+        loanOptions.map((option, idx) => (
+          <LoanOptionCard
+            key={option.key || `loan-${idx}`}
+            option={option as LoanOption}
+            totalCost={totalCost}
+            selectedPlan={selectedPlan}
+            sfAccessToken={sfAccessToken ?? ""}
+            onPreQualifyClick={handlePreQualifyClick}
+            onSelectPlan={handleSelectPlan}
+            features={["Fixed Rate", "No Prepayment Penalty", "Flexible Terms"]}
+            recommendation="Homeowners with strong credit and stable income"
+            badgeText={undefined}
+            badgeColor={undefined}
+            isLoading={false}
+            selectedPlanShow={showStaticCard}
+          />
+        ))
+      )}
+      
       </div>
       <LoanApplicationModal
         isOpen={isLoanModalOpen}
@@ -566,15 +595,10 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
       />
       <QuotationPopup
         isOpen={quotationPopup}
-        onClose={() => setquotationPopup(false)}
-        planChosen={selectedPlan ?? ""}
-        totalPrice={totalCost}
         displayPrice={totalCost}
-        sfAccessToken={sfAccessToken ?? ""}
-        Loanapplicataiondata={Loanapplicataiondata}
+        planChosen={selectedPlan ?? ""}
+        projectIdSelected={projectId}
         handleDocuSignCompleteContract={(projectId) => CreateSunlightSingingLink(projectId)}
-        formDataRef={formDataRef}
-        isLoading={isLoading}
       />
       <SunlightDocuSign
         isOpen={showDocuSignModal}
@@ -622,6 +646,38 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
             </div>
           </div>
 )}
+           {showCreditCheckPassedPopup && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+               <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm">
+                 <div className="mx-auto mb-4 flex items-center justify-center">
+                   <svg
+                     className="w-12 h-12 text-green-600"
+                     fill="none"
+                     stroke="currentColor"
+                     strokeWidth="2"
+                     viewBox="0 0 24 24"
+                   >
+                     <path
+                       strokeLinecap="round"
+                       strokeLinejoin="round"
+                       d="M5 13l4 4L19 7"
+                     />
+                   </svg>
+                 </div>
+                 <h2 className="text-2xl font-medium mb-4 text-black">Credit Check Passed!</h2>
+                 <p className="text-gray-700 mb-6">Your application has been approved. You can now proceed with document signing.</p>
+                 <button
+                   className="bg-green-600 text-white w-full px-6 py-4 rounded-xl font-medium"
+                   onClick={() => {
+                     setShowCreditCheckPassedPopup(false);
+                     CreateSunlightSingingLink(projectId);
+                   }}
+                 >
+                   Proceed to Sign Documents
+                 </button>
+               </div>
+             </div>
+           )}
     </>
   );
 };
