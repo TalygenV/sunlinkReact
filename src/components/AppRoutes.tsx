@@ -9,6 +9,7 @@ import Resources from '../pages/Resources';
 import BatterySelection from '../pages/BatterySelection';
 import BatterySelectionCustmize from '../pages/BatterySelectionCustmize';
 import { FormContext } from '../context/FormContext';
+import SystemOverview from '../SystemOverview/SystemOverview';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       <Route path="/products" element={<Products />} />
       <Route path="/installation" element={<Installation />} />
       <Route path="/financing" element={<Financing />} />
+      <Route path="/System-Overview" element={<SystemOverview />} />
       <Route path="/resources" element={<Resources />} />
       <Route path="/battery-selection" element={<BatterySelection />} />
       <Route path="/battery-selection-customize" element={<BatterySelectionCustmize />} />

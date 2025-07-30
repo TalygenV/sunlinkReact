@@ -139,7 +139,6 @@ export default function SignInModal({ isOpen, onClose, onSignInSuccess, }: SignI
     };
 
     const handleSendCode = async (e: React.FormEvent) => {
-        debugger
         e.preventDefault();
         if (!validatePhoneNumber(phoneNumber)) return;
         setLoading(true);
