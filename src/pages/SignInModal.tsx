@@ -278,13 +278,13 @@ localStorage.setItem("userData", JSON.stringify(allData));
             }
             
             if (userData?.stepName === "systemOverview") {
-                navigate("/financing", { state: { userData } });
+                navigate("/System-Overview", { state: { userData } });
             } else if (userData?.stepName === "systemDesign") {
-                navigate("/system-design");
+                navigate("/System-Overview");
             } else if (userData?.stepName === "choosePlan") {
                 navigate("/choose-plan");
             } else {
-                navigate("/financing");
+                navigate("/System-Overview");
             }
             
 
