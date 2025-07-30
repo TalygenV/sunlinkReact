@@ -265,7 +265,6 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
 
         return;
       }
-      debugger
       const uid = userData.uid || auth.currentUser?.uid;
 
       if (!uid) {

@@ -108,7 +108,6 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
   }, [isOpen]);
 
   const DocuSignSunlightSubmit = async () => {
-    debugger;
     setProjectId(projectIdSelected);
     handleDocuSignCompleteContract(projectIdSelected);
   };
