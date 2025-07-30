@@ -102,7 +102,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
-      <div className="bg-white max-w-1/2 rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-white max-w-1/2 rounded-xl shadow-lg relative overflow-y-auto">
         {/* Close Button */}
         
         <button
@@ -120,7 +120,7 @@ const QuotationPopup: React.FC<QuotationPopupProps> = ({
             Quotation Generated...
           </h4>
           <p className="text-lg text-[#333333] mb-8">
-            Your Quotation Generated for solar financing up to ${totalPrice.toLocaleString()}
+            Your Quotation Generated for solar financing <br />up to ${totalPrice.toLocaleString()}
           </p>
 
           {/* 
