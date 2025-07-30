@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import solarReducer from './solarSlice';
+import batteriesReducer from './batteriesSlice';
 
 export const store = configureStore({
   reducer: {
     solar: solarReducer,
+    batteries: batteriesReducer,
   },
 });
 
@@ -25,3 +27,8 @@ export {
   submitForm, 
   resetForm 
 } from './solarSlice';
+
+export {
+  addBattery,
+  removeBattery,
+} from './batteriesSlice';
