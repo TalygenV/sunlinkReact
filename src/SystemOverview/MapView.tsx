@@ -7,7 +7,8 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDownloadURL, ref as storageRef, uploadBytes, } from "firebase/storage";
 import { calculateTotalStats, getAllPanels, getPanelId, updateActivePanels, } from "../utils/panelHelpers";
 import axios from "axios";
-import { localUserData } from '../store/solarSlice'
+import { localUserData, setPersonalInfo } from '../store/solarSlice'
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 
 // interface UserData {
 //   name: string;
@@ -36,7 +37,6 @@ interface RoofSegment {
 }
 
 export const MapView: React.FC<MapViewProps> = ({ userData }) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [overlayBounds, setOverlayBounds] = useState<{
     north: number;
     east: number;
@@ -50,8 +50,9 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
   const [solarData, setSolarData] = useState<any>(null);
   const [annualUsage, setAnnualUsage] = useState<number>(12000);
   const [roofData, setRoofData] = useState<any>(null);
-
+const { imageUrl } = useAppSelector((state) => state.solar.solarForm);
   const [currentStage, setCurrentStage] = useState("Design");
+  const dispatch = useAppDispatch();
 
   // const [completedStages, setCompletedStages] = useState<ProgressStage[]>([
   //   "Design",
@@ -286,7 +287,8 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
 
           // Load image and bounds data if available
           if (snapshot.val().imageUrl) {
-            setImageUrl(snapshot.val().imageUrl);
+            dispatch(setPersonalInfo({ "imageUrl": snapshot.val().imageUrl }));
+            
           }
 
           // Always try to load bounds, but provide a fallback if missing
@@ -483,12 +485,12 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
 
                   const imageRef = storageRef(
                     storage,
-                    `nearmap-images/${formattedAddress}`
+                    `nearmap_images/${formattedAddress}`
                   );
                   const uploadResult = await uploadBytes(imageRef, blob);
 
-                  // console.error("1120", uploadResult);
-
+                   console.error("1120", uploadResult);
+console.log("imageRef", imageRef);
                   const downloadUrl = await getDownloadURL(uploadResult.ref);
 
                   const tempUrl = URL.createObjectURL(blob);
@@ -518,8 +520,8 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
                   // Update state
 
                   // Example: show image
-                  setImageUrl(tempUrl);
-                  //setImageUrl(downloadUrl);
+
+                  dispatch(setPersonalInfo({ "imageUrl": tempUrl }));
                   setOverlayBounds(newOverlayBounds);
 
                   // Only update map center if it wasn't already loaded
@@ -565,7 +567,7 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
           const solarDataFromUser = userData.solarData;
 
           // Create placeholder objects for when Nearmap API fails
-          const imageUrl = null;
+          //const imageUrl = null;
           let overlayBoundsData = { north: 0, south: 0, east: 0, west: 0 };
           let downloadUrl = null;
           let mapCenterData = null;
@@ -670,12 +672,10 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
 
               // Create a storage reference with formatted address
               const formattedAddress = formatAddressForStorage(address);
-              console.log("formattedAddress",formattedAddress);
               const imageRef = storageRef(
                 storage,
-                `nearmap-images/${formattedAddress}`
+                `nearmap_images/${formattedAddress}`
               );
- console.log("imageRef",imageRef);
               // Upload the blob to Firebase Storage
               const uploadResult = await uploadBytes(imageRef, blob);
 
@@ -863,8 +863,8 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
           // Update annualUsage state
           setAnnualUsage(userAnnualUsage);
 
-          // Set state values
-          setImageUrl(downloadUrl);
+
+          dispatch(setPersonalInfo({ "imageUrl": downloadUrl }));
           setOverlayBounds(overlayBoundsData);
           setMapCenter(mapCenterData);
           setSolarData(solarDataFromUser);
@@ -997,6 +997,7 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
   }
 
   async function getSurveyImage(surveyId: any, bbox: any, token: any) {
+    debugger;
     const url = `https://api.nearmap.com/staticmap/v3/surveys/${surveyId}/Vert.png`;
 
     const response = await axios.get(url, {
