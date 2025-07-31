@@ -3,8 +3,8 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { defineString } from "firebase-functions/params";
+import { onCall, HttpsError, onRequest } from "firebase-functions/v2/https";
+import { defineSecret, defineString } from "firebase-functions/params";
 import Stripe from "stripe";
 import * as fs from "fs";
 import * as docusign from "docusign-esign";
@@ -22,6 +22,7 @@ const accountId = process.env.DOCUSIGN_ACCOUNT_ID;
 const basePath = "https://demo.docusign.net/restapi";
 const privateKey = fs.readFileSync("./private.key");
 const SCOPES = ["signature", "impersonation"];
+const stripeSecret = defineSecret("STRIPE_SECRET");
 
 // Type declarations for better code organization
 interface SurveyResponse {
@@ -1492,6 +1493,64 @@ exports.getAccessToken = functions.https.onRequest(async (req, res) => {
     res.status(500).json({
       error: err.message,
       details: err.response?.data || null,
+    });
+  }
+});
+
+export const createCheckoutSessionStripe = onRequest({ secrets: [stripeSecret] }, async (req, res) => {
+  // ✅ Basic CORS setup
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).send('');
+    return;
+  }
+
+  try {
+    const {
+      amount,
+      currency,
+      success_url,
+      cancel_url,
+      customer_email
+    } = req.body;
+
+    // Validate input
+    if (!amount || !currency || !success_url || !cancel_url || !customer_email) {
+      res.status(400).json({ error: 'Missing required parameters.' });
+      return;
+    }
+
+    // ✅ Initialize Stripe using the secret
+    const stripe = new Stripe(stripeSecret.value(), {
+      apiVersion: '2025-04-30.basil',
+    });
+
+    // Create Checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [{
+        price_data: {
+          currency,
+          product_data: { name: "Product Name" },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      }],
+      customer_email,
+      success_url,
+      cancel_url,
+    });
+
+    res.status(200).json({ sessionId: session.id });
+  } catch (err) {
+    console.error('Stripe error:', err.message, err);
+    res.status(500).json({
+      error: err.message,
+      details: err?.response?.data || null,
     });
   }
 });
