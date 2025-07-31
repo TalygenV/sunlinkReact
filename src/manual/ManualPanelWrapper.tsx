@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback, } from "react";
 import ManualPanelDrawing, { ManualPanelDrawingRef, } from "./ManualPanelDrawing";
+import html2canvas from "html2canvas";
+import { getStorage, ref, uploadString ,getDownloadURL} from "firebase/storage";
 
 export interface ManualPanelWrapperRef {
   totalPanels: number;
@@ -23,6 +25,7 @@ export interface ManualPanelWrapperRef {
   isInObstructionMode: boolean;
   obstructedPanelIds: Set<string>;
   handlePanelObstruction: (panelId: string) => void;
+  
 }
 
 interface ManualPanelWrapperProps {
@@ -44,14 +47,13 @@ interface ManualPanelWrapperProps {
   obstructionMode?: boolean;
   obstructedPanelIds?: Set<string>;
   onObstructedPanelsChange?: (obstructedPanels: Set<string>) => void;
+  onImageUpdate?: (url: string) => void;
+  mapContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 const ManualPanelWrapper = forwardRef<
   ManualPanelWrapperRef,
-  ManualPanelWrapperProps
->(
-  (
-    {
+  ManualPanelWrapperProps>(({
       mapRef,
       themeColor = "#38cab3",
       // Use props instead of state
@@ -70,9 +72,11 @@ const ManualPanelWrapper = forwardRef<
       obstructionMode = false,
       obstructedPanelIds = new Set<string>(),
       onObstructedPanelsChange,
+      onImageUpdate,
+      mapContainerRef,
+      
     },
-    ref
-  ) => {
+    ref) => {
     // Create a ref to access the ManualPanelDrawing methods
     const manualPanelDrawingRef = useRef<ManualPanelDrawingRef>(null);
     // Keep track of whether initial regions were already loaded
@@ -85,18 +89,13 @@ const ManualPanelWrapper = forwardRef<
     const lastUpdateTimestamp = useRef(0);
 
     // Add obstruction-related state
-    const [isInObstructionMode, setIsInObstructionMode] =
-      useState(obstructionMode);
-    const [localObstructedPanelIds, setLocalObstructedPanelIds] =
-      useState<Set<string>>(obstructedPanelIds);
+    const [isInObstructionMode, setIsInObstructionMode] =   useState(obstructionMode);
+    const [localObstructedPanelIds, setLocalObstructedPanelIds] =  useState<Set<string>>(obstructedPanelIds);
 
     // Update obstruction mode when prop changes
 
     // Update obstructed panel IDs when prop changes
-    useEffect(() => {
-      setLocalObstructedPanelIds(obstructedPanelIds);
-    }, [obstructedPanelIds]);
-
+    useEffect(() => {    setLocalObstructedPanelIds(obstructedPanelIds);}, [obstructedPanelIds]);
     // Handle panel count changes from the ManualPanelDrawing component
     const handleTotalPanelsChange = (count: number) => {
       if (onPanelCountChange) {
@@ -117,7 +116,9 @@ const ManualPanelWrapper = forwardRef<
         manualPanelDrawingRef.current.setObstructionMode?.(enabled);
       }
     };
-
+ const formatAddressForStorage = (address: string): string => {
+    return address.replace(/\s+/g, "").replace(/,/g, "-");
+  };
     // Handle panel obstruction toggling
     const handlePanelObstruction = (panelId: string) => {
       setLocalObstructedPanelIds((prev) => {
@@ -280,6 +281,30 @@ const ManualPanelWrapper = forwardRef<
       }
     };
 
+  const captureAndUploadMapImage = async (
+  uid: string,
+  mapContainerRef: React.RefObject<HTMLDivElement>
+) => {
+  if (!mapContainerRef.current) {
+    console.error("mapContainerRef is null");
+    return;
+  }
+
+  if (!document.body.contains(mapContainerRef.current)) {
+    console.error("Element is not attached to the document.");
+    return;
+  }
+
+  const canvas = await html2canvas(mapContainerRef.current, {
+    useCORS: true,
+    backgroundColor: null,
+    scale: 2,
+  });
+
+  const dataUrl = canvas.toDataURL("image/png");
+  return dataUrl;
+};
+
     // Handle region selection
     const handleRegionSelect = (regionId: number) => {
       if (onRegionSelect) {
@@ -292,7 +317,7 @@ const ManualPanelWrapper = forwardRef<
 
     // Save complete region data when it changes in ManualPanelDrawing
     const handleRegionsChange = useCallback(
-      (updatedRegions: any[]) => {
+    async  (updatedRegions: any[]) => {
         // Add debounce and loop prevention
         const now = Date.now();
         if (now - lastUpdateTimestamp.current < 200) {
@@ -335,7 +360,33 @@ const ManualPanelWrapper = forwardRef<
         });
 
         setFullRegionData(processedRegions);
+if (processedRegions.length > 0 && mapContainerRef?.current) {
+  try {
+    const data = localStorage.getItem("userData");
+    if (data) {
+      const userData = JSON.parse(data);
+      const uid = formatAddressForStorage(userData.address);
 
+      // ✅ Delay capture until DOM is fully painted
+      requestAnimationFrame(() => {
+        setTimeout(async () => {
+          if (!mapContainerRef.current?.isConnected) {
+            console.warn("Ref is not in document.");
+            return;
+          }
+
+          const imageUrl = await captureAndUploadMapImage(uid, mapContainerRef);
+
+          if (imageUrl && typeof onImageUpdate === "function") {
+            onImageUpdate(imageUrl);
+          }
+        }, 200); // Slight delay
+      });
+    }
+  } catch (error) {
+    console.error("Failed to capture and upload image", error);
+  }
+}
         // Store the full regions in parent component via callback
         if (onRegionInfoChange) {
           // Include both simple format (for UI) and full format (for storage)
@@ -454,6 +505,7 @@ const ManualPanelWrapper = forwardRef<
 
     return (
       <ManualPanelDrawing
+
         ref={manualPanelDrawingRef}
         mapRef={mapRef}
         themeColor={themeColor}
