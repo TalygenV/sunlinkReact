@@ -183,7 +183,7 @@ const BatterySelection = () => {
                 </div>
             </div>
             <p className="mt-12 text-center text-gray-400 text-sm" onClick={() => nextGoPage()}>
-                Don't need a battery? <a href="dashboard-flow4-1.html" className="underline text-white">Skip</a>
+                Don't need a battery? Skip
             </p>
         </section>
     );
