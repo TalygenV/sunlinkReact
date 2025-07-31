@@ -248,20 +248,20 @@ if(!userData) return;
 
   return (
     <section className="overflow-hidden py-24 sm:py-48 bg-black-custom relative">
-      <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-8 relative">
+      <div className="max-w-[1440px] mx-auto py-24 sm:py-0 w-full px-6 lg:px-8 relative">
         <p className="text-center mb-4">
           <img className="mx-auto" src={sunlinkicon} alt="Sunlink" />
         </p>
-        <h1 className="text-5xl md:text-5xl font-semibold text-gray-300 text-center mb-8">
+        <h1 className="text-5xl text-[30px] md:text-5xl lg:text-5xl xl:text-5xl 2xl:text-5xl font-semibold text-gray-300 text-center mb-8">
           Your Personalized Solar Solution
         </h1>
         <p className="text-center text-lg md:text-base text-gray-300 mb-10">
           Here’s what SunLink recommends.
         </p>
 
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+        <div className="mx-auto grid max-w-none grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
           {/* Left Panel */}
-          <div className="lg:pt-4 lg:pr-8 custom-formcls_HS p-10 rounded-xl max-w-[700px] ml-auto border border-neutral-700">
+          <div className="lg:pt-4 lg:pr-8 custom-formcls_HS p-5 md:p-6 lg:p-7 xl:p-8 2xl:p-9 rounded-xl lg:max-w-[700px] ml-auto border border-neutral-700">
             <h3 className="text-gray-300 text-3xl mb-3 flex justify-between">
               Our recommended Setup <img src={sun} alt="Sun" />
             </h3>
@@ -321,7 +321,7 @@ if(!userData) return;
           </div>
 
           {/* Right Panel */}
-          <div className="lg:pt-4 lg:pr-8 custom-formcls_right p-10 rounded-xl ml-auto border border-neutral-700">
+          <div className="lg:pt-4 lg:pr-8 w-full custom-formcls_right p-5 md:p-6 lg:p-7 xl:p-8 2xl:p-9 rounded-xl ml-auto border border-neutral-700">
             <h3 className="text-gray-300 text-3xl mb-3 flex justify-between">
               Without Solar <img src={graph} alt="Graph" />
             </h3>
@@ -336,8 +336,10 @@ if(!userData) return;
               </div>
             </div>
 
+          <div className="plain-black-bg p-10 rounded-2xl border-0">
+                 <h3 className="text-xl mb-3 text-center text-white">Rising Utility Costs</h3>  
             <div className="relative h-48 tesla-card-white bg-white p-4 border border-red-200 overflow-hidden">
-                    <div className="flex items-end justify-between h-full">
+                  <div className="flex items-end justify-between h-full">
                       {utilityData.map((data, index) => {
                         const height = Math.max((data.cost / maxCost) * 85, 8); // Minimum 8% height, max 85%
                         const isHovered = hoveredYear === data.offset;
@@ -388,6 +390,7 @@ if(!userData) return;
                       })}
                     </div>
                   </div>
+          </div>
             {kwhData && (
               <div className="space-y-2 mb-6 mt-6 plain-black-bg p-5 rounded-2xl border-0">
                 <div className="text-gray-300 text-center text-xl flex justify-center">
@@ -400,7 +403,7 @@ if(!userData) return;
                 </div>
               </div>
             )}
-            <div className="mb-6 mt-6 plain-black-bg p-5 rounded-2xl border-0 font-normal flex items-start text-white">
+            <div className="mb-0 mt-6 plain-black-bg p-5 rounded-2xl border-0 font-normal flex items-start text-white">
               <img className="mr-4 mt-1 w-4" src={circle} alt="Info" />
               <div className="text-xs/[18px]">
                 <span className="text-lg block">Rising Utility Rates</span>
