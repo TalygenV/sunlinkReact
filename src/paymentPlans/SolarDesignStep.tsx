@@ -1,6 +1,7 @@
 import React from 'react';
 import { Expand } from 'lucide-react';
 import Toggle from './Toggle';
+import roofimg from "../assets/images/roofImg.png"
 
 interface SolarDesignStepProps {
   solarLayoutToggle: boolean;
@@ -31,6 +32,7 @@ const SolarDesignStep: React.FC<SolarDesignStepProps> = ({
         />
       </div>
 
+      {/*
       <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg w-full h-[496px]">
         Customized Solar Design
         <button
@@ -41,6 +43,24 @@ const SolarDesignStep: React.FC<SolarDesignStepProps> = ({
           <Expand className="h-5 w-5 text-white" />
         </button>
       </div>
+      */}
+      <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg w-full h-[496px] overflow-hidden">
+      <img
+        src={roofimg}
+        alt="Customized Solar Design"
+        className="object-cover w-full h-full rounded-md"
+      />
+
+      {/* 
+      <button
+        onClick={onExpandClick}
+        className="absolute top-2 right-2 hover:bg-gray-700 rounded p-1"
+        title="Expand"
+      >
+        <Expand className="h-5 w-5 text-white" />
+      </button>
+      */}
+    </div>
 
       <div className="text-sm text-gray-300 py-4">
         *Interactive solar panel layout. Expand to view it full screen.

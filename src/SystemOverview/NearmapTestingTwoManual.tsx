@@ -431,31 +431,31 @@ const NearmapTestingTwo: React.FC<NearmapTestingTwoProps> = ({
     }
   };
 
-  if (loading || imageLoading) {
-    return (
-      <div className="pt-[20%] flex flex-col items-center justify-center text-white p-4 ">
-        <div className="text-center">
-          <motion.div
-            className="mx-auto w-16 h-16 relative mb-6"
-            animate={{ rotate: 360 }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          >
-            <div className="absolute inset-0 rounded-full border-t-2 border-purple-400 opacity-75"></div>
-            <div className="absolute inset-0 rounded-full border-l-2 border-transparent"></div>
-            <div className="absolute inset-0 rounded-full border-b-2 border-blue-400 opacity-75"></div>
-          </motion.div>
-          <h2 className="text-xl font-semibold mb-4">Loading map data...</h2>
-          <p className="text-gray-400">
-            Please wait while we prepare your design interface.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading || imageLoading) {
+  //   return (
+  //     <div className="pt-[20%] flex flex-col items-center justify-center text-white p-4 ">
+  //       <div className="text-center">
+  //         <motion.div
+  //           className="mx-auto w-16 h-16 relative mb-6"
+  //           animate={{ rotate: 360 }}
+  //           transition={{
+  //             duration: 2,
+  //             repeat: Infinity,
+  //             ease: "linear",
+  //           }}
+  //         >
+  //           <div className="absolute inset-0 rounded-full border-t-2 border-purple-400 opacity-75"></div>
+  //           <div className="absolute inset-0 rounded-full border-l-2 border-transparent"></div>
+  //           <div className="absolute inset-0 rounded-full border-b-2 border-blue-400 opacity-75"></div>
+  //         </motion.div>
+  //         <h2 className="text-xl font-semibold mb-4">Loading map data...</h2>
+  //         <p className="text-gray-400">
+  //           Please wait while we prepare your design interface.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

@@ -4,6 +4,7 @@ import LoanApplicationModal from "./LoanApplicationModal";
 import QuotationPopup from "./QuotationPopup";
 import SunlightDocuSign from "./SunlightDocuSign"
 import { useLoader } from "../context/LoaderContext";
+import { Battery } from "../types/Battery";
 
 export interface LoanOption {
   name: string;
@@ -239,6 +240,16 @@ const LoanOptionsPage: React.FC<LoanOptionsPageProps> = ({ totalCost }) => {
   const fetchAPRTerms = async () => {
     setIsLoading(true);
     console.log("localStorage.getItem(userData)",localStorage.getItem("userData"));
+    const stored = localStorage.getItem("battery");
+
+if (stored) {
+  const { battery, quantity } = JSON.parse(stored) as {
+    battery: Battery;
+    quantity: number;
+  };
+
+  console.log(battery, quantity);
+}
     console.log("✅ fetchAPRTerms CALLED");
   
     try {
