@@ -1,6 +1,7 @@
 import React from 'react';
 import { Expand } from 'lucide-react';
 import Toggle from './Toggle';
+import roofimg from "../assets/images/roofImg.png"
 
 interface SolarDesignStepProps {
   solarLayoutToggle: boolean;
@@ -45,7 +46,7 @@ const SolarDesignStep: React.FC<SolarDesignStepProps> = ({
       */}
       <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg w-full h-[496px] overflow-hidden">
       <img
-        src="src/assets/images/roofImg.png"
+        src={roofimg}
         alt="Customized Solar Design"
         className="object-cover w-full h-full rounded-md"
       />

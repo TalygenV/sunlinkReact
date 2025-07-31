@@ -549,6 +549,7 @@ const SolarForm: React.FC<SolarFormProps> = ({
           state: ustate,
           phoneNumber: auth.currentUser.phoneNumber,
           annualUsage: powerBill * 12 || 12000, // Default to 12000 if not provided
+          imageUrl:null,
           monthlyBill: powerBill || 0,
           genabilityInfo: {
             utilityName: genabilityInfo.utilityName,
@@ -572,8 +573,8 @@ const SolarForm: React.FC<SolarFormProps> = ({
           },
           isAutoPanelsSupported: true,
           profileComplete: true,
-          createdAt: new Date(),
           stepName: "solarResult",
+          createdAt: (new Date()).toISOString(),
         });
         const data = {
           firstName,
@@ -610,9 +611,10 @@ const SolarForm: React.FC<SolarFormProps> = ({
           },
           isAutoPanelsSupported: true,
           profileComplete: true,
-          createdAt: new Date(),
+          createdAt: (new Date()).toISOString(),
           stepName: "solarResult",
-          uid: user.uid
+          uid: user.uid,
+          imageUrl:"",
         };
         
         localStorage.setItem("userData", JSON.stringify(data));
