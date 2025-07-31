@@ -15,6 +15,7 @@ import ManualPanelWrapper, {
 } from "../manual/ManualPanelWrapper";
 import ManualPanelDependencies from "../manual/ManualPanelDependencies";
 import { SummaryPanel } from "./SummaryPanel";
+import { useLoader } from "../context/LoaderContext";
 
 // Add props for dynamic map data
 interface NearmapTestingTwoProps {
@@ -80,10 +81,12 @@ const NearmapTestingTwo: React.FC<NearmapTestingTwoProps> = ({
   setManualPanelEnergy: propSetManualPanelEnergy, currentRotation: propCurrentRotation, setCurrentRotation: propSetCurrentRotation, manualPanelObstructedIds: propManualPanelObstructedIds,
   setManualPanelObstructedIds: propSetManualPanelObstructedIds, panels, }) => {
   const leafletMapRef = useRef<any>(null);
+  const { showLoader, hideLoader } = useLoader();
+ 
   // State for image and map configuration
   const [imageUrl, setImageUrl] = useState(propImageUrl || null);
   const [imageLoading, setImageLoading] = useState(false);
-
+const mapContainerRef = useRef<HTMLDivElement>(null);
   const [annualUsage, setAnnualUsage] = useState(propAnnualUsage || 12000);
 
   // Default values for overlayBounds and mapState
@@ -175,29 +178,37 @@ const NearmapTestingTwo: React.FC<NearmapTestingTwoProps> = ({
   const [isManualPanelSectionExpanded, setIsManualPanelSectionExpanded] =
     useState<boolean>(false);
 
-  // Update values when props change
+ 
   useEffect(() => {
-    // Update imageUrl without using a default fallback
-    setImageUrl(propImageUrl || null);
-    console.log(propImageUrl, propMapCenter);
-    if (propOverlayBounds) {
-      setOverlayBounds(propOverlayBounds);
-    }
-    if (propMapCenter) {
-      setMapState((prev) => ({
-        ...prev,
-        center: propMapCenter,
-      }));
-    }
-  }, [propImageUrl, propOverlayBounds, propMapCenter]);
+  setImageUrl(propImageUrl || null);
+  console.log("propImageUrl",propImageUrl)
+}, [propImageUrl]);
+
+useEffect(() => {
+  if (propOverlayBounds) {
+    setOverlayBounds(propOverlayBounds);
+  }
+}, [propOverlayBounds]);
+
+useEffect(() => {
+  if (propMapCenter) {
+    setMapState((prev) => ({
+      ...prev,
+      center: propMapCenter,
+    }));
+  }
+}, [propMapCenter]);
 
   // Set loading state to false when image URL is available
   useEffect(() => {
+     showLoader("Map is loading...");
     if (imageUrl) {
+      hideLoader()
       setLoading(false);
     } else if (imageUrl === null && propImageUrl === null) {
       // If both the prop and state are explicitly null, set a timeout to show loading is complete
       const timer = setTimeout(() => {
+        hideLoader()
         setLoading(false);
       }, 3000); // Give a short delay to ensure transitions are smooth
 
@@ -431,35 +442,17 @@ const NearmapTestingTwo: React.FC<NearmapTestingTwoProps> = ({
     }
   };
 
-  // if (loading || imageLoading) {
-  //   return (
-  //     <div className="pt-[20%] flex flex-col items-center justify-center text-white p-4 ">
-  //       <div className="text-center">
-  //         <motion.div
-  //           className="mx-auto w-16 h-16 relative mb-6"
-  //           animate={{ rotate: 360 }}
-  //           transition={{
-  //             duration: 2,
-  //             repeat: Infinity,
-  //             ease: "linear",
-  //           }}
-  //         >
-  //           <div className="absolute inset-0 rounded-full border-t-2 border-purple-400 opacity-75"></div>
-  //           <div className="absolute inset-0 rounded-full border-l-2 border-transparent"></div>
-  //           <div className="absolute inset-0 rounded-full border-b-2 border-blue-400 opacity-75"></div>
-  //         </motion.div>
-  //         <h2 className="text-xl font-semibold mb-4">Loading map data...</h2>
-  //         <p className="text-gray-400">
-  //           Please wait while we prepare your design interface.
-  //         </p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (loading || imageLoading) {
+    return (
+      <div className="pt-[20%] flex flex-col items-center justify-center text-white p-4 ">
+        
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="relative w-full h-[95dvh] rounded-3xl overflow-hidden border border-white/10 shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+      <div ref={mapContainerRef} className="relative w-full h-[95dvh] rounded-3xl overflow-hidden border border-white/10 shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
         {/* MapContainer with ImageOverlay */}
         <MapContainer
           ref={leafletMapRef}
@@ -519,6 +512,10 @@ const NearmapTestingTwo: React.FC<NearmapTestingTwoProps> = ({
             obstructionMode={obstructionMode}
             obstructedPanelIds={localManualPanelObstructedIds}
             onObstructedPanelsChange={handleManualPanelObstructedPanelsChange}
+            mapContainerRef={mapContainerRef}
+             onImageUpdate={(url) => {
+   localStorage.setItem("capturedImage", url);
+  }}
           />
         </MapContainer>
 

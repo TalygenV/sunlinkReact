@@ -21,6 +21,7 @@ interface SolarFormData {
   showConfirmPassword: boolean;
   errors: { [key: string]: boolean };
   showKwh: boolean;
+  imageUrl:string;
 }
 export interface GenabilitySummary {
   lifeTimeUtilityAfterCost: number;
@@ -81,7 +82,7 @@ export interface localUserData {
   phone: string;
   password: string;
   address: string;
-  ownsHome: boolean;
+  ownsHome: string;
   propertyType: string;
   powerBill: number;
   state: string;
@@ -95,6 +96,7 @@ export interface localUserData {
   };
   solarData?: any;
   annualUsage?: number;
+  imageUrl?:string,
   isAutoPanelsSupported: boolean;
   profileComplete: boolean;
   createdAt: string; // stored as ISO string
@@ -131,6 +133,7 @@ const initialState: SolarState = {
     showConfirmPassword: false,
     errors: {},
     showKwh: false,
+    imageUrl:"",
   },
   isLoading: false,
   isSubmitted: false,

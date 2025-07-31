@@ -11,76 +11,34 @@ import model2 from "../products/batteries/model/solar_edge_battery.glb?url";
 import model4 from "../products/batteries/model/tesla_battery-opt-opt-opt-compressed.glb?url";
 
 
-const modelUrls: { [key: string]: string } = {
-  "tesla-powerwall-3": model4,
-  "enphase-5p": defaultModel,
-  // "franklin-wh-a2": model1,
-  "solaredge-home": model2,
-};
-// const modelUrls = [defaultModel, model1, model2, model3, model4, model5];
-
-
-// Add these constants outside the component for stable lighting
-const LIGHTING_PARAMS = {
-  ambientIntensity: 0.5,
-  blueAccentIntensity: 0.3,
-  spotlightIntensity: 1.2,
-  frontSpotlightIntensity: 1.2,
-  pointLightIntensity: 3.0,
-  glowLightIntensity: 2.0,
-};
-
+const modelUrls: { [key: string]: string } = { "tesla-powerwall-3": model4, "enphase-5p": defaultModel, "solaredge-home": model2, };
+const LIGHTING_PARAMS = { ambientIntensity: 0.5, blueAccentIntensity: 0.3, spotlightIntensity: 1.2, frontSpotlightIntensity: 1.2, pointLightIntensity: 3.0, glowLightIntensity: 2.0, };
 // Simplify the teleportation effect parameters
-const TELEPORT_EFFECT = {
-  dissolveSpeed: 0.8,
-  reappearSpeed: 0.7,
-  duration: 1000, // ms - shorter total duration
-};
+const TELEPORT_EFFECT = { dissolveSpeed: 0.8, reappearSpeed: 0.7, duration: 1000, };
 
 // Global offset to fine-tune vertical placement of every battery model
 const MODEL_VERTICAL_OFFSET = -1; // move all models 0.5 units downward
 
 interface BatteryModelProps {
-  containerHeight?: number;
-  style?: React.CSSProperties;
-  position?: "front" | "middle" | "back" | "far-back";
-  isInteractive?: boolean;
-  onLoadComplete?: () => void;
-  scale?: number;
-  rotationY?: number;
-  onRotateRequest?: ((direction: "left" | "right" | "up" | "down") => void) | null;
-
-  batteryId?: string; // Optional battery ID to change model
-  isMobile?: boolean;
+  containerHeight?: number; style?: React.CSSProperties; position?: "front" | "middle" | "back" | "far-back"; isInteractive?: boolean;
+  onLoadComplete?: () => void; scale?: number; rotationY?: number; onRotateRequest?: ((direction: "left" | "right" | "up" | "down") => void) | null;
+  batteryId?: string; isMobile?: boolean;
 }
 
 const BatteryModeltsx = forwardRef<any, BatteryModelProps>(
-  (
-    {
-      containerHeight = 900,
-      style = {},
-      position = "front", // 'front', 'middle', 'back'
-      isInteractive = false,
-      batteryId = "enphase-5p", // Default to Enphase battery
-      onLoadComplete = () => { },
-      scale = 1.0,
-      rotationY = 0,
-      onRotateRequest = null,
-      // Allow overriding the model via props
-      isMobile = false, // Add isMobile prop
-    },
-    ref
-  ) => {
-
+  ({
+    containerHeight = 900,
+    style = {},
+    position = "front", // 'front', 'middle', 'back'
+    isInteractive = false,
+    batteryId = "enphase-5p", // Default to Enphase battery
+    onLoadComplete = () => { }, scale = 1.0, rotationY = 0, onRotateRequest = null,
+    isMobile = false, }, ref) => {
     type MountRefWithExtras = HTMLDivElement & {
       sceneRef?: {
-        renderer: THREE.WebGLRenderer;
-        controls: any;
-        scene: THREE.Scene;
-        camera: THREE.Camera;
+        renderer: THREE.WebGLRenderer; controls: any; scene: THREE.Scene; camera: THREE.Camera;
       };
-      updateModelProperties?: (pos: string, scale: number, rotY: number) => void;
-      animationState?: any;
+      updateModelProperties?: (pos: string, scale: number, rotY: number) => void; animationState?: any;
     };
 
     const mountRef = useRef<MountRefWithExtras>(null);
@@ -99,17 +57,17 @@ const BatteryModeltsx = forwardRef<any, BatteryModelProps>(
     const lightsRef = useRef<any>({});
 
     // Add state for teleportation effect
-    const particlesRef = useRef<any>(null);
+    // const particlesRef = useRef<any>(null);
     const composerRef = useRef<any>(null);
     const [isTeleporting, setIsTeleporting] = useState(false);
-    const teleportStateRef = useRef({
-      phase: "idle", // 'idle', 'dissolve', 'teleport', 'reappear'
-      progress: 0,
-      targetRotation: 0,
-      startRotation: 0,
-      targetOpacity: 1,
-      particlesVisible: false,
-    });
+    // const teleportStateRef = useRef({
+    //   phase: "idle", // 'idle', 'dissolve', 'teleport', 'reappear'
+    //   progress: 0,
+    //   targetRotation: 0,
+    //   startRotation: 0,
+    //   targetOpacity: 1,
+    //   particlesVisible: false,
+    // });
 
     // Expose rotation functions via ref with smoother animation
     useImperativeHandle(ref, () => ({
@@ -122,7 +80,7 @@ const BatteryModeltsx = forwardRef<any, BatteryModelProps>(
         const rotationAmount =
           direction === "left" ? -Math.PI / 2 : Math.PI / 2;
         const currentRotation = modelRef.current.rotation.y;
-        const targetRotation = currentRotation + rotationAmount;
+        // const targetRotation = currentRotation + rotationAmount;
 
         // Make the model temporarily semi-transparent during rotation
         modelRef.current.traverse((node) => {
@@ -282,7 +240,8 @@ const BatteryModeltsx = forwardRef<any, BatteryModelProps>(
       // Scene setup
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-      camera.position.set(0, 2.8, 5);
+      // camera.position.set(0, 2.8, 5);
+      camera.position.set(0, 2.8, 6);
       camera.lookAt(0, 0, 0);
 
       // Renderer setup with error handling
