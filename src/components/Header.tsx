@@ -136,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({ onSignInClick }) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white text-black px-6 py-4 space-y-4">
+        <div className="lg:hidden absolute z-50 top-24 w-full bg-white text-black px-6 py-4 space-y-4">
           {isAuthenticated === false ? (
             <>
               {/* <Link to="/about" className="block">
