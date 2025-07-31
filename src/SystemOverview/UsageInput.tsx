@@ -62,7 +62,7 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
 
   if (!isEditing) {
     return (
-      <div className="bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 rounded-lg p-4 border border-[#e5e7eb]">
+      <div className="bg-[#252525] rounded-xl p-4 border border-neutral-600 custom-bod">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-white/70 text-xs uppercase tracking-wide font-medium mb-2">Annual Usage</div>
@@ -82,11 +82,12 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 rounded-lg p-4 border border-[#ff6b35] col-span-full lg:col-span-2">
+    <div className="custom-bod rounded-lg mb-4 p-4 border border-neutral-600 col-span-full lg:col-span-2 plain-black-bg">
+      
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Zap className="w-4 h-4 text-white" />
-          <h4 className="text-white font-semibold text-sm lg:text-base">Edit Annual Usage</h4>
+          <h4 className="text-white text-sm lg:text-base">Edit Annual Usage</h4>
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -115,7 +116,7 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
               ? 'bg-white text-slate-700'
               : 'text-white/70 hover:text-white'
           }`}
-        >
+        > 
           Annual Total
         </button>
         <button
@@ -168,7 +169,7 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
           </div>
           <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg border border-white/20">
             <span className="text-white/70 text-xs lg:text-sm font-medium">Annual Total</span>
-            <span className="text-white font-bold text-sm lg:text-base">
+            <span className="text-white text-sm lg:text-base">
               {calculateAnnualFromMonthly().toLocaleString()} kWh
             </span>
           </div>

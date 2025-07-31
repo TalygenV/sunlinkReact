@@ -452,7 +452,8 @@ useEffect(() => {
 
   return (
     <>
-      <div ref={mapContainerRef} className="relative w-full h-[95dvh] rounded-3xl overflow-hidden border border-white/10 shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+      
+      <div className="rounded-xl relative sticky top-20 h-screen">
         {/* MapContainer with ImageOverlay */}
         <MapContainer
           ref={leafletMapRef}
@@ -574,9 +575,11 @@ useEffect(() => {
           </motion.div>
           <ManualPanelDependencies />
         </div>
-      </div>
+     
+</div>
+
       {/* Summary Section */}
-      <div style={{ flexShrink: 0, order: 2, height: isMobile ? "60vh" : "100vh", overflowY: "auto", padding: "16px", boxSizing: "border-box", }}
+      <div className="w-[400px] max-lg:w-full h-[100%] right-panel-bg rounded-[24px] p-6 text-white border border-neutral-600 mx-auto" 
       >
         <SummaryPanel
           annualUsage={annualUsage}

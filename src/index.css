@@ -1575,6 +1575,11 @@ footer {
     backdrop-filter: blur(75px);
 }
 
+.ring-white {
+    --tw-ring-opacity: 1;
+    --tw-ring-color: #9d4e29;
+}
+
 .custom-gradient {
     background: linear-gradient(241deg, rgba(255, 255, 255, 0.1) 0%, #2b3134 100%);
 }

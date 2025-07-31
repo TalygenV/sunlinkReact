@@ -1,3 +1,4 @@
+import sunlinkicon from '../assets/images/check.svg';
 import React, { useEffect, useState } from "react";
 import { MapView } from "./MapView";
 import { SummaryPanel } from "./SummaryPanel";
@@ -55,7 +56,7 @@ function SystemOverview() {
           <div className="flex items-center gap-2">
             <div
               className="w-6 h-6 rounded-full bg-orange-500 border border-solid border-white text-black text-xs font-bold flex items-center justify-center">
-              <img src="assets/images/check.svg" />
+              <img className="mx-auto" src={sunlinkicon} alt="Sunlink" />
             </div>
             <span className="text-white">Design</span>
           </div>
@@ -92,7 +93,7 @@ function SystemOverview() {
         <div >
 
 
-          <div className="rounded-xl relative sticky top-20 h-screen">
+          <div className="rounded-xl">
             {userData && <MapView userData={userData} />}
           </div>
         </div>

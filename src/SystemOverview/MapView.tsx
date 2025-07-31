@@ -7,8 +7,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDownloadURL, ref as storageRef, uploadBytes, } from "firebase/storage";
 import { calculateTotalStats, getAllPanels, getPanelId, updateActivePanels, } from "../utils/panelHelpers";
 import axios from "axios";
-import { localUserData, setPersonalInfo } from '../store/solarSlice'
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { localUserData } from '../store/solarSlice'
 
 // interface UserData {
 //   name: string;
@@ -37,6 +36,7 @@ interface RoofSegment {
 }
 
 export const MapView: React.FC<MapViewProps> = ({ userData }) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [overlayBounds, setOverlayBounds] = useState<{
     north: number;
     east: number;
@@ -50,9 +50,8 @@ export const MapView: React.FC<MapViewProps> = ({ userData }) => {
   const [solarData, setSolarData] = useState<any>(null);
   const [annualUsage, setAnnualUsage] = useState<number>(12000);
   const [roofData, setRoofData] = useState<any>(null);
-const { imageUrl } = useAppSelector((state) => state.solar.solarForm);
+
   const [currentStage, setCurrentStage] = useState("Design");
-  const dispatch = useAppDispatch();
 
   // const [completedStages, setCompletedStages] = useState<ProgressStage[]>([
   //   "Design",
@@ -287,8 +286,7 @@ const { imageUrl } = useAppSelector((state) => state.solar.solarForm);
 
           // Load image and bounds data if available
           if (snapshot.val().imageUrl) {
-            dispatch(setPersonalInfo({ "imageUrl": snapshot.val().imageUrl }));
-            
+            setImageUrl(snapshot.val().imageUrl);
           }
 
           // Always try to load bounds, but provide a fallback if missing
@@ -485,12 +483,12 @@ const { imageUrl } = useAppSelector((state) => state.solar.solarForm);
 
                   const imageRef = storageRef(
                     storage,
-                    `nearmap_images/${formattedAddress}`
+                    `nearmap-images/${formattedAddress}`
                   );
                   const uploadResult = await uploadBytes(imageRef, blob);
 
-                   console.error("1120", uploadResult);
-console.log("imageRef", imageRef);
+                  // console.error("1120", uploadResult);
+
                   const downloadUrl = await getDownloadURL(uploadResult.ref);
 
                   const tempUrl = URL.createObjectURL(blob);
@@ -520,8 +518,8 @@ console.log("imageRef", imageRef);
                   // Update state
 
                   // Example: show image
-
-                  dispatch(setPersonalInfo({ "imageUrl": tempUrl }));
+                  setImageUrl(tempUrl);
+                  //setImageUrl(downloadUrl);
                   setOverlayBounds(newOverlayBounds);
 
                   // Only update map center if it wasn't already loaded
@@ -567,7 +565,7 @@ console.log("imageRef", imageRef);
           const solarDataFromUser = userData.solarData;
 
           // Create placeholder objects for when Nearmap API fails
-          //const imageUrl = null;
+          const imageUrl = null;
           let overlayBoundsData = { north: 0, south: 0, east: 0, west: 0 };
           let downloadUrl = null;
           let mapCenterData = null;
@@ -672,10 +670,12 @@ console.log("imageRef", imageRef);
 
               // Create a storage reference with formatted address
               const formattedAddress = formatAddressForStorage(address);
+              console.log("formattedAddress",formattedAddress);
               const imageRef = storageRef(
                 storage,
-                `nearmap_images/${formattedAddress}`
+                `nearmap-images/${formattedAddress}`
               );
+ console.log("imageRef",imageRef);
               // Upload the blob to Firebase Storage
               const uploadResult = await uploadBytes(imageRef, blob);
 
@@ -863,8 +863,8 @@ console.log("imageRef", imageRef);
           // Update annualUsage state
           setAnnualUsage(userAnnualUsage);
 
-
-          dispatch(setPersonalInfo({ "imageUrl": downloadUrl }));
+          // Set state values
+          setImageUrl(downloadUrl);
           setOverlayBounds(overlayBoundsData);
           setMapCenter(mapCenterData);
           setSolarData(solarDataFromUser);
@@ -997,7 +997,6 @@ console.log("imageRef", imageRef);
   }
 
   async function getSurveyImage(surveyId: any, bbox: any, token: any) {
-    debugger;
     const url = `https://api.nearmap.com/staticmap/v3/surveys/${surveyId}/Vert.png`;
 
     const response = await axios.get(url, {
@@ -1017,8 +1016,8 @@ console.log("imageRef", imageRef);
   }
 
   return (
-    <div className="w-full h-full bg-black rounded-xl overflow-hidden border shadow-sm">
-      <div className="h-full flex items-center justify-center">
+    
+      <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-6 items-start">
         <NearmapTestingTwo
           onFinalizeDesign={handleContinue}
           imageUrl={imageUrl}
@@ -1066,6 +1065,6 @@ console.log("imageRef", imageRef);
           roofData={roofData}
         />
       </div>
-    </div>
+    
   );
 };
