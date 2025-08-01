@@ -1598,6 +1598,10 @@ footer {
     backdrop-filter: blur(7.551496505737305px);
 }
 
+@media (max-width: 1023px) {
+    .go-solar.sticky { position: static;}
+}
+
 /* sk Flow 2 page*/
 
 /* dev changes Flow 1 page*/

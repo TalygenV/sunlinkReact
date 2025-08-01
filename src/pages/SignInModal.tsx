@@ -695,8 +695,8 @@ localStorage.setItem("userData", JSON.stringify(allData));
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-white rounded-lg shadow-lg">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-lg" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4 rounded-lg shadow-lg">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0  backdrop-blur-sm" />
 
                     <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" className="relative w-full max-w-md">
                         <motion.div className="absolute -inset-1 rounded-3xl z-0" animate={{
