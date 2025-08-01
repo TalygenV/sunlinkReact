@@ -63,15 +63,15 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
   if (!isEditing) {
     return (
       <div className="bg-[#252525] rounded-xl p-4 border border-neutral-600 custom-bod">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <div className="text-white/70 text-xs uppercase tracking-wide font-medium mb-2">Annual Usage</div>
-            <div className="text-white text-xl lg:text-2xl font-bold">{annualUsage.toLocaleString()}</div>
-            <div className="text-white/70 text-sm">kWh</div>
+            <div className="text-white pt-[20px] text-xl lg:text-2xl font-bold">{annualUsage.toLocaleString()}</div>
+            {/* <div className="text-white/70 text-sm">kWh</div> */}
           </div>
           <button
             onClick={() => setIsEditing(true)}
-            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 flex-shrink-0"
+            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 flex aling-top"
             title="Edit usage"
           >
             <Edit3 className="w-4 h-4" />
@@ -86,7 +86,6 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
       
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Zap className="w-4 h-4 text-white" />
           <h4 className="text-white text-sm lg:text-base">Edit Annual Usage</h4>
         </div>
         <div className="flex items-center space-x-2">
@@ -108,23 +107,23 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
       </div>
 
       {/* Toggle between input modes */}
-      <div className="flex bg-white/10 rounded-lg p-1 mb-4 border border-white/20">
+      <div className="flex customradio sys_overview rounded-lg p-1 mb-4 border border-white/20">
         <button
           onClick={() => setInputMode('annual')}
-          className={`flex-1 py-2 px-3 rounded-md text-xs lg:text-sm font-medium transition-all duration-200 ${
+          className={`flex-1 py-4 px-0 rounded-md text-xs lg:text-sm font-medium transition-all duration-200 ${
             inputMode === 'annual'
-              ? 'bg-white text-slate-700'
-              : 'text-white/70 hover:text-white'
+              ? 'bg-[#e4eef0] text-slate-700'
+              : 'text-white hover:text-white'
           }`}
         > 
           Annual Total
         </button>
         <button
           onClick={() => setInputMode('monthly')}
-          className={`flex-1 py-2 px-3 rounded-md text-xs lg:text-sm font-medium transition-all duration-200 ${
+          className={`flex-1 py-4 px-0 rounded-md text-xs lg:text-sm font-medium transition-all duration-200 ${
             inputMode === 'monthly'
-              ? 'bg-white text-slate-700'
-              : 'text-white/70 hover:text-white'
+              ? 'bg-[#e4eef0] text-slate-700'
+              : 'text-white hover:text-white'
           }`}
         >
           Monthly Breakdown
@@ -141,7 +140,7 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
               type="number"
               value={tempAnnualUsage}
               onChange={(e) => setTempAnnualUsage(parseInt(e.target.value) || 0)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/50 focus:border-white/40 focus:outline-none transition-colors text-sm lg:text-base"
+              className="w-full plain-black-bg border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/50 focus:border-white/40 focus:outline-none transition-colors text-sm lg:text-base"
               placeholder="Enter annual usage"
             />
           </div>
@@ -154,21 +153,21 @@ export const UsageInput: React.FC<UsageInputProps> = ({ annualUsage, onUsageChan
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
             {months.map((month, index) => (
               <div key={month}>
-                <label className="block text-white/70 text-xs font-medium mb-1">
+                <label className="block text-white/70 text-xs font-medium mb-2">
                   {month}
                 </label>
                 <input
                   type="number"
                   value={monthlyUsage[index]}
                   onChange={(e) => handleMonthlyChange(index, e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-white placeholder-white/50 text-xs lg:text-sm focus:border-white/40 focus:outline-none transition-colors"
+                  className="w-full bg-[#212222] border border-white/20 rounded px-2 py-2 text-[#ffffff99] placeholder-white/50 text-xs lg:text-sm focus:border-white/40 focus:outline-none transition-colors"
                   placeholder="kWh"
                 />
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg border border-white/20">
-            <span className="text-white/70 text-xs lg:text-sm font-medium">Annual Total</span>
+          <div className="flex items-center justify-between p-3 plain-black-bg rounded-lg border border-white/20">
+            <span className="text-white text-xs lg:text-sm font-medium">Total Annual Usage (kWh)</span>
             <span className="text-white text-sm lg:text-base">
               {calculateAnnualFromMonthly().toLocaleString()} kWh
             </span>

@@ -123,11 +123,11 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
               onUsageChange={handleUsageChange}
             />
             <div className="bg-[#252525] rounded-xl p-4 border border-neutral-600 custom-bod">
-              <div className="text-white/70 text-xs uppercase tracking-wide font-medium mb-2">
-                Annual Output
-                <div className="text-white/70 text-sm">kWh</div>
+              <div className="text-xs text-[#ffffff99] tracking-wide font-medium mb-2">
+                Annual Output (kWh)
+                {/* <div className="text-white/70 text-sm"></div> */}
               </div>
-              <div className="text-white text-lg lg:text-2xl font-bold">
+              <div className="text-white pt-[20px] text-lg lg:text-2xl font-bold">
                 {annualOutput.toLocaleString()}
               </div>
               
@@ -136,22 +136,22 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
 
 
             <div className="bg-[#252525] rounded-xl p-4 border border-neutral-600 custom-bod">
-              <div className="text-white/70 text-xs uppercase tracking-wide font-medium mb-2">
-                System Size
+              <div className="text-xs text-[#ffffff99] tracking-wide font-medium mb-2">
+                System Size kW
               </div>
               <div className="text-white text-lg lg:text-2xl font-bold">
                 {systemSize.toFixed(1)}
               </div>
-              <div className="text-white/70 text-sm">kW</div>
+              {/* <div className="text-white/70 text-sm"></div> */}
             </div>
             <div className="bg-[#252525] rounded-xl p-4 border border-neutral-600 custom-bod">
-              <div className="text-white/70 text-xs uppercase tracking-wide font-medium mb-2">
+              <div className="text-xs text-[#ffffff99] tracking-wide font-medium mb-2">
                 Panels
               </div>
               <div className="text-white text-lg lg:text-2xl font-bold">
                 {panelCount}
               </div>
-              <div className="text-white/70 text-sm">panels</div>
+              {/* <div className="text-white/70 text-sm">panels</div> */}
             </div>
           </div>
 
