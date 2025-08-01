@@ -15,10 +15,12 @@ import Financing from './pages/CustomizeSolarSystem';
 import { FormContext } from './context/FormContext';
 import Resources from './pages/Resources';
 import BatterySelection from './pages/BatterySelection';
- 
+
 import SignInModal from './pages/SignInModal';
 import GlobalSpinner from "./components/GlobalSpinner";
 import SystemOverview from './SystemOverview/SystemOverview';
+import CompleteDocumentSignModal from './Plan/CompleteDocumentSign';
+ 
 
 const auth = getAuth(app);
 
@@ -46,7 +48,10 @@ function App() {
           <Route path="/System-Overview" element={<SystemOverview />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/system-design" element={<BatterySelection />} />
-         
+          <Route path="/success-page" element={<CompleteDocumentSignModal />} />
+   
+
+
           <Route path="*" element={<div className="p-10 text-center text-2xl">404 - Page Not Found</div>} />
         </Routes>
       </main>

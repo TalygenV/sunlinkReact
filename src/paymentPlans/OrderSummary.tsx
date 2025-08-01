@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Shield, Check, Lock } from 'lucide-react';
 import { Battery } from '../types/Battery';
+import ContractSigningPage from '../Plan/ContractSigningPage';
+import PhotoUploadPage from '../Plan/PhotoUploadPage';
 
 interface OrderSummaryProps {
   batteryCount: number;
@@ -18,57 +20,100 @@ interface OrderSummaryProps {
   onInputChange: (field: string, value: string) => void;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({
-  batteryCount,
-  totalCost,
-  afterTaxCredit,
-  evChargerEnabled,
-  electricalPanelEnabled,
-  formData,
-  onInputChange
-}) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ batteryCount, totalCost, afterTaxCredit, evChargerEnabled, electricalPanelEnabled, formData, onInputChange }) => {
   const [battery, setBattery] = useState<Battery | null>(null);
   const [quantity, setQuantity] = useState<number>(0);
   const [quantityPanel, setQuantityPanel] = useState<number>(0);
   const [TotalPanelCost, setTotalPanelCost] = useState<number>(0);
   const [TotalBill, setTotalBill] = useState<number>(0);
   const [TotalBillATC, setTotalBillATC] = useState<number>(0);
+  const [showContractPage, setShowContractPage] = useState(false);
+  const [ShowphotosPage, setShowphotosPage] = useState(false);
+
+  const [systemSize] = useState(12.8);
+  const [hasEVCharger, setHasEVCharger] = useState(false);
+  const [hasReRoof, setHasReRoof] = useState(false);
+  const [hasElectricalUpgrade, setHasElectricalUpgrade] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', address: '' });
+  const [isFinancingApproved, setIsFinancingApproved] = useState('pending');
+  const [selectedPlan, setSelectedPlan] = useState('cash');
+
+  const handleFinanceApproved = (value: string) => {
+    setIsFinancingApproved(value);
+  };
+
+  const pricePerWatt = 1.75;
+  const batteryPrice = 15000;
+  const evChargerPrice = 2500;
+  const reRoofPrice = 15000;
+  const electricalUpgradePrice = 3500;
+
+  const getTotalPrice = () => {
+    let total = systemSize * 1000 * pricePerWatt + batteryCount * batteryPrice;
+    if (hasEVCharger) total += evChargerPrice;
+    if (hasReRoof) total += reRoofPrice;
+    if (hasElectricalUpgrade) total += electricalUpgradePrice;
+    return total;
+  };
 
 
-  useEffect( () => {
+  useEffect(() => {
     const stored = localStorage.getItem('battery');
     if (stored) {
 
-        const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
-        const panelCountlocal = localStorage.getItem('panelCount');
-        if (storedBattery && storedQty && panelCountlocal) {
-        const { panelCount: panelCount , totalcost: totalcost } = JSON.parse(panelCountlocal);
+      const { battery: storedBattery, quantity: storedQty } = JSON.parse(stored);
+      const panelCountlocal = localStorage.getItem('panelCount');
+      if (storedBattery && storedQty && panelCountlocal) {
+        const { panelCount: panelCount, totalcost: totalcost } = JSON.parse(panelCountlocal);
         setTotalPanelCost(totalcost);
-          if(storedBattery) {
-              const batterypricesingle = storedBattery.price;
-            const totalbillcost =  totalcost + (batterypricesingle * storedQty);
-            console.log("totalbillcost",TotalPanelCost);
-            console.log("storedQty",storedQty);
-            const TotalBillAfterTexCredit = (totalbillcost * 70)/100;
-            console.log("TotalBillAfterTexCredit",TotalBillAfterTexCredit);
-            setBattery(storedBattery);
+        if (storedBattery) {
+          const batterypricesingle = storedBattery.price;
+          const totalbillcost = totalcost + (batterypricesingle * storedQty);
+          console.log("totalbillcost", TotalPanelCost);
+          console.log("storedQty", storedQty);
+          const TotalBillAfterTexCredit = (totalbillcost * 70) / 100;
+          console.log("TotalBillAfterTexCredit", TotalBillAfterTexCredit);
+          setBattery(storedBattery);
           setQuantity(storedQty);
           setQuantityPanel(panelCount);
-           
-            setTotalBill(totalbillcost);
-            setTotalBillATC(TotalBillAfterTexCredit);
-          }
+
+          setTotalBill(totalbillcost);
+          setTotalBillATC(TotalBillAfterTexCredit);
         }
-
-    
-    
-     
+      }
     }
-
-   
-   
-
   }, []);
+  const handlePhotosUploaded = () => {
+    console.log("hello");// Go to customer portal after photos uploaded
+  };
+
+  if (showContractPage) {
+    return (
+      <ContractSigningPage
+        onSigningComplete={() => setShowContractPage(false)}
+        onBack={() => setShowContractPage(false)}
+        customerInfo={customerInfo}
+        onFinancingApproved={handleFinanceApproved}
+        isFinancingApproved={isFinancingApproved}
+        systemDetails={{
+          size: `${systemSize}`,
+          batteryCount,
+          totalPrice: getTotalPrice(),
+          selectedPlan,
+        }}
+      />
+    );
+  }
+
+  if (ShowphotosPage) {
+    return (
+      <PhotoUploadPage
+        onComplete={handlePhotosUploaded}
+        customerInfo={customerInfo}
+      />
+    );
+  }
+
 
   return (
     <div className="w-full sticky top-20">
@@ -89,8 +134,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <p className="text-gray-300">{TotalPanelCost}</p>
           </div>
 
-              {/* Battery Storage */}
-              {battery && quantity > 0 && (
+          {/* Battery Storage */}
+          {battery && quantity > 0 && (
             <div className="flex justify-between mb-4">
               <div>
                 <p className="text-gray-300">Battery Storage</p>
@@ -210,9 +255,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           </div>
 
           <div className="w-full mt-10 text-center">
-            <button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl py-4 px-5 mb-2 text-lg font-normal text-white flex justify-center items-center w-full">
+            <button onClick={() => setShowContractPage(true)} className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl py-4 px-5 mb-2 text-lg font-normal text-white flex justify-center items-center w-full">
               <Lock className="mr-2 w-5 h-5" />
               Pay $500 Deposit
+            </button>
+          </div>
+          <div className="w-full mt-10 text-center">
+            <button onClick={() => setShowphotosPage(true)} className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl py-4 px-5 mb-2 text-lg font-normal text-white flex justify-center items-center w-full">
+              <Lock className="mr-2 w-5 h-5" />
+              Show upload
             </button>
           </div>
 

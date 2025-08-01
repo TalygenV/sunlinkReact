@@ -10,6 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import BatteryModeltsx from '../SystemDesign/BatteryModeltsx';
 import vectorIcon from '../assets/images/Vector.svg';
 import ModelPreviewModal from "../SystemDesign/ModelPreviewModal";
+import defaultModel from "../products/batteries/model/enphase_battery-opt-opt-opt-compressed.glb?url";
+import model2 from "../products/batteries/model/solar_edge_battery.glb?url";
+import model4 from "../products/batteries/model/tesla_battery-opt-opt-opt-compressed.glb?url";
 
 const BatterySelection = () => {
     const [selectedBatteryIndex, setSelectedBatteryIndex] = useState<number>(0);
@@ -158,10 +161,10 @@ const BatterySelection = () => {
                             </div>
 
                             <div className="mt-4 flex justify-between gap-4">
-                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"></div>
-                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"></div>
-                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"></div>
-
+                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"><img src={defaultModel} alt="Battery Preview" className="w-full h-full object-contain" /></div>
+                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"><img src={model2} alt="Battery Preview" className="w-full h-full object-contain" ></img></div>
+                                <div className="flex-1 bg-gray-400 rounded-md aspect-square"><img src={model4} alt="Battery Preview" className="w-full h-full object-contain" ></img> </div>
+                                {/* <img className="mx-auto" src={sunlinkicon} alt="Sunlink" /> */}
                                 {/* {[0, 1, 2].map((i) => (
                                     <div key={i} className="flex-1 rounded-md aspect-square bg-black relative overflow-hidden">
                                         <BatteryModeltsx

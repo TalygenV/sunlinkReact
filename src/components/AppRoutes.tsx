@@ -10,6 +10,7 @@ import BatterySelection from '../pages/BatterySelection';
 
 import { FormContext } from '../context/FormContext';
 import SystemOverview from '../SystemOverview/SystemOverview';
+import CompleteDocumentSignModal from '../Plan/CompleteDocumentSign';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -30,7 +31,7 @@ const AppRoutes = () => {
       <Route path="/System-Overview" element={<SystemOverview />} />
       <Route path="/resources" element={<Resources />} />
       <Route path="/battery-selection" element={<BatterySelection />} />
-
+      <Route path="/success-page" element={<CompleteDocumentSignModal />} />
       <Route path="*" element={<div className="p-10 text-center text-2xl">404 - Page Not Found</div>} />
     </Routes>
   );
