@@ -45,11 +45,11 @@ export const EnergyOffsetChart: React.FC<EnergyOffsetChartProps> = ({
   const backgroundColor = '#f3f4f6'; // Light gray background
 
   return (
-    <div className="bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 rounded-xl p-4 lg:p-6 border border-[#e5e7eb]">
+    <div className="mt-6 bg-[#252525] border border-neutral-600 text-white p-5 rounded-xl shadow-lg w-full custom-bod space-y-6">
       <div className="flex items-center justify-between mb-4 lg:mb-6">
-        <h3 className="text-white text-base lg:text-lg font-semibold">Energy Offset</h3>
+        <h3 className="text-base text-color font-medium lg:text-lg">Energy Offset</h3>
         <div className="text-right">
-          <div className={`text-xl lg:text-2xl font-bold ${animatedOffset >= 100 ? 'text-green-400' : 'text-white'}`}>
+          <div className={`text-xl lg:text-2xl ${animatedOffset >= 100 ? 'text-green-400' : 'text-white'}`}>
             {Math.round(animatedOffset)}%
           </div>
           <div className="text-xs text-white/70">
@@ -147,7 +147,7 @@ export const EnergyOffsetChart: React.FC<EnergyOffsetChartProps> = ({
       </div>
       
       <div className="space-y-3 lg:space-y-4">
-        <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg border border-white/20">
+        <div className="flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg">
           <div className="flex items-center space-x-3">
             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: solarColor }}></div>
             <span className="text-white/70 text-xs lg:text-sm font-medium">Solar Generation</span>
@@ -161,7 +161,7 @@ export const EnergyOffsetChart: React.FC<EnergyOffsetChartProps> = ({
         </div>
         
         {utilityPercentage > 0 && (
-          <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg border border-white/20">
+          <div className="flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-white/20">
             <div className="flex items-center space-x-3">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: utilityColor }}></div>
               <span className="text-white/70 text-xs lg:text-sm font-medium">Utility Dependency</span>
@@ -174,23 +174,23 @@ export const EnergyOffsetChart: React.FC<EnergyOffsetChartProps> = ({
         )}
         
         {isOverProducing && (
-          <div className="p-3 bg-white/10 rounded-lg border border-white/20">
+          <div className="p-4 bg-[#1e1e1e] rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 rounded-full bg-[#3b82f6] flex-shrink-0"></div>
-                <span className="text-white/70 text-xs lg:text-sm font-medium">Excess Production</span>
+                <span className="text-white font-medium">Excess Production</span>
               </div>
-              <div className="text-[#3b82f6] text-xs lg:text-sm font-bold">{Math.round(excessPercentage)}%</div>
+              <div className="text-white text-sm font-normal">{Math.round(excessPercentage)}%</div>
             </div>
-            <div className="text-xs text-white/70 mb-2">Options for surplus energy:</div>
+            <div className="text-sm text-gray-300 mt-2 mb-3">Options for surplus energy:</div>
             <div className="flex flex-wrap gap-2">
-              <div className="flex items-center space-x-1 bg-white/10 px-2 py-1 rounded border border-white/20">
+              <div className="bg-white text-black text-sm font-medium px-3 py-2 rounded-xl flex items-center gap-1">
                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                <span className="text-xs text-white/70">Store Power</span>
+                <span className="text-xs">Store Power</span>
               </div>
-              <div className="flex items-center space-x-1 bg-white/10 px-2 py-1 rounded border border-white/20">
+              <div className="bg-white text-black text-sm font-medium px-3 py-2 rounded-xl flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-xs text-white/70">Sell Back</span>
+                <span className="text-xs">Sell Back</span>
               </div>
             </div>
           </div>

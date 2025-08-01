@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import checkIcon from '../assets/images/check.svg';
 import infoCircleIcon from '../assets/images/info-circle_svgrepo.com.svg';
 import vectorIcon from '../assets/images/Vector.svg';
+import circlesvgrepo from '../assets/images/tick-circle_svgrepo.com.svg';
 import colorIcon from '../assets/images/color.svg';
 import clockIcon from '../assets/images/clock-three.svg';
 import tickIcon from '../assets/images/tick-circle_svgrepo.com.svg';
@@ -408,9 +409,9 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
     };
     return (
         <div className="lg:pt-4 lg:pl-2">
-            <div className="custom-formcls p-8 rounded-xl max-w-[700px] ml-auto space-y-6 border border-neutral-600">
+            <div className="custom-formcls p-8 rounded-xl w-full ml-auto space-y-6 border border-neutral-600">
                 <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-2xl text-white text-sm">
+                    <span className="flex items-center gap-2 px-4 py-2 border border-gray-400 rounded-xl text-white text-xs">
                         <span className="w-3 h-3 rounded-full bg-orange-600"></span> Most Recommended
                     </span>
                     <button className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm" onClick={() => onCompareAll()}>Compare all</button>
@@ -424,21 +425,21 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                 </p>
 
                 <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
-                    <div className="w-full sm:w-[calc(50%-0.75rem)]">
+                    <div className="w-full lg:w-[calc(35%-0.75rem)] sm:w-[calc(50%-0.75rem)]">
                         <label className="w-full text-gray-300 text-xl">Available Color</label>
                         <div className="flex items-center mb-4 mt-2">
                             <img className="mr-2 mt-1" src={colorIcon} alt="Color" />
                         </div>
                     </div>
 
-                    <div className="w-full sm:w-[calc(50%-0.75rem)]">
+                    <div className="w-full lg:w-[calc(65%-0.75rem)] sm:w-[calc(50%-0.75rem)]">
                         <label className="w-full text-gray-300 text-xl">Quantity</label>
                         <div className="relative flex items-center text-white mt-2">
-                            <button type="button" onClick={handleDecrement} className="shrink-0 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-full h-8 w-8 flex items-center justify-center">
+                            <button type="button" onClick={handleDecrement} className="shrink-0 lightgrey text-black text-base hover:bg-white border border-gray-600 rounded-full h-8 w-8 flex items-center justify-center">
                                 -
                             </button>
                             <input type="text" className="shrink-0 text-white border-0 bg-transparent text-sm font-normal max-w-[2.5rem] text-center" value={quantity} readOnly />
-                            <button type="button" onClick={handleIncrement} className="shrink-0 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-full h-8 w-8 flex items-center justify-center">
+                            <button type="button" onClick={handleIncrement} className="shrink-0 lightgrey text-black text-base hover:bg-white border border-gray-600 rounded-full h-8 w-8 flex items-center justify-center">
                                 +
                             </button>
                         </div>
@@ -465,7 +466,7 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                     </div>
 
                     <p className="text-sm text-gray-400 flex items-center">* Prices is subjected to eligibility requirements.</p>
-                    <div className="custom-gradient flex items-start gap-3 bg-gray-800 bg-opacity-50 rounded-lg p-4 text-gray-300 text-sm max-w-xl">
+                    <div className="custom-gradient-light flex items-start gap-3 bg-gray-800 bg-opacity-50 rounded-lg p-4 text-gray-300 text-sm">
                         <img src={infoCircleIcon} className="text-gray-400 flex-shrink-0" />
                         <p className="text-sm leading-[20px] ">
                             <span className="font-normal text-gray-400">Tax Credit Disclaimer:</span> The 30% federal tax credit is subject to eligibility requirements and may vary based on your tax situation. Consult with a tax professional to
@@ -475,7 +476,7 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                     <div className="bg-neutral-600 w-full h-px my-3"></div>
                     <div className="space-y-4 w-full">
                         {/* Specifications Section */}
-                        <div className="custom-gradient custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
+                        <div className="bg-[#2d2f30] custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
                             <div
                                 className="flex items-center justify-between cursor-pointer"
                                 onClick={() => toggleSection('specs')}
@@ -501,15 +502,15 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                                     <p className="text-lg text-gray-400">Key features include:</p>
                                     <ul className="mt-4 space-y-3">
                                         <li className="flex items-center space-x-3">
-                                            <img src={tickIcon} alt="check-icon" />
+                                            <img className='w-[22px] h-[22px]' src={circlesvgrepo} alt="check-icon" />
                                             <span>Integrated inverter</span>
                                         </li>
                                         <li className="flex items-center space-x-3">
-                                            <img src={tickIcon} alt="check-icon" />
+                                            <img className='w-[22px] h-[22px]' src={circlesvgrepo} alt="check-icon" />
                                             <span>App-based monitoring</span>
                                         </li>
                                         <li className="flex items-center space-x-3">
-                                            <img src={tickIcon} alt="check-icon" />
+                                            <img className='w-[22px] h-[22px]' src={circlesvgrepo} alt="check-icon" />
                                             <span>Storm Watch feature</span>
                                         </li>
                                     </ul>
@@ -518,7 +519,7 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                         </div>
 
                         {/*  Backup Section  */}
-                        <div className="custom-gradient custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
+                        <div className="bg-[#2d2f30] custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
                             <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleSection('backup')}>
                                 <div className="flex items-center space-x-2">
                                     <span><img src={backupIcon} alt="backup" /></span>
@@ -541,26 +542,26 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                                     <p className="text-sm text-gray-300">Operating Mode</p>
                                     <div className="bg-[#252727] px-5 py-4 rounded-lg mt-6 w-full">
                                         <label className="flex items-center space-x-2 text-white">
-                                            <img src={tickIcon} alt="check-icon" />
-                                            <span className="text-white pl-2">Backup Only</span>
+                                            <img className='w-[22px] h-[22px]' src={tickIcon} alt="check-icon" />
+                                            <span className="text-white text-lg pl-2">Backup Only</span>
                                         </label>
-                                        <p className="text-gray-400 text-sm mt-3">Emergency power only</p>
+                                        <p className="text-gray-400 text-base mt-2">Emergency power only</p>
                                     </div>
                                     <div className="bg-[#252727] px-5 py-4 rounded-lg mt-4 w-full">
                                         <label className="flex items-center space-x-2 text-white">
-                                            <img src={tickIcon} alt="check-icon" />
-                                            <span className="text-white pl-2">Self-Consumption</span>
+                                            <img className='w-[22px] h-[22px]' src={tickIcon} alt="check-icon" />
+                                            <span className="text-white text-lg pl-2">Self-Consumption</span>
                                         </label>
-                                        <p className="text-gray-400 text-sm mt-3">Use solar first, then battery</p>
+                                        <p className="text-gray-400 text-base mt-2">Use solar first, then battery</p>
                                     </div>
                                     <div className="bg-[#252727] px-5 py-4 rounded-lg mt-4 w-full">
                                         <label className="flex items-center space-x-2 text-white">
-                                            <img src={tickIcon} alt="check-icon" />
-                                            <span className="text-white pl-2">Time-of-Use</span>
+                                            <img className='w-[22px] h-[22px]' src={tickIcon} alt="check-icon" />
+                                            <span className="text-white text-lg pl-2">Time-of-Use</span>
                                         </label>
-                                        <p className="text-gray-400 text-sm mt-3">Avoid peak hour rates</p>
+                                        <p className="text-gray-400 text-base mt-2">Avoid peak hour rates</p>
                                     </div>
-                                    <p className="text-sm text-gray-300 py-5">Backup Duration Scenarios</p>
+                                    <p className="text-lg text-gray-300 py-5">Backup Duration Scenarios</p>
                                     <div className="bg-[#252727] px-5 py-5 rounded-lg">
                                         <div className="flex items-start space-x-3">
                                             <img src={essentialsIcon} alt="Essentials" />
@@ -622,7 +623,7 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                             )}
                         </div>
                         {/* Savings Section */}
-                        <div className="custom-gradient custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
+                        <div className="bg-[#2d2f30] custom-bod text-white rounded-lg px-6 py-4 border border-neutral-600">
                             <div
                                 className="flex items-center justify-between cursor-pointer"
                                 onClick={() => toggleSection('savings')}
@@ -648,7 +649,7 @@ const BatteryDetails: React.FC<BatteryDetailsProps> = ({
                                     <p className="text-lg text-gray-300">Energy Arbitrage:</p>
                                     <p className="text-base text-white py-4">Average monthly utility bill</p>
 
-                                    <div className="flex gap-4 w-10/12 text-white customradio sys_overview mt-3 s-utility rounded-xl border border-neutral-600">
+                                    <div className="flex gap-4 w-8/12 text-white customradio sys_overview mt-3 s-utility rounded-xl border border-neutral-600">
                                         <div className="w-2/4">
                                             <label className="flex items-center gap-3 cursor-pointer">
                                                 <input type="radio" name="ownership" value="own" className="accent-blue-600 w-5 h-5" defaultChecked />
