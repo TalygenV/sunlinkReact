@@ -29,6 +29,7 @@ import ProductStorage from './staticPage/ProductStorage';
 import ProductSolarStorage from './staticPage/ProductSolarStorage';
 import ProductSolar from './staticPage/ProductSolar';
 import Products from './staticPage/Products';
+import TermsOfService from './staticPage/TermsOfService';
  
 
 const auth = getAuth(app);
@@ -66,6 +67,7 @@ function App() {
           <Route path="/product-solar" element={<ProductSolar />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/product-storage" element={<ProductStorage />} />
           <Route path="/product-solar-storage" element={<ProductSolarStorage />} />
     
