@@ -112,16 +112,18 @@ const BatterySelection = () => {
                 {showCompareModal && (
                     <CompareModal onClose={() => setShowCompareModal(false)} />
                 )}
-
-                <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-2 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+                <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-2 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-[45%_55%]">
+                {/* <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-2 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2"> */}
                     {/* Left Panel */}
                     <div className="lg:pt-4 lg:pr-2">
                         <div className="w-full mx-auto">
                             {/* Model Viewer */}
-                            <div className="relative bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg font-semibold">
+
+                         
+                            <div className="relative overflow-hidden rounded-xl bg-gray-400 rounded-md aspect-square flex items-center justify-center text-white text-lg font-semibold">
                                 <button
                                     onClick={navigateToPrevious}
-                                    className="absolute left-0 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 transition-colors z-10 shadow-sm"
+                                    className="absolute left-0 ml-3 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 transition-colors z-10 shadow-sm"
                                 >
                                     <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                                 </button>
@@ -148,7 +150,7 @@ const BatterySelection = () => {
 
                                 <button
                                     onClick={navigateToNext}
-                                    className="absolute right-0 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 transition-colors z-10 shadow-sm"
+                                    className="absolute right-0 mr-3 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center hover:bg-gray-700 transition-colors z-10 shadow-sm"
                                 >
                                     <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                                 </button>
