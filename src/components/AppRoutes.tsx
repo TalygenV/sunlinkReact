@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Home from '../pages/Home';
-import About from '../pages/About';
+import Home from '../pages/SignUp';
+import About from '../pages/SolorDetails';
 import Products from '../pages/Products';
 import Installation from '../pages/SolarCustomization';
 import Financing from '../pages/CustomizeSolarSystem';

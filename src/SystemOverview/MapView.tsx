@@ -985,7 +985,7 @@ console.log("imageRef", imageRef);
 
   async function callSurveyApi(address: any, preview: any) {
     const apiKey = "MjAyYTY0ZTUtYTIwNC00MzMzLWIzNjEtNThiZWQ5YjY0NWY3";
-
+debugger;
     if (!apiKey) throw new Error("Missing Nearmap API key");
 
     const formattedAddress = address.trim();

@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback, } from "react";
 import ManualPanelDrawing, { ManualPanelDrawingRef, } from "./ManualPanelDrawing";
 import html2canvas from "html2canvas";
-import { getStorage, ref, uploadString ,getDownloadURL} from "firebase/storage";
+import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 
 export interface ManualPanelWrapperRef {
   totalPanels: number;
@@ -25,7 +26,7 @@ export interface ManualPanelWrapperRef {
   isInObstructionMode: boolean;
   obstructedPanelIds: Set<string>;
   handlePanelObstruction: (panelId: string) => void;
-  
+
 }
 
 interface ManualPanelWrapperProps {
@@ -54,28 +55,28 @@ interface ManualPanelWrapperProps {
 const ManualPanelWrapper = forwardRef<
   ManualPanelWrapperRef,
   ManualPanelWrapperProps>(({
-      mapRef,
-      themeColor = "#38cab3",
-      // Use props instead of state
-      totalPanels,
-      totalProduction,
-      currentRotation,
-      regions,
-      selectedRegionId,
-      // Callbacks
-      onPanelCountChange,
-      onProductionChange,
-      onRegionInfoChange,
-      onRegionSelect,
-      onRotationChange,
-      // Obstruction-related props
-      obstructionMode = false,
-      obstructedPanelIds = new Set<string>(),
-      onObstructedPanelsChange,
-      onImageUpdate,
-      mapContainerRef,
-      
-    },
+    mapRef,
+    themeColor = "#38cab3",
+    // Use props instead of state
+    totalPanels,
+    totalProduction,
+    currentRotation,
+    regions,
+    selectedRegionId,
+    // Callbacks
+    onPanelCountChange,
+    onProductionChange,
+    onRegionInfoChange,
+    onRegionSelect,
+    onRotationChange,
+    // Obstruction-related props
+    obstructionMode = false,
+    obstructedPanelIds = new Set<string>(),
+    onObstructedPanelsChange,
+    onImageUpdate,
+    mapContainerRef,
+
+  },
     ref) => {
     // Create a ref to access the ManualPanelDrawing methods
     const manualPanelDrawingRef = useRef<ManualPanelDrawingRef>(null);
@@ -89,13 +90,13 @@ const ManualPanelWrapper = forwardRef<
     const lastUpdateTimestamp = useRef(0);
 
     // Add obstruction-related state
-    const [isInObstructionMode, setIsInObstructionMode] =   useState(obstructionMode);
-    const [localObstructedPanelIds, setLocalObstructedPanelIds] =  useState<Set<string>>(obstructedPanelIds);
+    const [isInObstructionMode, setIsInObstructionMode] = useState(obstructionMode);
+    const [localObstructedPanelIds, setLocalObstructedPanelIds] = useState<Set<string>>(obstructedPanelIds);
 
     // Update obstruction mode when prop changes
 
     // Update obstructed panel IDs when prop changes
-    useEffect(() => {    setLocalObstructedPanelIds(obstructedPanelIds);}, [obstructedPanelIds]);
+    useEffect(() => { setLocalObstructedPanelIds(obstructedPanelIds); }, [obstructedPanelIds]);
     // Handle panel count changes from the ManualPanelDrawing component
     const handleTotalPanelsChange = (count: number) => {
       if (onPanelCountChange) {
@@ -116,9 +117,9 @@ const ManualPanelWrapper = forwardRef<
         manualPanelDrawingRef.current.setObstructionMode?.(enabled);
       }
     };
- const formatAddressForStorage = (address: string): string => {
-    return address.replace(/\s+/g, "").replace(/,/g, "-");
-  };
+    const formatAddressForStorage = (address: string): string => {
+      return address.replace(/\s+/g, "").replace(/,/g, "-");
+    };
     // Handle panel obstruction toggling
     const handlePanelObstruction = (panelId: string) => {
       setLocalObstructedPanelIds((prev) => {
@@ -281,29 +282,29 @@ const ManualPanelWrapper = forwardRef<
       }
     };
 
-  const captureAndUploadMapImage = async (
-  uid: string,
-  mapContainerRef: React.RefObject<HTMLDivElement>
-) => {
-  if (!mapContainerRef.current) {
-    console.error("mapContainerRef is null");
-    return;
-  }
+    const captureAndUploadMapImage = async (
+      uid: string,
+      mapContainerRef: React.RefObject<HTMLDivElement>
+    ) => {
+      if (!mapContainerRef.current) {
+        console.error("mapContainerRef is null");
+        return;
+      }
 
-  if (!document.body.contains(mapContainerRef.current)) {
-    console.error("Element is not attached to the document.");
-    return;
-  }
+      if (!document.body.contains(mapContainerRef.current)) {
+        console.error("Element is not attached to the document.");
+        return;
+      }
 
-  const canvas = await html2canvas(mapContainerRef.current, {
-    useCORS: true,
-    backgroundColor: null,
-    scale: 2,
-  });
+      const canvas = await html2canvas(mapContainerRef.current, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 2,
+      });
 
-  const dataUrl = canvas.toDataURL("image/png");
-  return dataUrl;
-};
+      const dataUrl = canvas.toDataURL("image/png");
+      return dataUrl;
+    };
 
     // Handle region selection
     const handleRegionSelect = (regionId: number) => {
@@ -314,10 +315,34 @@ const ManualPanelWrapper = forwardRef<
         manualPanelDrawingRef.current.handleRegionButtonClick(regionId);
       }
     };
+    const db = getFirestore();
+
+    const saveRegionDataToFirebase = async (uid: string, regions: any[]) => {
+      try {
+        await setDoc(doc(db, "panelDrawings", uid), { regions });
+        console.log("✅ Region data saved to Firestore");
+      } catch (error) {
+        console.error("❌ Error saving regions:", error);
+      }
+    };
+
+    const loadSavedRegionData = async (uid: string) => {
+      try {
+        const docRef = doc(db, "panelDrawings", uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          return data.regions || [];
+        }
+      } catch (error) {
+        console.error("❌ Error loading saved regions:", error);
+      }
+      return [];
+    };
 
     // Save complete region data when it changes in ManualPanelDrawing
     const handleRegionsChange = useCallback(
-    async  (updatedRegions: any[]) => {
+      async (updatedRegions: any[]) => {
         // Add debounce and loop prevention
         const now = Date.now();
         if (now - lastUpdateTimestamp.current < 200) {
@@ -358,35 +383,34 @@ const ManualPanelWrapper = forwardRef<
             isActiveInCurrentConfig: true, // Add this property to make panels appear in CustomerPortal
           };
         });
-
+        const data = localStorage.getItem("userData");
         setFullRegionData(processedRegions);
-if (processedRegions.length > 0 && mapContainerRef?.current) {
-  try {
-    const data = localStorage.getItem("userData");
-    if (data) {
-      const userData = JSON.parse(data);
-      const uid = formatAddressForStorage(userData.address);
+        if (processedRegions.length > 0 && mapContainerRef?.current) {
+          try {
 
-      // ✅ Delay capture until DOM is fully painted
-      requestAnimationFrame(() => {
-        setTimeout(async () => {
-          if (!mapContainerRef.current?.isConnected) {
-            console.warn("Ref is not in document.");
-            return;
+            if (data) {
+              const userData = JSON.parse(data);
+              const uid = formatAddressForStorage(userData.address);
+              // ✅ Delay capture until DOM is fully painted
+              requestAnimationFrame(() => {
+                setTimeout(async () => {
+                  if (!mapContainerRef.current?.isConnected) {
+                    console.warn("Ref is not in document.");
+                    return;
+                  }
+
+                  const imageUrl = await captureAndUploadMapImage(uid, mapContainerRef);
+
+                  if (imageUrl && typeof onImageUpdate === "function") {
+                    onImageUpdate(imageUrl);
+                  }
+                }, 200); // Slight delay
+              });
+            }
+          } catch (error) {
+            console.error("Failed to capture and upload image", error);
           }
-
-          const imageUrl = await captureAndUploadMapImage(uid, mapContainerRef);
-
-          if (imageUrl && typeof onImageUpdate === "function") {
-            onImageUpdate(imageUrl);
-          }
-        }, 200); // Slight delay
-      });
-    }
-  } catch (error) {
-    console.error("Failed to capture and upload image", error);
-  }
-}
+        }
         // Store the full regions in parent component via callback
         if (onRegionInfoChange) {
           // Include both simple format (for UI) and full format (for storage)
@@ -400,6 +424,11 @@ if (processedRegions.length > 0 && mapContainerRef?.current) {
             isActiveInCurrentConfig: true, // Add this property to ensure all region data includes it
           }));
 
+          if (data) {
+            const userData = JSON.parse(data);
+            const uid = userData.uid;
+            await saveRegionDataToFirebase(uid, regionInfo)
+          }
           onRegionInfoChange(regionInfo);
         }
 
@@ -407,7 +436,9 @@ if (processedRegions.length > 0 && mapContainerRef?.current) {
         setTimeout(() => {
           isInternalUpdate.current = false;
         }, 0);
+
       },
+
       [onRegionInfoChange]
     );
 
@@ -485,23 +516,38 @@ if (processedRegions.length > 0 && mapContainerRef?.current) {
 
     // Initialize fullRegionData from props if available or set an empty array to start
     useEffect(() => {
-      // If regions exist and have complete data, use them
-      if (regions && regions.length > 0 && fullRegionData.length === 0) {
-        // Check if regions have complete data (coordinates and solarPanelData)
-        const hasCompleteData = regions.some(
-          (r) => r.coordinates && r.coordinates.length > 0 && r.solarPanelData
-        );
-        if (hasCompleteData) {
-          setFullRegionData(regions);
+      const initRegions = async () => {
+        const data = localStorage.getItem("userData");
+
+        if (data) {
+          const userData = JSON.parse(data);
+          const uid = userData.uid;
+
+          const savedRegions = await loadSavedRegionData(uid);
+
+          if (savedRegions.length > 0) {
+            setFullRegionData(savedRegions);
+            if (onRegionInfoChange) {
+              onRegionInfoChange(savedRegions);
+            }
+          } else if (regions && regions.length > 0) {
+            // 🔁 Fallback to props
+            const hasCompleteData = regions.some(
+              (r) => r.coordinates && r.coordinates.length > 0 && r.solarPanelData
+            );
+            if (hasCompleteData) {
+              setFullRegionData(regions);
+            }
+          }
         }
+
+        setInitialRegionsLoaded(true); // ✅ Mark initialization complete
+      };
+
+      if (!initialRegionsLoaded) {
+        initRegions();
       }
-      // Even if no regions with complete data, mark as loaded after a delay
-      if (fullRegionData.length === 0) {
-        setTimeout(() => {
-          setInitialRegionsLoaded(true);
-        }, 300);
-      }
-    }, [regions, fullRegionData]);
+    }, [initialRegionsLoaded, regions]);
 
     return (
       <ManualPanelDrawing
@@ -521,10 +567,10 @@ if (processedRegions.length > 0 && mapContainerRef?.current) {
             }
             : undefined
         }
-        initialRegions={regions.filter(
-          (r) => r.coordinates && r.coordinates.length > 0 && r.solarPanelData
-        )}
-        initialRegionInfo={regions.map((r) => {
+        initialRegions={fullRegionData.filter(
+  (r) => r.coordinates && r.coordinates.length > 0 && r.solarPanelData
+)}
+        initialRegionInfo={fullRegionData.map((r) => {
           // Calculate panel count from selectedIds if available, otherwise use the stored panelCount
           let calculatedPanelCount = r.panelCount;
 
@@ -575,6 +621,6 @@ if (processedRegions.length > 0 && mapContainerRef?.current) {
       />
     );
   }
-);
+  );
 
 export default ManualPanelWrapper;
